@@ -8,4 +8,4 @@ EXPOSE 8080
 
 RUN sbt clean compile
 
-ENTRYPOINT ["sbt", "-mem", "500", "; project api; run"]
+ENTRYPOINT ["sbt", "-mem", "256", "; project api; run"]
