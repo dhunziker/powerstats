@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY . /app
 
-EXPOSE 8080
-
 RUN sbt clean compile
+
+ENTRYPOINT ["sbt", "-mem", "500", "; project backend; run"]
