@@ -8,4 +8,4 @@ ENV SBT_OPTS="-Xms256M -Xmx500M"
 
 RUN sbt clean compile
 
-ENTRYPOINT ["sbt", "-mem", "256", "; project backend; run"]
+ENTRYPOINT ["sbt", "; project backend; run"]
