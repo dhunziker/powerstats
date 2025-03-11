@@ -8,6 +8,6 @@ EXPOSE 8080
 
 ENV SBT_OPTS="-Xms256M -Xmx256M"
 
-RUN sbt clean compile
+RUN sbt clean compile assembly
 
-ENTRYPOINT ["sbt", "; project api; run"]
+ENTRYPOINT ["java", "-Xms400M", "-Xmx400M", "-jar", "api/target/scala-3.6.3/api-assembly-0.1.0-SNAPSHOT.jar"]

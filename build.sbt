@@ -1,10 +1,11 @@
 import Dependencies.*
+import sbtassembly.AssemblyKeys.assemblyMergeStrategy
 
 Global / excludeLintKeys := Set(idePackagePrefix)
 
-ThisBuild / organization := "ai.powerstats"
-
 ThisBuild / version := "0.1.0-SNAPSHOT"
+
+ThisBuild / organization := "ai.powerstats"
 
 ThisBuild / scalaVersion := "3.6.3"
 
@@ -21,7 +22,15 @@ lazy val commonSettings = Seq(
     "org.http4s" %% "http4s-dsl" % http4sVersion,
     "org.typelevel" %% "log4cats-slf4j" % log4catsVersion,
     "ch.qos.logback" % "logback-classic" % logbackVersion
-  )
+  ),
+  assembly / assemblyMergeStrategy := {
+    case PathList("META-INF", xs@_*) =>
+      xs.map(_.toLowerCase) match {
+        case "services" :: xs => MergeStrategy.filterDistinctLines
+        case _ => MergeStrategy.discard
+      }
+    case x => MergeStrategy.first
+  }
 )
 
 lazy val root = (project in file("."))
@@ -38,11 +47,13 @@ lazy val common = (project in file("common"))
 lazy val backend = (project in file("backend"))
   .dependsOn(common)
   .settings(
-    commonSettings
+    commonSettings,
+    assembly / mainClass := Some("ai.powerstats.backend.Main"),
   )
 
 lazy val api = (project in file("api"))
   .dependsOn(common)
   .settings(
-    commonSettings
+    commonSettings,
+    assembly / mainClass := Some("ai.powerstats.api.Main"),
   )

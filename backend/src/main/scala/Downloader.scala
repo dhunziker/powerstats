@@ -5,7 +5,7 @@ import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 
 import java.io.FileOutputStream
-import java.net.URL
+import java.net.URI
 import java.nio.file.Path
 
 class Downloader {
@@ -18,8 +18,8 @@ class Downloader {
     for {
       _ <- logger.info(s"Downloading $url")
       targetFile <- IO(targetDir.resolve(Path.of(url).getFileName))
-      _ <- logger.info(s"Download directory $targetDir")
-      _ <- IO(new URL(url).openStream).bracket { in =>
+      _ <- logger.info(s"Downloading to $targetFile")
+      _ <- IO(new URI(url).toURL.openStream).bracket { in =>
         for {
           _ <- logger.info(s"${in.available()} bytes available to read")
           _ <- IO(new FileOutputStream(targetFile.toFile)).bracket { out =>
