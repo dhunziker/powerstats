@@ -6,6 +6,8 @@ COPY . /app
 
 EXPOSE 8080
 
+ENV SBT_OPTS="-Xms256M -Xmx500M"
+
 RUN sbt clean compile
 
-ENTRYPOINT ["sbt", "-mem", "256", "; project api; run"]
+ENTRYPOINT ["sbt", "; project api; run"]
