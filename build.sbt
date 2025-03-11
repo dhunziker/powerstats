@@ -12,6 +12,7 @@ ThisBuild / Compile / run / fork := true
 
 lazy val commonSettings = Seq(
   idePackagePrefix := Some(s"${organization.value}.${name.value}"),
+  scalacOptions += "-deprecation",
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
     "org.typelevel" %% "cats-effect-testing-scalatest" % catsEffectTestingVersion % Test,

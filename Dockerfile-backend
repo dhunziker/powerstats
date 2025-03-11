@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . /app
 
-ENV SBT_OPTS="-Xms256M -Xmx500M"
+ENV SBT_OPTS="-Xms256M -Xmx256M"
 
 RUN sbt clean compile
 

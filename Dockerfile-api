@@ -6,7 +6,7 @@ COPY . /app
 
 EXPOSE 8080
 
-ENV SBT_OPTS="-Xms256M -Xmx500M"
+ENV SBT_OPTS="-Xms256M -Xmx256M"
 
 RUN sbt clean compile
 
