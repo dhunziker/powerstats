@@ -4,8 +4,6 @@ WORKDIR /app
 
 COPY . /app
 
-ENV SBT_OPTS="-Xms256M -Xmx256M"
-
 RUN sbt clean compile assembly
 
 ENTRYPOINT ["java", "-Xms400M", "-Xmx400M", "-jar", "backend/target/scala-3.6.3/backend-assembly-0.1.0-SNAPSHOT.jar"]
