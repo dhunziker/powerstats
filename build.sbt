@@ -17,11 +17,8 @@ lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
     "org.typelevel" %% "cats-effect-testing-scalatest" % catsEffectTestingVersion % Test,
-    "org.http4s" %% "http4s-ember-client" % http4sVersion,
-    "org.http4s" %% "http4s-ember-server" % http4sVersion,
-    "org.http4s" %% "http4s-dsl" % http4sVersion,
-    "org.typelevel" %% "log4cats-slf4j" % log4catsVersion,
-    "ch.qos.logback" % "logback-classic" % logbackVersion
+    "org.typelevel" %% "cats-effect" % catsEffectVersion,
+    "org.typelevel" %% "log4cats-slf4j" % log4catsVersion
   ),
   assembly / assemblyMergeStrategy := {
     case PathList("META-INF", xs@_*) =>
@@ -41,7 +38,14 @@ lazy val root = (project in file("."))
 
 lazy val common = (project in file("common"))
   .settings(
-    commonSettings
+    commonSettings,
+    libraryDependencies ++= Seq(
+      "io.circe" %% "circe-config" % circeConfigVersion,
+      "io.circe" %% "circe-generic" % circeGenericVersion,
+      "org.tpolecat" %% "doobie-core" % doobieVersion,
+      "org.tpolecat" %% "doobie-postgres" % doobieVersion,
+      "org.tpolecat" %% "doobie-hikari" % doobieVersion
+    )
   )
 
 lazy val backend = (project in file("backend"))
@@ -49,6 +53,9 @@ lazy val backend = (project in file("backend"))
   .settings(
     commonSettings,
     assembly / mainClass := Some("ai.powerstats.backend.Main"),
+    libraryDependencies ++= Seq(
+      "ch.qos.logback" % "logback-classic" % logbackVersion % Runtime
+    )
   )
 
 lazy val api = (project in file("api"))
@@ -56,4 +63,12 @@ lazy val api = (project in file("api"))
   .settings(
     commonSettings,
     assembly / mainClass := Some("ai.powerstats.api.Main"),
+    libraryDependencies ++= Seq(
+      "ch.qos.logback" % "logback-classic" % logbackVersion % Runtime,
+      "org.flywaydb" % "flyway-core" % flywayVersion,
+      "org.flywaydb" % "flyway-database-postgresql" % flywayVersion % Runtime,
+      "org.http4s" %% "http4s-ember-client" % http4sVersion,
+      "org.http4s" %% "http4s-ember-server" % http4sVersion,
+      "org.http4s" %% "http4s-dsl" % http4sVersion
+    )
   )
