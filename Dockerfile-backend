@@ -6,4 +6,4 @@ COPY . /app
 
 RUN sbt clean compile assembly
 
-ENTRYPOINT ["java", "-Xms500M", "-Xmx500M", "-jar", "backend/target/scala-3.6.3/backend-assembly-0.1.0-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-Xms475M", "-Xmx475M", "-jar", "backend/target/scala-3.6.3/backend-assembly-0.1.0-SNAPSHOT.jar"]
