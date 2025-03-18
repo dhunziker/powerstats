@@ -11,6 +11,9 @@ trait SettingsComponent {
   val config: Settings
 
   trait Settings {
-    def appConfig: IO[AppConfig] = parser.decodePathF[IO, AppConfig]("app")
+    def appConfig: IO[AppConfig] =  for {
+      appConfig <- parser.decodePathF[IO, AppConfig]("app")
+      _ <- IO.println(s"$appConfig")
+    } yield appConfig
   }
 }
