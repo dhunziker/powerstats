@@ -29,7 +29,7 @@ trait EventRepositoryComponent {
         .transact(xa)
     }
 
-    def insertEventBatch(events: LazyList[Event], xa: Transactor[IO]): IO[Int] = {
+    def insertEventBatch(events: IO[List[Event]], xa: Transactor[IO]): IO[Int] = {
       val sql: String =
         """INSERT INTO event (
               name,
@@ -78,9 +78,12 @@ trait EventRepositoryComponent {
               ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
               ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             )""".stripMargin
-      Update[Event](sql)
-        .updateMany(events)
-        .transact(xa)
+      for {
+        events <- events
+        inserted <- Update[Event](sql)
+          .updateMany(events)
+          .transact(xa)
+      } yield inserted
     }
   }
 }

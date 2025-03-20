@@ -68,17 +68,18 @@ object Main extends IOApp.Simple
     val parser = parseCsv(header)
     for {
       dbConfig <- database
-      result <- Files.lines(csvFile)
+      batches <- IO(Files.lines(csvFile)
         .skip(1)
         .limit(dbConfig.writeLimit)
         .toScala(LazyList)
-        .grouped(dbConfig.batchSize)
-        .map { batch =>
-          eventRepository.insertEventBatch(batch.map(parser), xa)
+        .grouped(dbConfig.batchSize))
+      results <- batches.map { lines =>
+          val parsedEvents = IO(lines.map(parser).toList)
+          eventRepository.insertEventBatch(parsedEvents, xa)
         }
         .toList
         .sequence
-    } yield result
+    } yield results
   }
 
   private def parseCsv(header: Map[String, Int])(line: String): Event = {
