@@ -1,7 +1,7 @@
 package ai.powerstats.backend
 
-import ai.powerstats.common.config.SettingsComponent
-import ai.powerstats.common.db.{DbTransactorComponent, EventRepositoryComponent}
+import ai.powerstats.common.config.{ConfigComponent, Database}
+import ai.powerstats.common.db.{DatabaseTransactorComponent, EventRepositoryComponent}
 import ai.powerstats.common.model.Event
 import cats.effect.{IO, IOApp}
 import doobie.Transactor
@@ -12,37 +12,37 @@ import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
 import scala.jdk.StreamConverters.*
 
 object Main extends IOApp.Simple
-  with SettingsComponent
-  with DbTransactorComponent
+  with ConfigComponent
+  with DatabaseTransactorComponent
   with EventRepositoryComponent {
-
-  override val config = new Settings {}
-  override val transactor = new DbTransactor {}
+  override val config = new Config {}
+  override val databaseTransactor = new DatabaseTransactor {}
   override val eventRepository = new EventRepository {}
 
   private val OpenIpf = "https://openpowerlifting.gitlab.io/opl-csv/files/openipf-latest.zip"
 
-  private val downloader = new Downloader
-  private val database = config.appConfig.map(_.database)
-  private val dbTransactor = transactor.init(database)
-
-  val run =
-    dbTransactor.use { xa =>
+  val run = {
+    val appConfig = config.appConfig
+    val dbConfig = appConfig.map(_.database)
+    val transactor = databaseTransactor.init(dbConfig)
+    val downloader = new Downloader
+    transactor.use { xa =>
       for {
         isTruncated <- eventRepository.truncateEvent(xa)
         _ <- IO(println(s"Truncated table with result: $isTruncated"))
         tempDir <- IO(Files.createTempDirectory("download"))
-//        tempDir <- IO(Path.of("/var/folders/c0/421qvv7x7b7c3h88kr7s_32h0000gq/T/download6531143182757413912/"))
+        //tempDir <- IO(Path.of("/var/folders/c0/421qvv7x7b7c3h88kr7s_32h0000gq/T/download6531143182757413912/"))
         file <- downloader.download(OpenIpf, tempDir)
         _ <- Zip.unzip(file)
         csvFile <- findCsv(tempDir)
         header <- parseHeader(csvFile)
-        counts <- processBatches(csvFile, header, xa)
+        counts <- processBatches(csvFile, header, dbConfig, xa)
         _ <- IO(println(s"Inserted ${counts.sum} rows"))
         isRefreshed <- eventRepository.refreshEventView(xa)
         _ <- IO(println(s"Refreshed view with result: $isRefreshed"))
       } yield ()
     }
+  }
 
   private def findCsv(path: Path): IO[Path] = {
     IO.fromOption(collectFiles(path).find(_.getFileName.toString.endsWith(".csv")))
@@ -64,7 +64,7 @@ object Main extends IOApp.Simple
       (new RuntimeException(s"No data found in $csvFile"))
   }
 
-  private def processBatches(csvFile: Path, header: Map[String, Int], xa: Transactor[IO]): IO[List[Int]] = {
+  private def processBatches(csvFile: Path, header: Map[String, Int], database: IO[Database], xa: Transactor[IO]): IO[List[Int]] = {
     val parser = parseCsv(header)
     for {
       dbConfig <- database
@@ -80,10 +80,10 @@ object Main extends IOApp.Simple
     } yield results.toList
   }
 
-//  val i = Iterator.from(0)
+  //  val i = Iterator.from(0)
 
   private def parseCsv(header: Map[String, Int])(line: String): Event = {
-//    println(s"Parse line #${i.next()}")
+    //    println(s"Parse line #${i.next()}")
     val tokens = line.split(",")
     Event(
       name = Option(tokens(header("Name"))).filter(_.nonEmpty).getOrElse(throw new RuntimeException("Missing Name column")),

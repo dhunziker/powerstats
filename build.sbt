@@ -71,6 +71,7 @@ lazy val api = (project in file("api"))
       "org.flywaydb" % "flyway-database-postgresql" % flywayVersion % Runtime,
       "org.http4s" %% "http4s-ember-client" % http4sVersion,
       "org.http4s" %% "http4s-ember-server" % http4sVersion,
-      "org.http4s" %% "http4s-dsl" % http4sVersion
+      "org.http4s" %% "http4s-dsl" % http4sVersion,
+      "org.http4s" %% "http4s-circe" % http4sVersion
     )
   )

@@ -1,23 +1,25 @@
 package ai.powerstats.common
 package db
 
-import config.{Database, SettingsComponent}
+import config.{ConfigComponent, Database}
 
 import cats.effect.{IO, Resource}
 import com.zaxxer.hikari.HikariConfig
 import doobie.Transactor
 import doobie.hikari.HikariTransactor
+import doobie.util.ExecutionContexts
 
-trait DbTransactorComponent {
-  this: SettingsComponent =>
-  val transactor: DbTransactor
+trait DatabaseTransactorComponent {
+  this: ConfigComponent =>
+  val databaseTransactor: DatabaseTransactor
 
-  trait DbTransactor {
+  trait DatabaseTransactor {
     private val PostgresDriver = "org.postgresql.Driver"
 
     def init(database: IO[Database]): Resource[IO, Transactor[IO]] = {
       for {
         dbConfig <- database.toResource
+        ec <- ExecutionContexts.fixedThreadPool[IO](32)
         hikariConfig <- Resource.pure {
           val config = new HikariConfig()
           config.setDriverClassName(PostgresDriver)
@@ -27,7 +29,7 @@ trait DbTransactorComponent {
           config.setMaximumPoolSize(dbConfig.maxPoolSize)
           config
         }
-        xa <- HikariTransactor.fromHikariConfig[IO](hikariConfig)
+        xa <- HikariTransactor.fromHikariConfigCustomEc[IO](hikariConfig, ec)
       } yield xa
     }
   }

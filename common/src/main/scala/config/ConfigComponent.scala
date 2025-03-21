@@ -7,10 +7,10 @@ import io.circe.config.parser
 import io.circe.derivation.Configuration
 import io.circe.generic.auto.*
 
-trait SettingsComponent {
-  val config: Settings
+trait ConfigComponent {
+  val config: Config
 
-  trait Settings {
+  trait Config {
     def appConfig: IO[AppConfig] = parser.decodePathF[IO, AppConfig]("app")
   }
 }
