@@ -4,7 +4,6 @@ import ai.powerstats.common.config.SettingsComponent
 import ai.powerstats.common.db.{DbTransactorComponent, EventRepositoryComponent}
 import ai.powerstats.common.model.Event
 import cats.effect.{IO, IOApp}
-import cats.implicits.*
 import doobie.Transactor
 
 import java.nio.file.{Files, Path}
@@ -33,6 +32,7 @@ object Main extends IOApp.Simple
         isTruncated <- eventRepository.truncateEvent(xa)
         _ <- IO(println(s"Truncated table with result: $isTruncated"))
         tempDir <- IO(Files.createTempDirectory("download"))
+//        tempDir <- IO(Path.of("/var/folders/c0/421qvv7x7b7c3h88kr7s_32h0000gq/T/download6531143182757413912/"))
         file <- downloader.download(OpenIpf, tempDir)
         _ <- Zip.unzip(file)
         csvFile <- findCsv(tempDir)
@@ -73,16 +73,17 @@ object Main extends IOApp.Simple
         .limit(dbConfig.writeLimit)
         .toScala(LazyList)
         .grouped(dbConfig.batchSize))
-      results <- batches.map { lines =>
-          val parsedEvents = IO(lines.map(parser).toList)
-          eventRepository.insertEventBatch(parsedEvents, xa)
-        }
-        .toList
-        .sequence
-    } yield results
+      results = batches.map { lines =>
+        val parsedEvents = lines.map(parser).toList
+        eventRepository.insertEventBatch(parsedEvents, xa)
+      }
+    } yield results.toList
   }
 
+//  val i = Iterator.from(0)
+
   private def parseCsv(header: Map[String, Int])(line: String): Event = {
+//    println(s"Parse line #${i.next()}")
     val tokens = line.split(",")
     Event(
       name = Option(tokens(header("Name"))).filter(_.nonEmpty).getOrElse(throw new RuntimeException("Missing Name column")),

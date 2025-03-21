@@ -4,6 +4,7 @@ package db
 import model.Event
 
 import cats.effect.*
+import cats.effect.unsafe.implicits.global
 import cats.implicits.*
 import doobie.*
 import doobie.implicits.*
@@ -29,7 +30,7 @@ trait EventRepositoryComponent {
         .transact(xa)
     }
 
-    def insertEventBatch(events: IO[List[Event]], xa: Transactor[IO]): IO[Int] = {
+    def insertEventBatch(events: List[Event], xa: Transactor[IO]): Int = {
       val sql: String =
         """INSERT INTO event (
               name,
@@ -78,12 +79,13 @@ trait EventRepositoryComponent {
               ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
               ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             )""".stripMargin
-      for {
-        events <- events
-        inserted <- Update[Event](sql)
-          .updateMany(events)
-          .transact(xa)
-      } yield inserted
+      Update[Event](sql)
+        .updateMany(events)
+        .transact(xa)
+        .map(count => {
+//          println(s"Inserted $count rows")
+          count
+        }).unsafeRunSync()
     }
   }
 }

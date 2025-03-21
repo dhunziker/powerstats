@@ -54,7 +54,9 @@ lazy val backend = (project in file("backend"))
     commonSettings,
     assembly / mainClass := Some("ai.powerstats.backend.Main"),
     libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % logbackVersion % Runtime
+      "ch.qos.logback" % "logback-classic" % logbackVersion % Runtime,
+      "co.fs2" %% "fs2-core" % fs2Version,
+      "co.fs2" %% "fs2-io" % fs2Version
     )
   )
 

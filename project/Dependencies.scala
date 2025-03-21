@@ -9,4 +9,5 @@ object Dependencies {
   val circeConfigVersion = "0.10.1"
   val circeGenericVersion = "0.14.12"
   val doobieVersion = "1.0.0-RC6" // Don't upgrade until it can handle large case classes
+  val fs2Version = "3.11.0"
 }
