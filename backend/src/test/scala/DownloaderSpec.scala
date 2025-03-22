@@ -2,14 +2,14 @@ package ai.powerstats.backend
 
 import cats.effect.*
 import cats.effect.testing.scalatest.AsyncIOSpec
+import org.scalatest.Assertion
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.{Assertion, BeforeAndAfterEach}
 
 import java.nio.file.{Files, Path}
 import scala.concurrent.Future
 
-class DownloaderSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers with BeforeAndAfterEach {
+class DownloaderSpec extends AsyncFlatSpec with AsyncIOSpec with Matchers {
 
   private def deleteRecursively(path: Path): Unit = {
     if (Files.isDirectory(path)) {
