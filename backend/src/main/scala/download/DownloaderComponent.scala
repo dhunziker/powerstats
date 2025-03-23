@@ -27,7 +27,7 @@ trait DownloaderComponent extends LoggingComponent {
         .compile
         .toList
         .map(_.sum)
-      _ <- logger.info(s"$sizeRead bytes read")
+      _ <- logger.info(s"$sizeRead bytes downloaded")
     } yield targetPath
 
     private def createInputStream(url: String): IO[InputStream] = {

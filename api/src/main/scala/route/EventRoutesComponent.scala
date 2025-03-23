@@ -4,7 +4,8 @@ package route
 import service.EventServiceComponent
 
 import cats.effect.*
-import doobie.Transactor
+import doobie.*
+import doobie.implicits.*
 import io.circe.*
 import io.circe.generic.auto.*
 import io.circe.syntax.*
@@ -28,7 +29,18 @@ trait EventRoutesComponent {
             }
           } yield response
 
-        case GET -> Root / "health-check" => Ok("Hello, World!")
+        case GET -> Root / "health-check" =>
+          sql"select 1"
+            .query[Int]
+            .unique
+            .transact(xa)
+            .attempt
+            .flatMap {
+              case Left(value) =>
+                IO.raiseError(value)
+              case Right(value) =>
+                Ok("Ok")
+            }
       }.orNotFound
     }
   }

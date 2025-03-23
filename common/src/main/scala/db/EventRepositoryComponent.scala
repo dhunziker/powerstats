@@ -68,10 +68,8 @@ trait EventRepositoryComponent {
         .attempt
         .flatMap {
           case Left(value) =>
-            println(value)
             IO.raiseError(value)
           case Right(value) =>
-            println(value)
             IO.pure(value)
         }
     }
