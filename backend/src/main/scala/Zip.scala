@@ -9,7 +9,7 @@ import java.util.zip.{ZipEntry, ZipFile}
 import scala.jdk.CollectionConverters.*
 
 object Zip {
-  private val BufferSize = 1024
+  private val BufferSize = 4096
 
   def unzip(file: Path): IO[Unit] = {
     for {

@@ -1,10 +1,14 @@
 package ai.powerstats.backend
 
+import download.DownloaderComponent
+
 import ai.powerstats.common.config.{ConfigComponent, Database}
 import ai.powerstats.common.db.{DatabaseTransactorComponent, EventRepositoryComponent}
 import ai.powerstats.common.model.Event
 import cats.effect.{IO, IOApp}
 import doobie.Transactor
+import org.typelevel.log4cats.LoggerFactory
+import org.typelevel.log4cats.slf4j.Slf4jFactory
 
 import java.nio.file.{Files, Path}
 import java.time.LocalDate
@@ -14,10 +18,14 @@ import scala.jdk.StreamConverters.*
 object Main extends IOApp.Simple
   with ConfigComponent
   with DatabaseTransactorComponent
-  with EventRepositoryComponent {
+  with EventRepositoryComponent
+  with DownloaderComponent {
+  override val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
   override val config = new Config {}
   override val databaseTransactor = new DatabaseTransactor {}
   override val eventRepository = new EventRepository {}
+  override val downloader = new Downloader {}
+
 
   private val OpenIpf = "https://openpowerlifting.gitlab.io/opl-csv/files/openipf-latest.zip"
 
@@ -25,7 +33,6 @@ object Main extends IOApp.Simple
     val appConfig = config.appConfig
     val dbConfig = appConfig.map(_.database)
     val transactor = databaseTransactor.init(dbConfig)
-    val downloader = new Downloader
     transactor.use { xa =>
       for {
         isTruncated <- eventRepository.truncateEvent(xa)
