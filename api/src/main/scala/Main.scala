@@ -5,7 +5,7 @@ import route.{AccountRoutesComponent, EventRoutesComponent, HealthRoutesComponen
 import service.{AccountServiceComponent, EventServiceComponent}
 
 import ai.powerstats.common.config.ConfigComponent
-import ai.powerstats.common.db.{AccountRepositoryComponent, DatabaseTransactorComponent, EventRepositoryComponent}
+import ai.powerstats.common.db.{AccountRepositoryComponent, DatabaseTransactorComponent, EventRepositoryComponent, HealthRepositoryComponent}
 import ai.powerstats.common.logging.LoggingComponent
 import cats.effect.*
 import cats.implicits.toSemigroupKOps
@@ -18,10 +18,11 @@ object Main extends IOApp.Simple
   with LoggingComponent
   with DatabaseMigrationComponent
   with DatabaseTransactorComponent
+  with HealthRepositoryComponent
+  with HealthRoutesComponent
   with EventRepositoryComponent
   with EventServiceComponent
   with EventRoutesComponent
-  with HealthRoutesComponent
   with AccountRepositoryComponent
   with AccountServiceComponent
   with AccountRoutesComponent {
@@ -30,10 +31,11 @@ object Main extends IOApp.Simple
   override val config = new Config {}
   override val databaseMigration = new DatabaseMigration {}
   override val databaseTransactor = new DatabaseTransactor {}
+  override val healthRepository = new HealthRepository {}
+  override val healthRoutes = new HealthRoutes {}
   override val eventRepository = new EventRepository {}
   override val eventService = new EventService {}
   override val eventRoutes = new EventRoutes {}
-  override val healthRoutes = new HealthRoutes {}
   override val accountRepository = new AccountRepository {}
   override val accountService = new AccountService {}
   override val accountRoutes = new AccountRoutes {}
