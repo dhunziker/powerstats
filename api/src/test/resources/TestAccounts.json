@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "email": "my.account@gmail.com",
+    "password_hash": "$2a$06$AiA6UcIzfs/zmbu1jp3Smeq38wvdfAtxYjkBpoOxSNblHv7KjUbq2"
+  },
+  {
+    "id": 2,
+    "email": "my.invalid.account@gmail.com",
+    "password_hash": ""
+  }
+]

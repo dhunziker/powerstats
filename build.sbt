@@ -72,6 +72,7 @@ lazy val api = (project in file("api"))
       "org.http4s" %% "http4s-ember-client" % http4sVersion,
       "org.http4s" %% "http4s-ember-server" % http4sVersion,
       "org.http4s" %% "http4s-dsl" % http4sVersion,
-      "org.http4s" %% "http4s-circe" % http4sVersion
+      "org.http4s" %% "http4s-circe" % http4sVersion,
+      "at.favre.lib" % "bcrypt" % bcryptVersion
     )
   )
