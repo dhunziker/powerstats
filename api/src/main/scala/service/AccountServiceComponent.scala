@@ -11,8 +11,8 @@ import org.typelevel.log4cats.LoggerFactory
 
 import java.nio.charset.StandardCharsets
 
-trait AccountServiceComponent extends LoggingComponent {
-  this: AccountRepositoryComponent =>
+trait AccountServiceComponent {
+  this: AccountRepositoryComponent & LoggingComponent =>
   val accountService: AccountService
 
   trait AccountService {

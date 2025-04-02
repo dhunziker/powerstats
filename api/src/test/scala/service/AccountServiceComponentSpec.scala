@@ -3,6 +3,7 @@ package service
 
 import test.MockAccountRepositoryComponent
 
+import ai.powerstats.common.logging.LoggingComponent
 import cats.effect.IO
 import cats.effect.testing.scalatest.AsyncIOSpec
 import org.scalatest.Assertion
@@ -51,7 +52,7 @@ class AccountServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Ma
   private val insertReturnValues = List(0, 1).iterator
   private val updateReturnValues = List(0, 1).iterator
 
-  trait Fixture extends AccountServiceComponent with MockAccountRepositoryComponent {
+  trait Fixture extends AccountServiceComponent with MockAccountRepositoryComponent with LoggingComponent {
     type T = AccountService
     override implicit val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
     override val accountService: T = new AccountService {}

@@ -26,7 +26,6 @@ object Main extends IOApp.Simple
   override val eventRepository = new EventRepository {}
   override val downloader = new Downloader {}
 
-
   private val OpenIpf = "https://openpowerlifting.gitlab.io/opl-csv/files/openipf-latest.zip"
 
   val run = {

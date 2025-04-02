@@ -6,5 +6,5 @@ import org.typelevel.log4cats.LoggerFactory
 
 trait LoggingComponent {
   this: LoggingComponent =>
-  implicit val loggerFactory: LoggerFactory[IO]
+  implicit def loggerFactory: LoggerFactory[IO]
 }

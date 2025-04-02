@@ -6,6 +6,7 @@ import service.{AccountServiceComponent, EventServiceComponent}
 
 import ai.powerstats.common.config.ConfigComponent
 import ai.powerstats.common.db.{AccountRepositoryComponent, DatabaseTransactorComponent, EventRepositoryComponent}
+import ai.powerstats.common.logging.LoggingComponent
 import cats.effect.*
 import cats.implicits.toSemigroupKOps
 import org.http4s.ember.server.*
@@ -14,16 +15,17 @@ import org.typelevel.log4cats.slf4j.Slf4jFactory
 
 object Main extends IOApp.Simple
   with ConfigComponent
+  with LoggingComponent
   with DatabaseMigrationComponent
   with DatabaseTransactorComponent
   with EventRepositoryComponent
   with EventServiceComponent
   with EventRoutesComponent
-  with HealthRoutesComponent {
-//  with AccountRepositoryComponent
-//  with AccountServiceComponent
-//  with AccountRoutesComponent {
-  private implicit val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
+  with HealthRoutesComponent
+  with AccountRepositoryComponent
+  with AccountServiceComponent
+  with AccountRoutesComponent {
+  override implicit val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
 
   override val config = new Config {}
   override val databaseMigration = new DatabaseMigration {}
@@ -32,9 +34,9 @@ object Main extends IOApp.Simple
   override val eventService = new EventService {}
   override val eventRoutes = new EventRoutes {}
   override val healthRoutes = new HealthRoutes {}
-//  override val accountRepository = new AccountRepository {}
-//  override val accountService = new AccountService {}
-//  override val accountRoutes = new AccountRoutes {}
+  override val accountRepository = new AccountRepository {}
+  override val accountService = new AccountService {}
+  override val accountRoutes = new AccountRoutes {}
 
   val run = {
     val appConfig = config.appConfig
@@ -45,8 +47,8 @@ object Main extends IOApp.Simple
         apiConfig <- appConfig.map(_.api)
         _ <- databaseMigration.migrate(dbConfig)
         routes = (eventRoutes.routes(xa) <+>
-          healthRoutes.routes(xa) //<+>
-//          accountRoutes.routes(xa)
+          healthRoutes.routes(xa) <+>
+          accountRoutes.routes(xa)
           ).orNotFound
         _ <- EmberServerBuilder
           .default[IO]
