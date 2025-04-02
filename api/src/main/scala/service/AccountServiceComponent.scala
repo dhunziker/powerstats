@@ -12,7 +12,7 @@ import org.typelevel.log4cats.LoggerFactory
 import java.nio.charset.StandardCharsets
 
 trait AccountServiceComponent {
-  this: AccountRepositoryComponent & LoggingComponent =>
+  this: LoggingComponent & AccountRepositoryComponent =>
   val accountService: AccountService
 
   trait AccountService {
