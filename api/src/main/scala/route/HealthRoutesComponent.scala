@@ -5,7 +5,6 @@ import ai.powerstats.common.db.HealthRepositoryComponent
 import cats.effect.*
 import doobie.*
 import org.http4s.*
-import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.dsl.io.*
 
 trait HealthRoutesComponent {

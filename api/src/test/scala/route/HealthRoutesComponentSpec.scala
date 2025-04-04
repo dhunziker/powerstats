@@ -6,11 +6,8 @@ import test.MockHealthRepositoryComponent
 import cats.data.Kleisli
 import cats.effect.*
 import cats.effect.testing.scalatest.AsyncIOSpec
-import io.circe.*
-import org.http4s.circe.*
 import org.http4s.*
 import org.scalatest.Assertion
-import org.scalatest.OptionValues.*
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -18,21 +15,21 @@ class HealthRoutesComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Matc
 
   behavior of "HealthRoutes"
 
-  it should "return a 503 Service Unavailable response when the database query fails" in withFixture { routes =>
+  it should "respond with a 503 when the database query fails" in withFixture { routes =>
     routes.run(
       Request(uri = Uri.unsafeFromString("/health-check"))
     ).asserting { response =>
       response.status shouldBe Status.ServiceUnavailable
-      getBodyText(response).value shouldBe "Health check failed"
+      getBodyText(response) shouldBe "Health check failed"
     }
   }
 
-  it should "return a 200 OK response when the database query succeeds" in withFixture { routes =>
+  it should "respond with a 200 when the database query succeeds" in withFixture { routes =>
     routes.run(
       Request(uri = Uri.unsafeFromString("/health-check"))
     ).asserting { response =>
       response.status shouldBe Status.Ok
-      getBodyText(response).value shouldBe "Ok"
+      getBodyText(response) shouldBe "Ok"
     }
   }
 
@@ -50,7 +47,7 @@ class HealthRoutesComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Matc
     testCode(routes)
   }
 
-  private def getBodyText(response: Response[IO]): Option[String] = {
-    response.as[Json].unsafeRunSync().asString
+  private def getBodyText(response: Response[IO]): String = {
+    response.as[String].unsafeRunSync()
   }
 }
