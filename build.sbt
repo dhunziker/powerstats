@@ -73,6 +73,9 @@ lazy val api = (project in file("api"))
       "org.http4s" %% "http4s-ember-server" % http4sVersion,
       "org.http4s" %% "http4s-dsl" % http4sVersion,
       "org.http4s" %% "http4s-circe" % http4sVersion,
-      "at.favre.lib" % "bcrypt" % bcryptVersion
+      "at.favre.lib" % "bcrypt" % bcryptVersion,
+      "com.github.jwt-scala" %% "jwt-circe" % jwtScalaVersion,
+      "com.github.cb372" %% "scalacache-core" % scalaCacheVersion,
+      "com.github.cb372" %% "scalacache-caffeine" % scalaCacheVersion
     )
   )

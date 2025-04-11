@@ -11,4 +11,6 @@ object Dependencies {
   val doobieVersion = "1.0.0-RC6" // Don't upgrade until it can handle large case classes
   val fs2Version = "3.12.0"
   val bcryptVersion = "0.10.2"
+  val jwtScalaVersion = "10.0.4"
+  val scalaCacheVersion = "1.0.0-M6"
 }

@@ -6,10 +6,17 @@ import ai.powerstats.common.db.model.Account
 import ai.powerstats.common.logging.LoggingComponent
 import at.favre.lib.crypto.bcrypt.BCrypt
 import cats.effect.IO
+import com.github.benmanes.caffeine.cache.Caffeine
 import doobie.Transactor
 import org.typelevel.log4cats.LoggerFactory
+import pdi.jwt.{JwtCirce, JwtClaim}
+import scalacache.*
+import scalacache.caffeine.*
 
 import java.nio.charset.StandardCharsets
+import java.time.Clock
+import scala.concurrent.duration.DurationInt
+import scala.jdk.DurationConverters.*
 
 trait AccountServiceComponent {
   this: LoggingComponent & AccountRepositoryComponent =>
@@ -18,6 +25,11 @@ trait AccountServiceComponent {
   trait AccountService {
     private val BCryptCost = 6
     private val logger = LoggerFactory[IO].getLogger
+    private val loginSessionTimeout = 24.hours
+    private val underlyingUserLoginCache = Caffeine.newBuilder()
+      .expireAfterWrite(loginSessionTimeout.toJava)
+      .maximumSize(10000L).build[String, Entry[String]]
+    private implicit val userLoginCache: Cache[IO, String, String] = CaffeineCache(underlyingUserLoginCache)
 
     def register(email: String, password: String, xa: Transactor[IO]) = {
       for {
@@ -35,7 +47,7 @@ trait AccountServiceComponent {
       } yield ()
     }
 
-    def auth(email: String, password: String, xa: Transactor[IO]) = for {
+    def login(email: String, password: String, xa: Transactor[IO]) = for {
       passwordHash <- accountRepository.findAccount(email, xa).flatMap {
         case Some(account) => IO.pure(account.passwordHash)
         case None => IO.raiseError(new Error(s"Account with email $email not found"))
@@ -49,7 +61,9 @@ trait AccountServiceComponent {
       _ <- IO.raiseUnless(verified) {
         new Error("Invalid password")
       }
-    } yield ()
+      webToken <- createWebToken(email)(Clock.systemDefaultZone())
+      _ <- userLoginCache.put(email)(webToken)
+    } yield webToken
 
     private def hash(password: String): IO[Array[Byte]] = IO {
       BCrypt.withDefaults().hash(BCryptCost, password.getBytes(StandardCharsets.UTF_8))
@@ -60,5 +74,13 @@ trait AccountServiceComponent {
       verified <- if (!result.validFormat) IO.raiseError(IllegalArgumentException(result.formatErrorMessage))
       else IO.pure(result.verified)
     } yield verified
+
+    private def createWebToken(email: String)(implicit clock: Clock): IO[String] = IO {
+      val claim = JwtClaim()
+        .issuedNow
+        .expiresIn(loginSessionTimeout.toSeconds)
+      val token = JwtCirce.encode(claim)
+      token
+    }
   }
 }

@@ -31,22 +31,22 @@ class AccountServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Ma
   }
 
   it should "throw an exception when user is not found" in withFixture { accountService =>
-    accountService.auth("your.account@gmail.com", "", null)
+    accountService.login("your.account@gmail.com", "", null)
       .assertThrowsWithMessage[Error]("Account with email your.account@gmail.com not found")
   }
 
   it should "throw an exception when the hash format is invalid" in withFixture { accountService =>
-    accountService.auth("my.invalid.account@gmail.com", "", null)
+    accountService.login("my.invalid.account@gmail.com", "", null)
       .assertThrowsWithMessage[IllegalArgumentException]("must provide non-null, non-empty hash")
   }
 
   it should "throw an exception when the password is incorrect" in withFixture { accountService =>
-    accountService.auth("my.account@gmail.com", "myspace2", null)
+    accountService.login("my.account@gmail.com", "myspace2", null)
       .assertThrowsWithMessage[Error]("Invalid password")
   }
 
   it should "not fail when the correct password is provided" in withFixture { accountService =>
-    accountService.auth("my.account@gmail.com", "myspace1", null).assertNoException
+    accountService.login("my.account@gmail.com", "myspace1", null).assertNoException
   }
 
   private val insertReturnValues = List(0, 1).iterator

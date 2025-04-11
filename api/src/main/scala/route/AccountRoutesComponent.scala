@@ -36,10 +36,16 @@ trait AccountRoutesComponent {
           }
       } yield response
 
-      case req@POST -> Root / "api" / "v1" / "account" / "auth" => for {
+      case req@POST -> Root / "api" / "v1" / "account" / "login" => for {
         loginRequest <- req.as[AccountAuthRequest]
-        response <- accountService.auth(loginRequest.email, loginRequest.password, xa)
-          .redeemWith(_ => IO.pure(Response[IO](status = Unauthorized)), account => Ok(account.asJson))
+        response <- accountService.login(loginRequest.email, loginRequest.password, xa)
+          .attempt
+          .flatMap {
+            case Left(err) => IO.pure(err.getMessage)
+              .flatMap(message => logger.error(message))
+              .map(_ => Response[IO](status = Unauthorized))
+            case Right(token) => Ok(token.asJson)
+          }
       } yield response
     }
   }
