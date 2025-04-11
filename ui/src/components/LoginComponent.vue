@@ -23,17 +23,19 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { login } from '../services/userService';
+import { useUserStore } from 'stores/user';
 
 const email = ref('');
 const password = ref('');
+const store = useUserStore();
 
 async function handleLogin() {
   try {
     const response = await login(email.value, password.value);
-    console.log('Login successful:', response);
-    // Handle successful login (e.g., store token, redirect)
+    console.log('Login successful!', response);
+    store.setToken(response.token)
   } catch (error) {
-    console.error('Login failed:', error);
+    console.error('Login failed!', error);
     // Handle login error (e.g., show error message)
   }
 }
