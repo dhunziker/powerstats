@@ -2,11 +2,15 @@
   {
     "id": 1,
     "email": "my.account@gmail.com",
-    "password_hash": "$2a$06$AiA6UcIzfs/zmbu1jp3Smeq38wvdfAtxYjkBpoOxSNblHv7KjUbq2"
+    "passwordHash": "$2a$06$AiA6UcIzfs/zmbu1jp3Smeq38wvdfAtxYjkBpoOxSNblHv7KjUbq2",
+    "status": "Verified",
+    "creationDate": "2025-01-01T00:00:00"
   },
   {
     "id": 2,
     "email": "my.invalid.account@gmail.com",
-    "password_hash": ""
+    "passwordHash": "",
+    "status": "Verified",
+    "creationDate": "2025-01-01T00:00:00"
   }
 ]

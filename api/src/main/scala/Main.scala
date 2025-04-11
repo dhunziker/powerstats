@@ -10,6 +10,7 @@ import ai.powerstats.common.logging.LoggingComponent
 import cats.effect.*
 import cats.implicits.toSemigroupKOps
 import org.http4s.ember.server.*
+import org.http4s.server.middleware.CORS
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 
@@ -52,11 +53,12 @@ object Main extends IOApp.Simple
           healthRoutes.routes(xa) <+>
           accountRoutes.routes(xa)
           ).orNotFound
+        corsService <- CORS.policy.withAllowOriginAll(routes)
         _ <- EmberServerBuilder
           .default[IO]
           .withHost(apiConfig.host)
           .withPort(apiConfig.port)
-          .withHttpApp(routes)
+          .withHttpApp(corsService)
           .build
           .use(_ => IO.never)
           .as(ExitCode.Success)

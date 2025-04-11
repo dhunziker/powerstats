@@ -2,8 +2,8 @@ package ai.powerstats.api
 package service
 
 import ai.powerstats.common.db.AccountRepositoryComponent
+import ai.powerstats.common.db.model.Account
 import ai.powerstats.common.logging.LoggingComponent
-import ai.powerstats.common.model.Account
 import at.favre.lib.crypto.bcrypt.BCrypt
 import cats.effect.IO
 import doobie.Transactor
@@ -21,12 +21,12 @@ trait AccountServiceComponent {
 
     def register(email: String, password: String, xa: Transactor[IO]) = {
       for {
-        existingUser <- accountRepository.selectAccount(email, xa)
+        existingUser <- accountRepository.findAccount(email, xa)
         _ <- IO.raiseUnless(existingUser.isEmpty) {
           new Error(s"User with email $email already exists")
         }
         hashedPassword <- hash(password)
-        _ <- accountRepository.insertAccount(email, hashedPassword, xa).flatMap { count =>
+        _ <- accountRepository.createAccount(email, hashedPassword, xa).flatMap { count =>
           IO.raiseUnless(count >= 1) {
             new Error("Failed to register user, please try again later")
           }
@@ -36,8 +36,8 @@ trait AccountServiceComponent {
     }
 
     def auth(email: String, password: String, xa: Transactor[IO]) = for {
-      passwordHash <- accountRepository.selectAccount(email, xa).flatMap {
-        case Some(account) => IO.pure(account.password_hash)
+      passwordHash <- accountRepository.findAccount(email, xa).flatMap {
+        case Some(account) => IO.pure(account.passwordHash)
         case None => IO.raiseError(new Error(s"Account with email $email not found"))
       }
       verified <- verify(password, passwordHash)

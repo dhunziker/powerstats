@@ -16,7 +16,7 @@ trait EventRepositoryComponent {
   val eventRepository: EventRepository
 
   trait EventRepository {
-    def selectEvent(name: String, xa: Transactor[IO]): IO[List[Event]] = {
+    def findEvents(name: String, xa: Transactor[IO]): IO[List[Event]] = {
       sql"""select 
               name,
               sex,

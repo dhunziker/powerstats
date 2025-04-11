@@ -18,7 +18,7 @@ trait EventRoutesComponent {
 
   trait EventRoutes extends Routes {
     override def routes(xa: Transactor[IO]) = HttpRoutes.of[IO] {
-      case GET -> ExternalV1 / "events" / "name" / name =>
+      case GET -> Root / "api" / "v1" / "events" / "name" / name =>
         for {
           events <- eventService.findEvents(name, xa)
           response <- {

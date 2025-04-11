@@ -50,14 +50,12 @@ class AccountServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Ma
   }
 
   private val insertReturnValues = List(0, 1).iterator
-  private val updateReturnValues = List(0, 1).iterator
 
   trait Fixture extends AccountServiceComponent with MockAccountRepositoryComponent with LoggingComponent {
     type T = AccountService
     override implicit val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
     override val accountService: T = new AccountService {}
     override val insertCounts = insertReturnValues
-    override val updateCounts = updateReturnValues
     override val accountRepository = new MockAccountRepository {}
   }
 

@@ -13,7 +13,7 @@ trait HealthRoutesComponent {
 
   trait HealthRoutes extends Routes {
     override def routes(xa: Transactor[IO]) = HttpRoutes.of[IO] {
-      case GET -> Internal / "health-check" => for {
+      case GET -> Root / "health-check" => for {
         status <- healthRepository.checkHealth(xa)
         response <- {
           if (status) Ok("Ok")

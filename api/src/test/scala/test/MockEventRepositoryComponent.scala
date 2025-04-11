@@ -2,7 +2,7 @@ package ai.powerstats.api
 package test
 
 import ai.powerstats.common.db.EventRepositoryComponent
-import ai.powerstats.common.model.Event
+import ai.powerstats.common.db.model.Event
 import cats.effect.IO
 import doobie.Transactor
 import fs2.io.file.{Files, Path}
@@ -14,7 +14,7 @@ trait MockEventRepositoryComponent extends EventRepositoryComponent {
   val eventRepository: EventRepository = new MockEventRepository {}
 
   trait MockEventRepository extends EventRepository {
-    override def selectEvent(name: String, xa: Transactor[IO]): IO[List[Event]] = {
+    override def findEvents(name: String, xa: Transactor[IO]): IO[List[Event]] = {
       val resource = getClass.getResource("/NonEmptyResponse.json")
       Files[IO].readAll(Path(resource.getPath))
         .through(fs2.text.utf8.decode)
