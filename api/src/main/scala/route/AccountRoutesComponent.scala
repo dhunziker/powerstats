@@ -1,7 +1,7 @@
 package ai.powerstats.api
 package route
 
-import route.request.{AccountAuthRequest, AccountRegisterRequest}
+import route.request.{AccountRegisterRequest, UserLoginRequest, UserLoginResponse}
 import service.AccountServiceComponent
 
 import ai.powerstats.common.logging.LoggingComponent
@@ -37,14 +37,14 @@ trait AccountRoutesComponent {
       } yield response
 
       case req@POST -> Root / "api" / "v1" / "account" / "login" => for {
-        loginRequest <- req.as[AccountAuthRequest]
+        loginRequest <- req.as[UserLoginRequest]
         response <- accountService.login(loginRequest.email, loginRequest.password, xa)
           .attempt
           .flatMap {
             case Left(err) => IO.pure(err.getMessage)
               .flatMap(message => logger.error(message))
               .map(_ => Response[IO](status = Unauthorized))
-            case Right(token) => Ok(token.asJson)
+            case Right(token) => Ok(UserLoginResponse(loginRequest.email, token).asJson)
           }
       } yield response
     }
