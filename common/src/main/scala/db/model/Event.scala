@@ -1,5 +1,5 @@
 package ai.powerstats.common
-package model
+package db.model
 
 import java.time.LocalDate
 

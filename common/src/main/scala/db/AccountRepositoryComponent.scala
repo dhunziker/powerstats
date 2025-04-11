@@ -1,19 +1,21 @@
 package ai.powerstats.common
 package db
 
-import model.Account
+import db.model.{Account, AccountStatus}
 
 import cats.effect.*
 import doobie.*
 import doobie.implicits.*
 import doobie.postgres.implicits.*
 
+import java.time.LocalDateTime
+
 trait AccountRepositoryComponent {
   val accountRepository: AccountRepository
 
   trait AccountRepository {
-    def selectAccount(email: String, xa: Transactor[IO]): IO[Option[Account]] = {
-      sql"""select id, email, password_hash 
+    def findAccount(email: String, xa: Transactor[IO]): IO[Option[Account]] = {
+      sql"""select id, email, password_hash, status, creation_date 
             from account
             where email = $email""".stripMargin
         .query[Account]
@@ -21,23 +23,18 @@ trait AccountRepositoryComponent {
         .transact(xa)
     }
 
-    def insertAccount(email: String, passwordHash: Array[Byte], xa: Transactor[IO]): IO[Int] = {
+    def createAccount(email: String, passwordHash: Array[Byte], xa: Transactor[IO]): IO[Int] = {
       sql"""insert into account (
               email,
-              password_hash
+              password_hash,
+              status,
+              creation_date
             ) values (
               $email,
-              $passwordHash
+              $passwordHash,
+              ${AccountStatus.Provisional},
+              ${LocalDateTime.now()}
             )""".stripMargin
-        .update
-        .run
-        .transact(xa)
-    }
-
-    def updateAccount(email: String, passwordHash: Array[Byte], xa: Transactor[IO]): IO[Int] = {
-      sql"""update account
-            set password_hash = $passwordHash
-            where email = $email""".stripMargin
         .update
         .run
         .transact(xa)
