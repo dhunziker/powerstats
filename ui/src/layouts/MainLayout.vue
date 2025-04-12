@@ -9,7 +9,6 @@
           icon="menu"
           aria-label="Menu"
           @click="toggleLeftDrawer"
-          style="display: none;"
         />
 
         <q-toolbar-title>
@@ -22,6 +21,7 @@
 
     <q-drawer
       v-model="leftDrawerOpen"
+      show-if-above
       bordered
     >
       <q-list>
