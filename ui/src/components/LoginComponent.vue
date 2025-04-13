@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { login } from '../services/userService';
+import { login, register } from '../services/userService';
 import { useUserStore } from 'stores/user';
 import { useQuasar } from 'quasar'
 import { patterns } from 'quasar'
@@ -53,15 +53,18 @@ const passwordRules = [
 
 async function handleRegister() {
   try {
-    const response = await login(email.value, password.value);
-    console.log('Login successful!', response);
-    store.setToken(response.token);
-    await router.push('/dashboard');
+    const response = await register(email.value, password.value);
+    console.log('Register successful!', response);
+    $q.notify({
+      type: 'positive',
+      message: 'Your email has been registered.'
+    })
+    await router.push('login');
   } catch (error) {
-    console.error('Login failed!', error);
+    console.error('Register failed!', error);
     $q.notify({
       type: 'negative',
-      message: 'Your email or password is incorrect.'
+      message: 'Your email is already registered.'
     })
   }
 }

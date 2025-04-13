@@ -1,14 +1,14 @@
 <template>
   <q-page class="row items-center justify-evenly">
-    <user-component
+    <login-component
       :is-new-user="props.isNewUser"
       active
-    ></user-component>
+    ></login-component>
   </q-page>
 </template>
 
 <script setup lang="ts">
-  import UserComponent from 'components/UserComponent.vue';
+  import LoginComponent from 'components/LoginComponent.vue';
 
   const props = defineProps({
     isNewUser: Boolean
