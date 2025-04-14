@@ -13,6 +13,10 @@
 import { ref } from 'vue';
 import type { Todo, Meta } from 'components/models';
 import ExampleComponent from 'components/ExampleComponent.vue';
+// import { getApiKeys } from '../services/apiKeyService';
+
+// const apiKeys = await getApiKeys()
+// console.log('API Keys:', apiKeys);
 
 const todos = ref<Todo[]>([
   {

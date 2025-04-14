@@ -1,4 +1,4 @@
-import { api } from 'boot/axios'
+import { api } from 'boot/axios';
 
 interface UserRegisterRequest {
   email: string;
@@ -17,12 +17,19 @@ interface UserLoginResponse {
 
 export async function register(email: string, password: string): Promise<void> {
   const req: UserRegisterRequest = { email, password };
-  const response = await api.post<void>('/api/v1/user/register', req);
+  const response = await api.post<void>('/user/register', req);
   return response.data;
 }
 
 export async function login(email: string, password: string): Promise<UserLoginResponse> {
   const req: UserLoginRequest = { email, password };
-  const response = await api.post<UserLoginResponse>('/api/v1/user/login', req);
+  const response = await api.post<UserLoginResponse>('/user/login', req);
   return response.data;
+}
+
+export async function logout(email: string): Promise<void> {
+  await new Promise((resolve) => {
+    console.log('Logout user: %s', email);
+    resolve(null);
+  });
 }

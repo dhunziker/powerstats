@@ -15,7 +15,7 @@
           Powerstats
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <q-btn @click="handleLogout">Logout</q-btn>
       </q-toolbar>
     </q-header>
 
@@ -48,6 +48,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink.vue';
+import { useUserStore } from 'stores/user';
+import { useRouter } from 'vue-router';
 
 const linksList: EssentialLinkProps[] = [
   {
@@ -95,8 +97,18 @@ const linksList: EssentialLinkProps[] = [
 ];
 
 const leftDrawerOpen = ref(false);
+const store = useUserStore();
+const router = useRouter();
 
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value;
+}
+
+async function handleLogout() {
+  await store.logout()
+    .then(() => {
+      console.log('Logout successful!');
+      return router.push('/user/login');
+    })
 }
 </script>

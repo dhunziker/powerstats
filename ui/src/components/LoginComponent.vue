@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { login, register } from '../services/userService';
+import { register } from '../services/userService';
 import { useUserStore } from 'stores/user';
 import { useQuasar } from 'quasar'
 import { patterns } from 'quasar'
@@ -52,36 +52,37 @@ const passwordRules = [
 ]
 
 async function handleRegister() {
-  try {
-    const response = await register(email.value, password.value);
-    console.log('Register successful!', response);
-    $q.notify({
-      type: 'positive',
-      message: 'Your email has been registered.'
+  await register(email.value, password.value)
+    .then(() => {
+      console.log('Register successful!');
+      $q.notify({
+        type: 'positive',
+        message: 'Your email has been registered.'
+      });
+      return router.push('login');
     })
-    await router.push('login');
-  } catch (error) {
-    console.error('Register failed!', error);
-    $q.notify({
-      type: 'negative',
-      message: 'Your email is already registered.'
-    })
-  }
+    .catch((error) => {
+      console.error('Register failed!', error);
+      $q.notify({
+        type: 'negative',
+        message: 'Registration failed, please try again later.'
+      });
+    });
 }
 
 async function handleLogin() {
-  try {
-    const response = await login(email.value, password.value);
-    console.log('Login successful!', response);
-    store.setToken(response.token);
-    await router.push('/dashboard');
-  } catch (error) {
-    console.error('Login failed!', error);
-    $q.notify({
-      type: 'negative',
-      message: 'Your email or password is incorrect.'
+  await store.login(email.value, password.value)
+    .then(() => {
+      console.log('Login successful!');
+      return router.push('/dashboard');
     })
-  }
+    .catch((error) => {
+      console.error('Login failed!', error);
+      $q.notify({
+        type: 'negative',
+        message: 'Your email or password is incorrect.'
+      });
+    });
 }
 </script>
 
