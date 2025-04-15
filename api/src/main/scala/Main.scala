@@ -74,7 +74,11 @@ object Main extends IOApp.Simple
       .attempt
       .map(_.leftMap(_.toString))
   })
-  private val onFailure: AuthedRoutes[String, IO] = Kleisli(req => OptionT.liftF(Forbidden(req.context)))
+  private val onFailure: AuthedRoutes[String, IO] = Kleisli({ request =>
+    OptionT.liftF(IO(
+      Response[IO](status = Unauthorized)
+        .withEntity(request.context)))
+  })
   private val authMiddleware: AuthMiddleware[IO, Long] = AuthMiddleware(authUser, onFailure)
 
   val run = {
