@@ -1,6 +1,7 @@
 package ai.powerstats.api
 package service
 
+import ai.powerstats.common.config.ConfigComponent
 import ai.powerstats.common.db.AccountRepositoryComponent
 import ai.powerstats.common.db.model.Account
 import ai.powerstats.common.logging.LoggingComponent
@@ -9,7 +10,7 @@ import cats.effect.IO
 import com.github.benmanes.caffeine.cache.Caffeine
 import doobie.Transactor
 import org.typelevel.log4cats.LoggerFactory
-import pdi.jwt.{JwtCirce, JwtClaim}
+import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
 import scalacache.*
 import scalacache.caffeine.*
 
@@ -19,19 +20,17 @@ import scala.concurrent.duration.DurationInt
 import scala.jdk.DurationConverters.*
 
 trait AccountServiceComponent {
-  this: LoggingComponent & AccountRepositoryComponent =>
+  this: ConfigComponent &
+    LoggingComponent &
+    AccountRepositoryComponent =>
   val accountService: AccountService
 
   trait AccountService {
     private val BCryptCost = 6
+    private val LoginSessionTimeout = 24.hours
     private val logger = LoggerFactory[IO].getLogger
-    private val loginSessionTimeout = 24.hours
-    private val underlyingUserLoginCache = Caffeine.newBuilder()
-      .expireAfterWrite(loginSessionTimeout.toJava)
-      .maximumSize(10000L).build[String, Entry[String]]
-    private implicit val userLoginCache: Cache[IO, String, String] = CaffeineCache(underlyingUserLoginCache)
 
-    def register(email: String, password: String, xa: Transactor[IO]) = {
+    def register(email: String, password: String, xa: Transactor[IO]): IO[Unit] = {
       for {
         existingUser <- accountRepository.findAccount(email, xa)
         _ <- IO.raiseUnless(existingUser.isEmpty) {
@@ -47,23 +46,28 @@ trait AccountServiceComponent {
       } yield ()
     }
 
-    def login(email: String, password: String, xa: Transactor[IO]) = for {
-      passwordHash <- accountRepository.findAccount(email, xa).flatMap {
-        case Some(account) => IO.pure(account.passwordHash)
-        case None => IO.raiseError(new Error(s"Account with email $email not found"))
-      }
-      verified <- verify(password, passwordHash)
-      _ <- if (verified) {
-        logger.info(s"User with email $email authenticated")
-      } else {
-        logger.info(s"Failed to authenticate user with email $email")
-      }
-      _ <- IO.raiseUnless(verified) {
-        new Error("Invalid password")
-      }
-      webToken <- createWebToken(email)(Clock.systemDefaultZone())
-      _ <- userLoginCache.put(email)(webToken)
-    } yield webToken
+    def login(email: String, password: String, xa: Transactor[IO]): IO[String] = {
+      for {
+        existingUser <- accountRepository.findAccount(email, xa)
+        account <- IO.fromOption(existingUser)(new Error(s"Account with email $email not found"))
+        verified <- verify(password, account.passwordHash)
+        _ <- if (verified) {
+          logger.info(s"User with email $email authenticated")
+        } else {
+          logger.info(s"Failed to authenticate user with email $email")
+        }
+        _ <- IO.raiseUnless(verified) {
+          new Error("Invalid password")
+        }
+        webToken <- issueWebToken(account.id)(Clock.systemDefaultZone())
+      } yield webToken
+    }
+
+    def validateWebToken(token: String)(implicit clock: Clock): IO[JwtClaim] = for {
+      apiConfig <- config.appConfig.map(_.api)
+      claim <- IO.fromTry(JwtCirce.decode(token, apiConfig.jwtKey, Seq(JwtAlgorithm.HS512)))
+      _ <- IO.raiseUnless(claim.isValid)(new Error("Invalid token"))
+    } yield claim
 
     private def hash(password: String): IO[Array[Byte]] = IO {
       BCrypt.withDefaults().hash(BCryptCost, password.getBytes(StandardCharsets.UTF_8))
@@ -75,12 +79,13 @@ trait AccountServiceComponent {
       else IO.pure(result.verified)
     } yield verified
 
-    private def createWebToken(email: String)(implicit clock: Clock): IO[String] = IO {
-      val claim = JwtClaim()
-        .issuedNow
-        .expiresIn(loginSessionTimeout.toSeconds)
-      val token = JwtCirce.encode(claim)
-      token
-    }
+    private def issueWebToken(accountId: Long)(implicit clock: Clock): IO[String] = for {
+      apiConfig <- config.appConfig.map(_.api)
+      claim <- IO(JwtClaim()
+        .about(accountId.toString)
+        .expiresIn(LoginSessionTimeout.toSeconds)
+        .issuedNow)
+      encoded <- IO(JwtCirce.encode(claim, apiConfig.jwtKey, JwtAlgorithm.HS512))
+    } yield encoded
   }
 }

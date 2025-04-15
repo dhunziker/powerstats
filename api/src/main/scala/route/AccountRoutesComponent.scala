@@ -24,7 +24,7 @@ trait AccountRoutesComponent {
     private val logger = LoggerFactory[IO].getLogger
 
     override def routes(xa: Transactor[IO]) = HttpRoutes.of[IO] {
-      case req@POST -> Root / "api" / "v1" / "account" / "register" => for {
+      case req@POST -> Root / "user" / "register" => for {
         parsedRequest <- req.as[AccountRegisterRequest]
         response <- accountService.register(parsedRequest.email, parsedRequest.password, xa)
           .attempt
@@ -36,7 +36,7 @@ trait AccountRoutesComponent {
           }
       } yield response
 
-      case req@POST -> Root / "api" / "v1" / "account" / "login" => for {
+      case req@POST -> Root / "user" / "login" => for {
         loginRequest <- req.as[UserLoginRequest]
         response <- accountService.login(loginRequest.email, loginRequest.password, xa)
           .attempt
