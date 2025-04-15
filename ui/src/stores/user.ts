@@ -1,35 +1,33 @@
 import { defineStore } from 'pinia';
-import { login, logout } from '../services/userService';
-import { api } from 'boot/axios';
+import { login } from '../services/userService';
 
 interface User {
   email: string;
   token: string;
 }
 
-export const useUserStore = defineStore('userStore', {
+export const useUserStore = defineStore('user', {
   state: () => ({
     user: null as User | null,
   }),
   getters: {},
   actions: {
     async login(email: string, password: string) {
-      await login(email, password)
-        .then(
-          (response) =>
-            (this.user = {
-              email: response.email,
-              token: response.token,
-            }),
-        )
-        .then((user) => (api.defaults.headers.common['Authorization'] = 'Bearer ' + user.token));
+      await login(email, password).then(
+        (response) =>
+          (this.user = {
+            email: response.email,
+            token: response.token,
+          }),
+      );
     },
 
     async logout() {
-      await logout(this.user!.email).then(() => {
+      await new Promise((resolve) => {
         this.user = null;
-        api.defaults.headers.common['Authorization'] = null;
+        resolve(null);
       });
     },
   },
+  persist: true,
 });

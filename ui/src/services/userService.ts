@@ -26,10 +26,3 @@ export async function login(email: string, password: string): Promise<UserLoginR
   const response = await api.post<UserLoginResponse>('/user/login', req);
   return response.data;
 }
-
-export async function logout(email: string): Promise<void> {
-  await new Promise((resolve) => {
-    console.log('Logout user: %s', email);
-    resolve(null);
-  });
-}

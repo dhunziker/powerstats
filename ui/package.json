@@ -19,6 +19,7 @@
     "axios": "^1.8.4",
     "core-js": "^3.6.5",
     "pinia": "^3.0.2",
+    "pinia-plugin-persistedstate": "^4.2.0",
     "quasar": "^2.16.0",
     "vue": "^3.4.18",
     "vue-router": "^4.0.0"
