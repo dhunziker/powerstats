@@ -6,6 +6,6 @@ import doobie.Transactor
 import org.http4s.HttpRoutes
 import org.http4s.dsl.io.Root
 
-trait Routes {
+trait UnsecuredRoutes {
   def routes(xa: Transactor[IO]): HttpRoutes[IO]
 }

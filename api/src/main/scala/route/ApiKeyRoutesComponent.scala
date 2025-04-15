@@ -18,10 +18,10 @@ trait ApiKeyRoutesComponent {
   this: LoggingComponent & ApiKeyServiceComponent =>
   val apiKeyRoutes: ApiKeyRoutes
 
-  trait ApiKeyRoutes {
+  trait ApiKeyRoutes extends SecuredRoutes {
     private val logger = LoggerFactory[IO].getLogger
 
-    def routes(xa: Transactor[IO]): AuthedRoutes[Long, IO] = AuthedRoutes.of {
+    override def routes(xa: Transactor[IO]): AuthedRoutes[Long, IO] = AuthedRoutes.of {
       case GET -> Root / "api-key" as userId => for {
         _ <- logger.info(s"Request from user with ID $userId")
         response <- apiKeyService.findApiKey("", xa)
