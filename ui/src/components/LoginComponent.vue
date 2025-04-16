@@ -1,5 +1,5 @@
 <template>
-  <q-page class="flex flex-center bg-grey-2" style="width: 100vw;">
+  <q-page class="flex flex-center bg-gradient">
     <q-card class="q-pa-md shadow-2 login-card" bordered>
       <q-card-section class="text-center">
         <div v-if="props.isNewUser" class="text-grey-9 text-h5 text-weight-bold">Sign up</div>

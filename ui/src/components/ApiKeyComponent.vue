@@ -1,12 +1,15 @@
 <template>
-  <div class="q-pa-md">
-    <p>API Keys</p>
-    <q-table
-      :rows="apiKeys"
-      :columns="columns"
-      row-key="id"
-    />
-  </div>
+  <q-page class="flex flex-center">
+    <div class="q-pa-md">
+      <p>API Keys</p>
+      <p>This is a list of API keys associated with your account. Remove any keys that you do not recognize.</p>
+      <q-table
+        :rows="apiKeys"
+        :columns="columns"
+        row-key="id"
+      />
+    </div>
+  </q-page>
 </template>
 
 <script setup lang="ts">
