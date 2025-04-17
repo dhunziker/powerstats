@@ -1,7 +1,7 @@
 package ai.powerstats.api
 package route
 
-import route.request.ApiKeyCreateRequest
+import route.request.{ApiKeyCreateRequest, ApiKeyCreateResponse}
 import service.ApiKeyServiceComponent
 
 import ai.powerstats.common.logging.LoggingComponent
@@ -29,7 +29,8 @@ trait ApiKeyRoutesComponent {
 
       case authReq@POST -> Root / "api-key" as userId => for {
         parsedRequest <- authReq.req.as[ApiKeyCreateRequest]
-        response <- handleResponse(apiKeyService.createApiKey(userId, parsedRequest.name, xa), logger)
+        response <- handleResponse(apiKeyService.createApiKey(userId, parsedRequest.name, xa)
+          .map(ApiKeyCreateResponse(_)), logger)
       } yield response
 
       case DELETE -> Root / "api-key" / LongVar(id) as userId =>

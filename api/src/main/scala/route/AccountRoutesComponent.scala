@@ -1,7 +1,7 @@
 package ai.powerstats.api
 package route
 
-import route.request.{AccountRegisterRequest, UserLoginRequest, UserLoginResponse}
+import route.request.{UserRegisterRequest, UserLoginRequest, UserLoginResponse}
 import service.AccountServiceComponent
 
 import ai.powerstats.common.logging.LoggingComponent
@@ -25,15 +25,8 @@ trait AccountRoutesComponent {
 
     override def routes(xa: Transactor[IO]) = HttpRoutes.of[IO] {
       case req@POST -> Root / "user" / "register" => for {
-        parsedRequest <- req.as[AccountRegisterRequest]
-        response <- accountService.register(parsedRequest.email, parsedRequest.password, xa)
-          .attempt
-          .flatMap {
-            case Left(err) => IO.pure(err.getMessage)
-              .flatMap(message => logger.error(message))
-              .flatMap(message => InternalServerError(message))
-            case Right(_) => Ok()
-          }
+        registerRequest <- req.as[UserRegisterRequest]
+        response <- handleResponse(accountService.register(registerRequest.email, registerRequest.password, xa), logger)
       } yield response
 
       case req@POST -> Root / "user" / "login" => for {
@@ -44,6 +37,7 @@ trait AccountRoutesComponent {
             case Left(err) => IO.pure(err.getMessage)
               .flatMap(message => logger.error(message))
               .map(_ => Response[IO](status = Unauthorized))
+            // TODO: Handle this through exception handleResponse
             case Right(token) => Ok(UserLoginResponse(loginRequest.email, token).asJson)
           }
       } yield response
