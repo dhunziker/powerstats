@@ -3,25 +3,19 @@ package service
 
 import ai.powerstats.common.config.ConfigComponent
 import ai.powerstats.common.db.AccountRepositoryComponent
-import ai.powerstats.common.db.model.Account
 import ai.powerstats.common.logging.LoggingComponent
-import at.favre.lib.crypto.bcrypt.BCrypt
 import cats.effect.IO
-import com.github.benmanes.caffeine.cache.Caffeine
 import doobie.Transactor
 import org.typelevel.log4cats.LoggerFactory
 import pdi.jwt.{JwtAlgorithm, JwtCirce, JwtClaim}
-import scalacache.*
-import scalacache.caffeine.*
 
-import java.nio.charset.StandardCharsets
 import java.time.Clock
 import scala.concurrent.duration.DurationInt
-import scala.jdk.DurationConverters.*
 
 trait AccountServiceComponent {
   this: ConfigComponent &
     LoggingComponent &
+    HashingServiceComponent &
     AccountRepositoryComponent =>
   val accountService: AccountService
 
@@ -33,15 +27,10 @@ trait AccountServiceComponent {
     def register(email: String, password: String, xa: Transactor[IO]): IO[Unit] = {
       for {
         existingUser <- accountRepository.findAccount(email, xa)
-        _ <- IO.raiseUnless(existingUser.isEmpty) {
-          new Error(s"User with email $email already exists")
-        }
-        hashedPassword <- hash(password)
-        _ <- accountRepository.createAccount(email, hashedPassword, xa).flatMap { count =>
-          IO.raiseUnless(count >= 1) {
-            new Error("Failed to register user, please try again later")
-          }
-        }
+        _ <- IO.raiseUnless(existingUser.isEmpty)(new Error(s"User with email $email already exists"))
+        hashedPassword <- hashingService.hash(password)
+        count <- accountRepository.insertAccount(email, hashedPassword, xa)
+        _ <- IO.raiseUnless(count >= 1)(new Error("Failed to register user, please try again later"))
         _ <- logger.info(s"Registered new user with email $email")
       } yield ()
     }
@@ -50,15 +39,13 @@ trait AccountServiceComponent {
       for {
         existingUser <- accountRepository.findAccount(email, xa)
         account <- IO.fromOption(existingUser)(new Error(s"Account with email $email not found"))
-        verified <- verify(password, account.passwordHash)
+        verified <- hashingService.verify(password, account.passwordHash)
         _ <- if (verified) {
           logger.info(s"User with email $email authenticated")
         } else {
           logger.info(s"Failed to authenticate user with email $email")
         }
-        _ <- IO.raiseUnless(verified) {
-          new Error("Invalid password")
-        }
+        _ <- IO.raiseUnless(verified)(new Error("Invalid password"))
         webToken <- issueWebToken(account.id)(Clock.systemDefaultZone())
       } yield webToken
     }
@@ -68,16 +55,6 @@ trait AccountServiceComponent {
       claim <- IO.fromTry(JwtCirce.decode(token, apiConfig.jwtKey, Seq(JwtAlgorithm.HS512)))
       _ <- IO.raiseUnless(claim.isValid)(new Error("Invalid token"))
     } yield claim
-
-    private def hash(password: String): IO[Array[Byte]] = IO {
-      BCrypt.withDefaults().hash(BCryptCost, password.getBytes(StandardCharsets.UTF_8))
-    }
-
-    private def verify(password: String, hash: Array[Byte]): IO[Boolean] = for {
-      result <- IO(BCrypt.verifyer().verify(password.getBytes(StandardCharsets.UTF_8), hash))
-      verified <- if (!result.validFormat) IO.raiseError(IllegalArgumentException(result.formatErrorMessage))
-      else IO.pure(result.verified)
-    } yield verified
 
     private def issueWebToken(accountId: Long)(implicit clock: Clock): IO[String] = for {
       apiConfig <- config.appConfig.map(_.api)

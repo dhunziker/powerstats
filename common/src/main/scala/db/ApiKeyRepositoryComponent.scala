@@ -1,19 +1,27 @@
 package ai.powerstats.common
 package db
 
-import model.ApiKey
+import db.model.ApiKey
 
 import cats.effect.*
 import doobie.*
 import doobie.implicits.*
 import doobie.postgres.implicits.*
 
+import java.time.LocalDateTime
+
 trait ApiKeyRepositoryComponent {
   val apiKeyRepository: ApiKeyRepository
 
   trait ApiKeyRepository {
-    def selectApiKey(accountId: Long, xa: Transactor[IO]): IO[List[ApiKey]] = {
-      sql"""select id, account_id, key, creation_date, expiry_date
+    def findApiKeys(accountId: Long, xa: Transactor[IO]): IO[List[ApiKey]] = {
+      sql"""select
+              id,
+              account_id,
+              name,
+              key_hash,
+              creation_date,
+              expiry_date
             from api_key
             where account_id = $accountId""".stripMargin
         .query[ApiKey]
@@ -21,18 +29,34 @@ trait ApiKeyRepositoryComponent {
         .transact(xa)
     }
 
-    def insertApiKey(apiKey: ApiKey, xa: Transactor[IO]): IO[Int] = {
+    def insertApiKey(accountId: Long,
+                     name: String,
+                     keyHash: Array[Byte],
+                     creationDate: LocalDateTime,
+                     expiryDate: LocalDateTime,
+                     xa: Transactor[IO]): IO[Int] = {
       sql"""insert into api_key (
               account_id,
-              key,
+              name,
+              key_hash,
               creation_date,
               expiry_date
             ) values (
-              ${apiKey.accountId},
-              ${apiKey.key},
-              ${apiKey.creationDate},
-              ${apiKey.expiryDate}
+              $accountId,
+              $name,
+              $keyHash,
+              $creationDate,
+              $expiryDate
             )""".stripMargin
+        .update
+        .run
+        .transact(xa)
+    }
+
+    def deleteApiKey(id: Long, accountId: Long, xa: Transactor[IO]): IO[Int] = {
+      sql"""delete from api_key
+            where id = $id
+            and account_id = $accountId""".stripMargin
         .update
         .run
         .transact(xa)

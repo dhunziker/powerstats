@@ -140,10 +140,7 @@ trait EventRepositoryComponent {
       Update[Event](sql)
         .updateMany(events)
         .transact(xa)
-        .map(count => {
-          //          println(s"Inserted $count rows")
-          count
-        }).unsafeRunSync()
+        .unsafeRunSync()
     }
   }
 }

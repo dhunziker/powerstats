@@ -11,7 +11,7 @@ trait HealthRoutesComponent {
   this: HealthRepositoryComponent =>
   val healthRoutes: HealthRoutes
 
-  trait HealthRoutes extends UnsecuredRoutes {
+  trait HealthRoutes extends OpenRoutes {
     override def routes(xa: Transactor[IO]) = HttpRoutes.of[IO] {
       case GET -> Root / "health-check" => for {
         status <- healthRepository.checkHealth(xa)

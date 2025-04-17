@@ -3,10 +3,11 @@ package db.model
 
 import java.time.LocalDateTime
 
-case class ApiKey(id: Long, 
-                  accountId: Long, 
-                  key: String, 
-                  creationDate: LocalDateTime, 
+case class ApiKey(id: Long,
+                  accountId: Long,
+                  name: String,
+                  keyHash: Array[Byte],
+                  creationDate: LocalDateTime,
                   expiryDate: LocalDateTime) {
   def isValid: Boolean = {
     val now = LocalDateTime.now()

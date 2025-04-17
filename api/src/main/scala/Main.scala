@@ -2,7 +2,7 @@ package ai.powerstats.api
 
 import db.DatabaseMigrationComponent
 import route.{AccountRoutesComponent, ApiKeyRoutesComponent, EventRoutesComponent, HealthRoutesComponent}
-import service.{AccountServiceComponent, ApiKeyServiceComponent, EventServiceComponent}
+import service.{AccountServiceComponent, ApiKeyServiceComponent, EventServiceComponent, HashingServiceComponent}
 
 import ai.powerstats.common.config.ConfigComponent
 import ai.powerstats.common.db.*
@@ -29,6 +29,7 @@ import java.time.Clock
 object Main extends IOApp.Simple
   with ConfigComponent
   with LoggingComponent
+  with HashingServiceComponent
   with DatabaseMigrationComponent
   with DatabaseTransactorComponent
   with HealthRepositoryComponent
@@ -45,6 +46,7 @@ object Main extends IOApp.Simple
   override implicit val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
 
   override val config = new Config {}
+  override val hashingService = new HashingService {}
   override val databaseMigration = new DatabaseMigration {}
   override val databaseTransactor = new DatabaseTransactor {}
   override val healthRepository = new HealthRepository {}

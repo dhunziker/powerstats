@@ -15,7 +15,12 @@ trait AccountRepositoryComponent {
 
   trait AccountRepository {
     def findAccount(email: String, xa: Transactor[IO]): IO[Option[Account]] = {
-      sql"""select id, email, password_hash, status, creation_date 
+      sql"""select
+              id,
+              email,
+              password_hash,
+              status,
+              creation_date
             from account
             where email = $email""".stripMargin
         .query[Account]
@@ -23,7 +28,7 @@ trait AccountRepositoryComponent {
         .transact(xa)
     }
 
-    def createAccount(email: String, passwordHash: Array[Byte], xa: Transactor[IO]): IO[Int] = {
+    def insertAccount(email: String, passwordHash: Array[Byte], xa: Transactor[IO]): IO[Int] = {
       sql"""insert into account (
               email,
               password_hash,

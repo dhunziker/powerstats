@@ -37,7 +37,7 @@ trait MockAccountRepositoryComponent extends AccountRepositoryComponent {
         }
     }
 
-    override def createAccount(email: String, passwordHash: Array[Byte], xa: doobie.Transactor[IO]) = {
+    override def insertAccount(email: String, passwordHash: Array[Byte], xa: doobie.Transactor[IO]) = {
       IO.pure(insertCounts.next())
     }
   }

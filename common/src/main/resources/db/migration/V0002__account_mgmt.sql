@@ -10,7 +10,8 @@ create table if not exists account (
 create table if not exists api_key (
     id bigint generated always as identity,
     account_id bigint not null,
-    key varchar(255) not null,
+    name varchar(255) not null,
+    key_hash bytea not null,
     creation_date timestamp not null,
     expiry_date timestamp,
     primary key(id),

@@ -20,7 +20,7 @@ trait AccountRoutesComponent {
   this: LoggingComponent & AccountServiceComponent =>
   val accountRoutes: AccountRoutes
 
-  trait AccountRoutes extends UnsecuredRoutes {
+  trait AccountRoutes extends OpenRoutes {
     private val logger = LoggerFactory[IO].getLogger
 
     override def routes(xa: Transactor[IO]) = HttpRoutes.of[IO] {

@@ -1,6 +1,7 @@
 package ai.powerstats.api
 package service
 
+import Main.HashingService
 import test.MockAccountRepositoryComponent
 
 import ai.powerstats.common.config.ConfigComponent
@@ -16,7 +17,7 @@ import org.typelevel.log4cats.slf4j.Slf4jFactory
 import pdi.jwt.exceptions.JwtLengthException
 
 import java.nio.file.{Files, Path}
-import java.time.{Clock, Instant, ZoneId, ZoneOffset}
+import java.time.{Clock, Instant, ZoneOffset}
 import scala.concurrent.duration.DurationInt
 import scala.jdk.DurationConverters.*
 
@@ -65,7 +66,7 @@ class AccountServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Ma
 
   it should "return a valid web token" in withFixture { accountService =>
     val token = Files.readString(Path.of(getClass.getResource("/valid_key.txt").toURI)).stripLineEnd
-    val baseClock = Clock.fixed(Instant.parse("2025-04-15T08:00:00.00Z"), ZoneOffset.UTC)
+    val baseClock = Clock.fixed(Instant.parse("2025-04-17T08:00:00.00Z"), ZoneOffset.UTC)
     implicit val clock: Clock = Clock.offset(baseClock, 23.hours.toJava)
     accountService.validateWebToken(token).asserting { result =>
       result.isValid shouldBe true
@@ -74,15 +75,14 @@ class AccountServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Ma
   }
 
   it should "throw an exception when the token is invalid" in withFixture { accountService =>
-    val token = ""
-    val baseClock = Clock.fixed(Instant.parse("2025-04-15T08:00:00.00Z"), ZoneOffset.UTC)
+    val baseClock = Clock.fixed(Instant.parse("2025-04-17T08:00:00.00Z"), ZoneOffset.UTC)
     implicit val clock: Clock = Clock.offset(baseClock, 23.hours.toJava)
-    accountService.validateWebToken(token).assertThrows[JwtLengthException]
+    accountService.validateWebToken("").assertThrows[JwtLengthException]
   }
 
   it should "throw an exception when the token is expired" in withFixture { accountService =>
     val token = Files.readString(Path.of(getClass.getResource("/valid_key.txt").toURI)).stripLineEnd
-    val baseClock = Clock.fixed(Instant.parse("2025-04-15T08:00:00.00Z"), ZoneOffset.UTC)
+    val baseClock = Clock.fixed(Instant.parse("2025-04-17T08:00:00.00Z"), ZoneOffset.UTC)
     implicit val clock: Clock = Clock.offset(baseClock, 24.hours.toJava)
     accountService.validateWebToken(token)
       .assertThrowsWithMessage[Error]("Invalid token")
@@ -90,10 +90,15 @@ class AccountServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Ma
 
   private val insertReturnValues = List(0, 1).iterator
 
-  trait Fixture extends AccountServiceComponent with MockAccountRepositoryComponent with LoggingComponent with ConfigComponent {
+  trait Fixture extends AccountServiceComponent
+    with MockAccountRepositoryComponent
+    with LoggingComponent
+    with ConfigComponent
+    with HashingServiceComponent {
     type T = AccountService
     override implicit val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
     override val config = new Config {}
+    override val hashingService = new HashingService {}
     override val accountService: T = new AccountService {}
     override val insertCounts = insertReturnValues
     override val accountRepository = new MockAccountRepository {}
