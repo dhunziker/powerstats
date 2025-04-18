@@ -3,9 +3,7 @@ import type { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    component: () => import('layouts/MainLayout.vue'),
     redirect: 'user/login',
-    children: [],
   },
   {
     path: '/user',
@@ -16,9 +14,19 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
-    path: '/dashboard',
+    path: '/settings',
+    redirect: '/settings/api-keys',
     component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/DashboardPage.vue') }],
+    children: [
+      {
+        path: 'api-keys',
+        component: () => import('pages/ApiKeyPage.vue'),
+        children: [
+          { path: '', component: () => import('components/ApiKeyListComponent.vue') },
+          { path: 'create', component: () => import('components/ApiKeyCreateComponent.vue') },
+        ]
+      },
+    ],
   },
 
   // Always leave this as last one,

@@ -7,3 +7,7 @@ $primary-gradient: linear-gradient(180deg, $primary, #2A4D77);
   width: 100vw;
   background: $primary-gradient;
 }
+
+.flex {
+  min-width: 750px;
+}
