@@ -30,7 +30,7 @@ trait ApiKeyRoutesComponent {
       case authReq@POST -> Root / "api-key" as userId => for {
         parsedRequest <- authReq.req.as[ApiKeyCreateRequest]
         response <- handleResponse(apiKeyService.createApiKey(userId, parsedRequest.name, xa)
-          .map(ApiKeyCreateResponse(_)), logger)
+          .map((key, apiKey) => ApiKeyCreateResponse(key, apiKey)), logger)
       } yield response
 
       case DELETE -> Root / "api-key" / LongVar(id) as userId =>

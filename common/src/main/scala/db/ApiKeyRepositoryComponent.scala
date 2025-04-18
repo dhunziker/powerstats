@@ -34,8 +34,9 @@ trait ApiKeyRepositoryComponent {
                      keyHash: Array[Byte],
                      creationDate: LocalDateTime,
                      expiryDate: LocalDateTime,
-                     xa: Transactor[IO]): IO[Int] = {
-      sql"""insert into api_key (
+                     xa: Transactor[IO]): IO[ApiKey] = {
+      (for {
+        id <- sql"""insert into api_key (
               account_id,
               name,
               key_hash,
@@ -47,10 +48,23 @@ trait ApiKeyRepositoryComponent {
               $keyHash,
               $creationDate,
               $expiryDate
-            )""".stripMargin
-        .update
-        .run
-        .transact(xa)
+            )"""
+          .stripMargin
+          .update
+          .withUniqueGeneratedKeys[Long]("id")
+        apiKey <- sql"""select
+              id,
+              account_id,
+              name,
+              key_hash,
+              creation_date,
+              expiry_date
+            from api_key
+            where id = $id"""
+          .stripMargin
+          .query[ApiKey]
+          .unique
+      } yield apiKey).transact(xa)
     }
 
     def deleteApiKey(id: Long, accountId: Long, xa: Transactor[IO]): IO[Int] = {

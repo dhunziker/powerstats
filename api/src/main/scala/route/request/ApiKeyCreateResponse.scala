@@ -1,4 +1,6 @@
 package ai.powerstats.api
 package route.request
 
-case class ApiKeyCreateResponse(key: String)
+import ai.powerstats.common.db.model.ApiKey
+
+case class ApiKeyCreateResponse(key: String, apiKey: ApiKey)

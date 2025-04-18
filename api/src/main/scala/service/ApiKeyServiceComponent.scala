@@ -30,16 +30,15 @@ trait ApiKeyServiceComponent {
       } yield results
     }
 
-    def createApiKey(accountId: Long, name: String, xa: Transactor[IO]): IO[String] = {
+    def createApiKey(accountId: Long, name: String, xa: Transactor[IO]): IO[(String, ApiKey)] = {
       for {
         key <- IO.pure(UUID.randomUUID().toString)
         keyHash <- hashingService.hash(key)
         creationDate = LocalDateTime.now()
         expiryDate = creationDate.plusYears(DefaultExpiryTimeInYears)
-        count <- apiKeyRepository.insertApiKey(accountId, name, keyHash, creationDate, expiryDate, xa)
-        _ <- IO.raiseUnless(count >= 1)(new Error("Failed to create API key, please try again later"))
+        apiKey <- apiKeyRepository.insertApiKey(accountId, name, keyHash, creationDate, expiryDate, xa)
         _ <- logger.info(s"API key created successfully")
-      } yield key
+      } yield (key, apiKey)
     }
 
     def deleteApiKey(id: Long, userId: Long, xa: Transactor[IO]): IO[Unit] = {
