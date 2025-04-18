@@ -1,8 +1,11 @@
 import { defineBoot } from '#q-app/wrappers';
 import { useUserStore } from 'stores/user';
+import { createAxiosDateTransformer } from 'axios-date-transformer';
 import axios from 'axios';
 
-const api = axios.create({ baseURL: process.env.API_BASE_URL });
+const api = createAxiosDateTransformer(
+  { baseURL: process.env.API_BASE_URL }
+);
 
 export default defineBoot(async ({ app, router, store }) => {
   app.config.globalProperties.$axios = axios;
