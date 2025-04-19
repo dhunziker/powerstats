@@ -19,7 +19,7 @@ export default defineBoot(async ({ app, router, store }) => {
   }, null);
   api.interceptors.response.use(null, function (error) {
     if (error.response.status === 401) {
-      router.push('/user/login');
+      return router.push('/user/login');
     }
     return Promise.reject(error);
   });
