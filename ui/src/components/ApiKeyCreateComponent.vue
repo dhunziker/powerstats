@@ -2,15 +2,15 @@
   <q-page class="flex">
     <div class="q-pa-md q-gutter-md">
       <div class="row items-center">
-        <div class="text-h4">Create New API Key</div>
+        <div class="text-h5">Create New API Key</div>
       </div>
       <q-card>
         <q-card-section>
-          <q-input v-model="keyName" label="API Key Name" outlined :rules="keyNameRules" />
+          <q-input v-model="keyName" label="Key Name" outlined :rules="keyNameRules" />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="negative" @click="router.push('/settings/api-keys')" />
-          <q-btn flat label="Create" color="positive" :disable="!isKeyNameValid" @click="handleCreate" />
+          <q-btn label="Cancel" @click="router.push('/settings/api-keys')" />
+          <q-btn label="Create" color="primary" :disable="!isKeyNameValid" @click="handleCreate" />
         </q-card-actions>
       </q-card>
     </div>

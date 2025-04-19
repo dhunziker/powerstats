@@ -2,9 +2,9 @@
   <q-page class="flex">
     <div class="q-pa-md q-gutter-md">
       <div class="row items-center">
-        <div class="text-h4">API Keys</div>
+        <div class="text-h5">API Keys</div>
         <q-space />
-        <q-btn @click="router.push('/settings/api-keys/create')" label="New"/>
+        <q-btn color="primary" @click="router.push('/settings/api-keys/create')" label="New"/>
       </div>
       <div v-if="props.apiKeys.length" class="text-subtitle1">This is a list of API keys associated with your account. Remove any keys that you do not recognize.</div>
       <div v-else class="text-subtitle1">There are no API keys associated with your account.</div>
