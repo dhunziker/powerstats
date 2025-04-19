@@ -2,7 +2,7 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar class="bg-primary text-white">
-        <q-avatar>
+        <q-avatar @click="router.push(showLogout ? '/settings' : '/')" style="cursor: pointer">
           <img src="~assets/logo.png" alt="Logo" />
         </q-avatar>
         <q-toolbar-title>Lorem Ipsum</q-toolbar-title>

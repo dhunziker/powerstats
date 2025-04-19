@@ -11,3 +11,8 @@ $primary-gradient: linear-gradient(180deg, $primary, #2A4D77);
 .flex {
   min-width: 750px;
 }
+
+a {
+  cursor: pointer !important;
+  text-decoration: underline;
+}

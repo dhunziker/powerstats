@@ -17,10 +17,10 @@
       </q-card-section>
       <q-card-section class="text-center q-pt-none">
         <div v-if="props.isNewUser" class="text-grey-8">Have an account already?
-          <a @click="$router.push('login')" class="text-dark text-weight-bold" style="text-decoration: none">Sign in.</a>
+          <a @click="router.push('login')" class="text-dark text-weight-bold">Sign in.</a>
         </div>
         <div v-else class="text-grey-8">Don't have an account yet?
-          <a @click="$router.push('register')" class="text-dark text-weight-bold" style="text-decoration: none">Sign up.</a>
+          <a @click="router.push('register')" class="text-dark text-weight-bold">Sign up.</a>
         </div>
       </q-card-section>
     </q-card>
