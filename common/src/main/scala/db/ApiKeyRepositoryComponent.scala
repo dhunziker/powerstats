@@ -23,7 +23,8 @@ trait ApiKeyRepositoryComponent {
               creation_date,
               expiry_date
             from api_key
-            where account_id = $accountId""".stripMargin
+            where account_id = $accountId
+            order by creation_date""".stripMargin
         .query[ApiKey]
         .to[List]
         .transact(xa)

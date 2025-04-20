@@ -15,7 +15,7 @@
             </api-key-component>
             <q-item-section top side>
               <div class="text-grey-8 q-gutter-xs">
-                <q-btn @click="handleCopy(key)" class="gt-xs" size="20px" flat dense icon="las la-copy" />
+                <q-btn @click="handleCopy(key)" size="20px" flat dense icon="las la-copy" />
               </div>
             </q-item-section>
           </q-item>

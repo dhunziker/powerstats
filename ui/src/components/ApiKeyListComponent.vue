@@ -15,7 +15,7 @@
           </api-key-component>
           <q-item-section top side>
             <div class="text-grey-8 q-gutter-xs">
-              <q-btn @click="handleDelete(apiKey.id)" class="gt-xs" size="20px" flat dense icon="las la-trash" />
+              <q-btn @click="handleDelete(apiKey.id)" size="20px" flat dense icon="las la-trash" />
             </div>
           </q-item-section>
         </q-item>
