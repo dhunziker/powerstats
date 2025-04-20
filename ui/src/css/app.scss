@@ -11,6 +11,13 @@
   max-width: 100vw;
 }
 
+.item-border {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 5px;
+}
+
 a {
   cursor: pointer !important;
   text-decoration: underline;
