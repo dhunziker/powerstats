@@ -1,6 +1,6 @@
 <template>
   <q-page class="flex">
-    <div class="q-pa-md q-gutter-md">
+    <div class="q-pa-md q-gutter-md page-content">
       <div class="row items-center">
         <div class="text-h5">Create New API Key</div>
       </div>
@@ -53,9 +53,3 @@ async function handleCreate() {
     });
 }
 </script>
-
-<style lang="scss" scoped>
-.flex > div {
-  width: 100%;
-}
-</style>

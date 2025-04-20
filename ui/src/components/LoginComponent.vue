@@ -12,8 +12,8 @@
         <q-input dense outlined class="q-mt-md" v-model="password" type="password" label="Password" :rules="passwordRules"></q-input>
       </q-card-section>
       <q-card-section>
-        <q-btn v-if="props.isNewUser" @click="handleRegister" style="border-radius: 8px;" color="dark" rounded size="md" label="Sign up" no-caps class="full-width"></q-btn>
-        <q-btn v-else @click="handleLogin" style="border-radius: 8px;" color="dark" rounded size="md" label="Sign in" no-caps class="full-width"></q-btn>
+        <q-btn v-if="props.isNewUser" @click="handleRegister" color="primary" size="md" label="Sign up" no-caps class="full-width"></q-btn>
+        <q-btn v-else @click="handleLogin" color="primary" size="md" label="Sign in" no-caps class="full-width"></q-btn>
       </q-card-section>
       <q-card-section class="text-center q-pt-none">
         <div v-if="props.isNewUser" class="text-grey-8">Have an account already?
@@ -88,8 +88,7 @@ async function handleLogin() {
 
 <style>
 .login-card {
-  width: 25rem;
-  border-radius: 8px;
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  width: 350px;
+  max-width: 95%;
 }
 </style>

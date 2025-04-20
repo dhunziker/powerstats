@@ -1,15 +1,14 @@
 // app global css in SCSS form
 @import "quasar.variables";
 
-$primary-gradient: linear-gradient(180deg, $primary, #2A4D77);
-
 .bg-gradient {
   width: 100vw;
-  background: $primary-gradient;
+  background: linear-gradient(180deg, $primary, #2A4D77);
 }
 
-.flex {
-  min-width: 750px;
+.page-content {
+  width: 750px;
+  max-width: 100vw;
 }
 
 a {

@@ -1,6 +1,6 @@
 <template>
   <q-page class="flex">
-    <div class="q-pa-md q-gutter-md">
+    <div class="q-pa-md q-gutter-md page-content">
       <div class="row items-center">
         <div class="text-h5">API Keys</div>
         <q-space />
