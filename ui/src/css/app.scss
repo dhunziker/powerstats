@@ -1,6 +1,11 @@
 // app global css in SCSS form
 @import "quasar.variables";
 
+@font-face {
+  font-family: Bebas Neue;
+  src: url(./fonts/BebasNeue-Regular.ttf) format('truetype');
+}
+
 .bg-gradient {
   width: 100vw;
   background: linear-gradient(180deg, $primary, #2A4D77);

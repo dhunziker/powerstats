@@ -1,12 +1,10 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
-      <q-toolbar class="bg-primary text-white">
-        <q-avatar @click="router.push(showLogout ? '/settings' : '/')" style="cursor: pointer">
-          <img src="~assets/logo.png" alt="Logo" />
-        </q-avatar>
-        <q-toolbar-title>Lorem Ipsum</q-toolbar-title>
-        <q-space />
+      <q-toolbar class="bg-primary">
+        <q-toolbar-title style="padding: 10px 0 10px 0; height: 65px;">
+          <img src="~assets/logo.svg" alt="Logo" style="height: 100%; cursor: pointer" @click="router.push(showLogout ? '/settings' : '/')"/>
+        </q-toolbar-title>
         <q-separator v-show="showLogout" dark vertical />
         <q-btn-dropdown v-show="showLogout" stretch flat label="Menu" dropdown-icon="expand_more">
           <div class="row no-wrap q-pa-md">
