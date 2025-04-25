@@ -16,7 +16,7 @@ trait EventRoutesComponent {
   this: EventServiceComponent =>
   val eventRoutes: EventRoutes
 
-  trait EventRoutes extends OpenRoutes {
+  trait EventRoutes extends PublicRoutes {
     override def routes(xa: Transactor[IO]) = HttpRoutes.of[IO] {
       case GET -> Root / "api" / "v1" / "events" / "name" / name =>
         for {

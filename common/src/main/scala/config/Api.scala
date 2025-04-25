@@ -6,11 +6,16 @@ import io.circe.Decoder
 
 import scala.util.Try
 
-case class Api(port: Port, host: Host, jwtKey: String)
+case class Api(port: Port,
+               host: Host,
+               jwtKey: String,
+               baseUrl: String)
 
-implicit val decodePort: Decoder[Port] = Decoder.decodeInt.emapTry { v =>
-  Try(Port.fromInt(v).getOrElse(port"8080"))
-}
-implicit val decodeHost: Decoder[Host] = Decoder.decodeString.emapTry { v =>
-  Try(Host.fromString(v).getOrElse(host"0.0.0.0"))
+object Api {
+  implicit val decodePort: Decoder[Port] = Decoder.decodeInt.emapTry { v =>
+    Try(Port.fromInt(v).getOrElse(port"8080"))
+  }
+  implicit val decodeHost: Decoder[Host] = Decoder.decodeString.emapTry { v =>
+    Try(Host.fromString(v).getOrElse(host"0.0.0.0"))
+  }
 }

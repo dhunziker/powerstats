@@ -1,6 +1,8 @@
 package ai.powerstats.common
 package config
 
+import config.Api.*
+
 import cats.effect.IO
 import io.circe.Decoder
 import io.circe.config.parser

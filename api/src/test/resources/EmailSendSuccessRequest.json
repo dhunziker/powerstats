@@ -1,0 +1,22 @@
+{
+  "Messages": [
+    {
+      "From": {
+        "Email": "dennis.hunziker@gmail.com",
+        "Name": "PowerStats"
+      },
+      "To": [
+        {
+          "Email": "passenger1@mailjet.com",
+          "Name": "passenger 1"
+        }
+      ],
+      "TemplateID": 1,
+      "TemplateLanguage": false,
+      "Subject": "PowerStats - Activate your account",
+      "Variables": {
+        "activationLink": "http://localhost:8080/user/activate/1"
+      }
+    }
+  ]
+}

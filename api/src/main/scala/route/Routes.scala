@@ -27,6 +27,6 @@ trait RoutesWithUserId extends Routes {
   def routes(xa: Transactor[IO]): AuthedRoutes[Long, IO]
 }
 
-trait OpenRoutes extends Routes {
+trait PublicRoutes extends Routes {
   def routes(xa: Transactor[IO]): HttpRoutes[IO]
 }
