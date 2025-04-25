@@ -8,7 +8,14 @@
 
 .bg-gradient {
   width: 100vw;
-  background: linear-gradient(180deg, $primary, #2A4D77);
+  background: linear-gradient(
+    180deg,
+    $primary 10%,
+    #2a4d77 50%,
+    #3b6a9e 75%,
+    #4a90c2 100%
+  );
+  margin: 0;
 }
 
 .page-content {
