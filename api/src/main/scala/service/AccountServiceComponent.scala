@@ -3,6 +3,7 @@ package service
 
 import ai.powerstats.common.config.ConfigComponent
 import ai.powerstats.common.db.AccountRepositoryComponent
+import ai.powerstats.common.db.model.AccountStatus.Verified
 import ai.powerstats.common.logging.LoggingComponent
 import cats.effect.IO
 import doobie.Transactor
@@ -32,6 +33,17 @@ trait AccountServiceComponent {
         count <- accountRepository.insertAccount(email, hashedPassword, xa)
         _ <- IO.raiseUnless(count >= 1)(new Error("Failed to register user, please try again later"))
         _ <- logger.info(s"Registered new user with email $email")
+      } yield ()
+    }
+
+    def activate(activationKey: String, xa: Transactor[IO]): IO[Unit] = {
+      for {
+        claim <- validateWebToken(activationKey)(Clock.systemDefaultZone())
+        subject <- IO.fromOption(claim.subject)(new Error("Subject not found"))
+        accountId <- IO(subject.toLong)
+        count <- accountRepository.updateAccount(accountId, Verified, xa)
+        _ <- IO.raiseUnless(count >= 1)(new Error("Failed to update user, please try again later")) 
+        _ <- logger.info(s"Verified user with account ID $accountId")
       } yield ()
     }
 

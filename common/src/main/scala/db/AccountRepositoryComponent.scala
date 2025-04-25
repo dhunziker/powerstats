@@ -44,5 +44,14 @@ trait AccountRepositoryComponent {
         .run
         .transact(xa)
     }
+    
+    def updateAccount(accountId: Long, status: AccountStatus, xa: Transactor[IO]): IO[Int] = {
+      sql"""update account
+            set status = $status
+            where id = $accountId""".stripMargin
+        .update
+        .run
+        .transact(xa)
+    }
   }
 }

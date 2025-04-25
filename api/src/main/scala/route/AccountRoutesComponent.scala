@@ -1,7 +1,7 @@
 package ai.powerstats.api
 package route
 
-import route.request.{UserRegisterRequest, UserLoginRequest, UserLoginResponse}
+import route.request.{UserLoginRequest, UserLoginResponse, UserRegisterRequest}
 import service.AccountServiceComponent
 
 import ai.powerstats.common.logging.LoggingComponent
@@ -27,6 +27,10 @@ trait AccountRoutesComponent {
       case req@POST -> Root / "user" / "register" => for {
         registerRequest <- req.as[UserRegisterRequest]
         response <- handleResponse(accountService.register(registerRequest.email, registerRequest.password, xa), logger)
+      } yield response
+
+      case GET -> Root / "user" / "activate" / activationKey => for {
+        response <- handleResponse(accountService.activate(activationKey, xa), logger)
       } yield response
 
       case req@POST -> Root / "user" / "login" => for {
