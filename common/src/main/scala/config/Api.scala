@@ -8,8 +8,7 @@ import scala.util.Try
 
 case class Api(port: Port,
                host: Host,
-               jwtKey: String,
-               baseUrl: String)
+               jwtKey: String)
 
 object Api {
   implicit val decodePort: Decoder[Port] = Decoder.decodeInt.emapTry { v =>
