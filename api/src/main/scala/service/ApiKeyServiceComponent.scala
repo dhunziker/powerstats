@@ -26,7 +26,7 @@ trait ApiKeyServiceComponent {
     def findApiKeys(accountId: Long, xa: Transactor[IO]): IO[List[ApiKey]] = {
       for {
         results <- apiKeyRepository.findApiKeys(accountId, xa)
-        _ <- logger.info(s"Found ${results.length} API keys for user with ID $accountId")
+        _ <- logger.info(s"Found ${results.length} API keys for account with ID $accountId")
       } yield results
     }
 
@@ -41,9 +41,9 @@ trait ApiKeyServiceComponent {
       } yield (key, apiKey)
     }
 
-    def deleteApiKey(id: Long, userId: Long, xa: Transactor[IO]): IO[Unit] = {
+    def deleteApiKey(id: Long, accountId: Long, xa: Transactor[IO]): IO[Unit] = {
       for {
-        count <- apiKeyRepository.deleteApiKey(id, userId, xa)
+        count <- apiKeyRepository.deleteApiKey(id, accountId, xa)
         _ <- IO.raiseUnless(count >= 1)(new Error("Failed to delete API key, please try again later"))
         _ <- logger.info(s"API key with ID $id deleted successfully")
       } yield ()

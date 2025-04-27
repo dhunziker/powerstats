@@ -1,7 +1,7 @@
 package ai.powerstats.common
 package db
 
-import model.Event
+import db.model.Event
 
 import cats.effect.*
 import cats.effect.unsafe.implicits.global

@@ -23,7 +23,7 @@ trait Routes {
   }
 }
 
-trait RoutesWithUserId extends Routes {
+trait RoutesWithAccountId extends Routes {
   def routes(xa: Transactor[IO]): AuthedRoutes[Long, IO]
 }
 

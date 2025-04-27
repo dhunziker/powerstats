@@ -36,8 +36,8 @@ trait AccountServiceComponent {
 
     def register(email: String, password: String, xa: Transactor[IO]): IO[Account] = {
       for {
-        existingUser <- accountRepository.findAccount(email, xa)
-        account <- existingUser.map(account => handleExistingAccount(account))
+        existingAccount <- accountRepository.findAccount(email, xa)
+        account <- existingAccount.map(account => handleExistingAccount(account))
           .getOrElse(handleNewAccount(email, password, xa))
       } yield account
     }
@@ -49,19 +49,19 @@ trait AccountServiceComponent {
         accountId <- IO(subject.toLong)
         account <- accountRepository.updateAccount(accountId, xa, status = Some(Verified))
         webToken <- issueWebToken(account.id)
-        _ <- logger.info(s"Verified user with email ${account.email}")
+        _ <- logger.info(s"Verified account with email ${account.email}")
       } yield (account, webToken)
     }
 
     def login(email: String, password: String, xa: Transactor[IO]): IO[String] = {
       for {
-        existingUser <- accountRepository.findAccount(email, xa)
-        account <- IO.fromOption(existingUser)(new Error(s"Account with email $email not found"))
+        existingAccount <- accountRepository.findAccount(email, xa)
+        account <- IO.fromOption(existingAccount)(new Error(s"Account with email $email not found"))
         verified <- hashingService.verify(password, account.passwordHash)
         _ <- if (verified) {
-          logger.info(s"User with email $email authenticated")
+          logger.info(s"Account with email $email authenticated")
         } else {
-          logger.info(s"Failed to authenticate user with email $email")
+          logger.info(s"Failed to authenticate account with email $email")
         }
         _ <- IO.raiseUnless(verified)(new Error("Invalid password"))
         webToken <- issueWebToken(account.id)
@@ -80,7 +80,7 @@ trait AccountServiceComponent {
     private def handleExistingAccount(account: Account): IO[Account] = {
       for {
         _ <- IO.raiseUnless(account.status == Provisional) {
-          new Error(s"User with email ${account.email} already exists")
+          new Error(s"Account with email ${account.email} already exists")
         }
         _ <- sendActivationEmail(account)
       } yield account
@@ -91,7 +91,7 @@ trait AccountServiceComponent {
         hashedPassword <- hashingService.hash(password)
         account <- accountRepository.insertAccount(email, hashedPassword, xa)
         _ <- sendActivationEmail(account)
-        _ <- logger.info(s"Registered new user with email $email")
+        _ <- logger.info(s"Registered new account with email $email")
       } yield account
     }
 

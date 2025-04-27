@@ -15,7 +15,6 @@ import org.http4s.*
 import org.http4s.circe.*
 import org.http4s.circe.CirceEntityDecoder.circeEntityDecoder
 import org.http4s.dsl.io.*
-import org.http4s.headers.Location
 import org.typelevel.log4cats.LoggerFactory
 
 import java.time.Clock

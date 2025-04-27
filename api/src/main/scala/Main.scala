@@ -2,11 +2,10 @@ package ai.powerstats.api
 
 import db.DatabaseMigrationComponent
 import route.{AccountRoutesComponent, ApiKeyRoutesComponent, EventRoutesComponent, HealthRoutesComponent}
-import service.{AccountServiceComponent, ApiKeyServiceComponent, ClockComponent, EmailServiceComponent, EventServiceComponent, HashingServiceComponent}
+import service.*
 
 import ai.powerstats.common.config.ConfigComponent
 import ai.powerstats.common.db.*
-import ai.powerstats.common.db.model.Account
 import ai.powerstats.common.logging.LoggingComponent
 import cats.*
 import cats.data.*
@@ -20,7 +19,6 @@ import org.http4s.headers.Authorization
 import org.http4s.implicits.*
 import org.http4s.server.*
 import org.http4s.server.middleware.CORS
-import org.http4s.syntax.header.*
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 
@@ -65,8 +63,8 @@ object Main extends IOApp.Simple
   override val apiKeyService = new ApiKeyService {}
   override val apiKeyRoutes = new ApiKeyRoutes {}
 
-  private val authUser: Kleisli[IO, Request[IO], Either[String, Long]] = Kleisli({ request =>
-    val authUser = for {
+  private val authAccount: Kleisli[IO, Request[IO], Either[String, Long]] = Kleisli({ request =>
+    val authAccount = for {
       token <- IO(request.headers.get[Authorization] match {
         case Some(Authorization(Credentials.Token(AuthScheme.Bearer, token))) => token
         case None => throw new Error("Authorization header not found")
@@ -76,7 +74,7 @@ object Main extends IOApp.Simple
       subject <- IO.fromOption(claim.subject)(new Error("Subject not found"))
       accountId <- IO(subject.toLong)
     } yield accountId
-    authUser
+    authAccount
       .attempt
       .map(_.leftMap(_.toString))
   })
@@ -85,7 +83,7 @@ object Main extends IOApp.Simple
       Response[IO](status = Unauthorized)
         .withEntity(request.context)))
   })
-  private val authMiddleware: AuthMiddleware[IO, Long] = AuthMiddleware(authUser, onFailure)
+  private val authMiddleware: AuthMiddleware[IO, Long] = AuthMiddleware(authAccount, onFailure)
 
   val run = {
     val appConfig = config.appConfig

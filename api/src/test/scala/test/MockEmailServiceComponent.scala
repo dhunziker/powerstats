@@ -3,13 +3,10 @@ package test
 
 import service.EmailServiceComponent
 
-import ai.powerstats.common.db.model.Account
-import ai.powerstats.common.email.{ReqMessages, RespMessage, RespMessages, RespTo}
+import ai.powerstats.common.email.{RespMessage, RespMessages, RespTo}
+import cats.effect.IO
 import cats.effect.kernel.Ref
-import cats.effect.{Deferred, IO}
 import org.http4s.client.Client
-
-import java.util.UUID
 
 trait MockEmailServiceComponent extends EmailServiceComponent {
 

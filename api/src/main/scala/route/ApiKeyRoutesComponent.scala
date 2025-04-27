@@ -20,21 +20,21 @@ trait ApiKeyRoutesComponent {
     ApiKeyServiceComponent =>
   val apiKeyRoutes: ApiKeyRoutes
 
-  trait ApiKeyRoutes extends RoutesWithUserId {
+  trait ApiKeyRoutes extends RoutesWithAccountId {
     private val logger = LoggerFactory[IO].getLogger
 
     override def routes(xa: Transactor[IO]): AuthedRoutes[Long, IO] = AuthedRoutes.of {
-      case GET -> Root / "api-key" as userId =>
-        handleResponse(apiKeyService.findApiKeys(userId, xa), logger)
+      case GET -> Root / "api-key" as accountId =>
+        handleResponse(apiKeyService.findApiKeys(accountId, xa), logger)
 
-      case authReq@POST -> Root / "api-key" as userId => for {
+      case authReq@POST -> Root / "api-key" as accountId => for {
         parsedRequest <- authReq.req.as[ApiKeyCreateRequest]
-        response <- handleResponse(apiKeyService.createApiKey(userId, parsedRequest.name, xa)
+        response <- handleResponse(apiKeyService.createApiKey(accountId, parsedRequest.name, xa)
           .map((key, apiKey) => ApiKeyCreateResponse(key, apiKey)), logger)
       } yield response
 
-      case DELETE -> Root / "api-key" / LongVar(id) as userId =>
-        handleResponse(apiKeyService.deleteApiKey(id, userId, xa), logger)
+      case DELETE -> Root / "api-key" / LongVar(id) as accountId =>
+        handleResponse(apiKeyService.deleteApiKey(id, accountId, xa), logger)
     }
   }
 }

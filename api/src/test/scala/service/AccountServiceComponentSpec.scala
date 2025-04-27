@@ -54,7 +54,7 @@ class AccountServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Ma
       inserted <- f.accountRepository.insertAccount("my.account@gmail.com", f.passwordHash, null)
       updated <- f.accountRepository.updateAccount(inserted.id, null, status = Some(AccountStatus.Verified))
       assertError <- f.accountService.register("my.account@gmail.com", "myspace1", null)
-        .assertThrowsWithMessage[Error]("User with email my.account@gmail.com already exists")
+        .assertThrowsWithMessage[Error]("Account with email my.account@gmail.com already exists")
       emailSent <- f.emailService.requested()
     } yield (assertError, emailSent)).asserting { (assertError, emailSent) =>
       emailSent should be(false)
@@ -64,7 +64,7 @@ class AccountServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Ma
 
   behavior of "activate"
 
-  it should "activate user successfully" in withFixture { f =>
+  it should "activate account successfully" in withFixture { f =>
     (for {
       inserted <- f.accountRepository.insertAccount("my.account@gmail.com", f.passwordHash, null)
       activationKey <- TestHelper.loadFromFile("web_token_valid")
@@ -111,7 +111,7 @@ class AccountServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Ma
     }
   }
 
-  it should "throw an exception when user is not found" in withFixture { f =>
+  it should "throw an exception when account is not found" in withFixture { f =>
     f.accountService.login("my.account@gmail.com", "myspace1", null)
       .assertThrowsWithMessage[Error]("Account with email my.account@gmail.com not found")
   }
