@@ -2,11 +2,11 @@ package ai.powerstats.api
 package service
 
 import ai.powerstats.common.config.ConfigComponent
-import ai.powerstats.common.email.RespMessages.*
 import ai.powerstats.common.email.*
+import ai.powerstats.common.email.RespMessages.*
 import ai.powerstats.common.logging.LoggingComponent
 import cats.effect.*
-import io.circe.Decoder
+import io.circe.*
 import io.circe.syntax.*
 import org.http4s.*
 import org.http4s.circe.CirceEntityDecoder.*
@@ -15,8 +15,6 @@ import org.http4s.client.*
 import org.http4s.client.dsl.io.*
 import org.http4s.dsl.io.*
 import org.typelevel.log4cats.LoggerFactory
-import io.circe.*
-import io.circe.generic.auto.*
 
 trait EmailServiceComponent
   extends ConfigComponent
@@ -36,9 +34,9 @@ trait EmailServiceComponent
           from,
           List(to),
           templateId,
-          templateLanguage = false,
+          templateLanguage = true,
           "PowerStats - Activate your account",
-          Map("activationLink" -> activationLink)))
+          Map("activation_link" -> activationLink)))
       )
       request = POST(messages.asJson, Uri.unsafeFromString(s"${mailjetConfig.baseUrl}/send"))
       response <- client.expect[RespMessages](request)

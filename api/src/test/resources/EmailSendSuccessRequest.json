@@ -12,10 +12,10 @@
         }
       ],
       "TemplateID": 1,
-      "TemplateLanguage": false,
+      "TemplateLanguage": true,
       "Subject": "PowerStats - Activate your account",
       "Variables": {
-        "activationLink": "http://localhost:8080/user/activate/1"
+        "activation_link": "http://localhost:8080/user/activate/1"
       }
     }
   ]

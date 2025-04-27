@@ -5,28 +5,26 @@ import cats.effect.kernel.Resource
 import cats.effect.{Deferred, IO}
 import fs2.io.file.{Files, Path}
 import fs2.text
-import io.circe.generic.auto.*
-import io.circe.syntax.*
 import io.circe.{Decoder, Json, parser}
 import org.http4s.*
-import org.http4s.circe.CirceEntityDecoder.*
 import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.client.*
-import org.http4s.client.dsl.io.*
 import org.http4s.dsl.io.*
-import org.http4s.headers.`Content-Type`
-import org.http4s.implicits.uri
-import org.scalatest.Assertions.fail
 
 object TestHelper {
   type RequestTrap = Request[IO] => IO[Unit]
 
-  def loadFromJson[T](fileName: String)(implicit decoder: Decoder[T]): IO[T] = {
-    val resource = getClass.getResource(s"/$fileName.json")
+  def loadFromFile(fileName: String, ext: String = "txt"): IO[String] = {
+    val resource = getClass.getResource(s"/$fileName.$ext")
     Files[IO].readAll(Path(resource.getPath))
       .through(fs2.text.utf8.decode)
       .compile
       .foldMonoid
+      .map(_.stripLineEnd)
+  }
+
+  def loadFromJson[T](fileName: String)(implicit decoder: Decoder[T]): IO[T] = {
+    loadFromFile(fileName, "json")
       .flatMap(content => IO.fromEither(parser.decode[T](content)))
   }
 

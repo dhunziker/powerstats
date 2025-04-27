@@ -36,7 +36,7 @@ class EmailServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Matc
       response.messages should have size 1
       response.messages.head.status should be("success")
       response.messages.head.to should have size 1
-      response.messages.head.to.head.messageId should be(456)
+      response.messages.head.to.head.messageId should be(1152921534432145581L)
     }
   }
 

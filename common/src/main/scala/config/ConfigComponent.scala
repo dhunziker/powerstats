@@ -14,5 +14,9 @@ trait ConfigComponent {
 
   trait Config {
     def appConfig: IO[AppConfig] = parser.decodePathF[IO, AppConfig]("app")
+
+    def uiConfig: IO[Ui] = appConfig.map(_.ui)
+
+    def mailjetConfig: IO[Mailjet] = appConfig.map(_.mailjet)
   }
 }

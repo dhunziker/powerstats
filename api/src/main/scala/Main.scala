@@ -2,7 +2,7 @@ package ai.powerstats.api
 
 import db.DatabaseMigrationComponent
 import route.{AccountRoutesComponent, ApiKeyRoutesComponent, EventRoutesComponent, HealthRoutesComponent}
-import service.{AccountServiceComponent, ApiKeyServiceComponent, EventServiceComponent, HashingServiceComponent}
+import service.{AccountServiceComponent, ApiKeyServiceComponent, ClockComponent, EmailServiceComponent, EventServiceComponent, HashingServiceComponent}
 
 import ai.powerstats.common.config.ConfigComponent
 import ai.powerstats.common.db.*
@@ -29,7 +29,9 @@ import java.time.Clock
 object Main extends IOApp.Simple
   with ConfigComponent
   with LoggingComponent
+  with ClockComponent
   with HashingServiceComponent
+  with EmailServiceComponent
   with DatabaseMigrationComponent
   with DatabaseTransactorComponent
   with HealthRepositoryComponent
@@ -44,9 +46,11 @@ object Main extends IOApp.Simple
   with ApiKeyServiceComponent
   with ApiKeyRoutesComponent {
   override implicit val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
+  override implicit val clock: Clock = Clock.systemDefaultZone()
 
   override val config = new Config {}
   override val hashingService = new HashingService {}
+  override val emailService = new EmailService {}
   override val databaseMigration = new DatabaseMigration {}
   override val databaseTransactor = new DatabaseTransactor {}
   override val healthRepository = new HealthRepository {}
@@ -68,7 +72,7 @@ object Main extends IOApp.Simple
         case None => throw new Error("Authorization header not found")
         case _ => throw new Error("Invalid Authorization header")
       })
-      claim <- accountService.validateWebToken(token)(Clock.systemDefaultZone())
+      claim <- accountService.validateWebToken(token)
       subject <- IO.fromOption(claim.subject)(new Error("Subject not found"))
       accountId <- IO(subject.toLong)
     } yield accountId

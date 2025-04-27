@@ -3,42 +3,48 @@ package test
 
 import ai.powerstats.common.db.AccountRepositoryComponent
 import ai.powerstats.common.db.model.{Account, AccountStatus}
-import cats.effect.IO
+import cats.effect.kernel.Ref
+import cats.effect.{IO, Ref}
 import doobie.Transactor
-import fs2.io.file.{Files, Path}
-import io.circe.*
-import io.circe.generic.auto.*
-import org.http4s.dsl.io.*
 
-import java.nio.charset.StandardCharsets
-import scala.util.Try
+import java.time.LocalDateTime
 
 trait MockAccountRepositoryComponent extends AccountRepositoryComponent {
   val accountRepository: AccountRepository
-  val insertCounts: Iterator[Int]
 
   trait MockAccountRepository extends AccountRepository {
+    private val storage: Ref[IO, Map[Long, Account]] = Ref.unsafe(Map.empty)
+    private val iterator = Iterator.from(0)
+
     override def findAccount(email: String, xa: Transactor[IO]): IO[Option[Account]] = {
-      implicit val decodePasswordHash: Decoder[Array[Byte]] = Decoder.decodeString.emapTry { str =>
-        Try(str.getBytes(StandardCharsets.UTF_8))
-      }
-      implicit val decodeStatus: Decoder[AccountStatus] = Decoder.decodeString.emapTry { str =>
-        Try(AccountStatus.valueOf(str))
-      }
-      val resource = getClass.getResource("/TestAccounts.json")
-      Files[IO].readAll(Path(resource.getPath))
-        .through(fs2.text.utf8.decode)
-        .compile
-        .foldMonoid
-        .map(parser.decode[List[Account]])
-        .flatMap {
-          case Left(error) => IO.raiseError(error)
-          case Right(accounts) => IO.pure(accounts.find(_.email == email))
-        }
+      for {
+        prev <- storage.get
+        account = prev.values.find(a => a.email == email)
+      } yield account
     }
 
-    override def insertAccount(email: String, passwordHash: Array[Byte], xa: doobie.Transactor[IO]) = {
-      IO.pure(insertCounts.next())
+    override def insertAccount(email: String, passwordHash: Array[Byte], xa: Transactor[IO]): IO[Account] = {
+      for {
+        account <- IO.pure(Account(
+          iterator.next().toLong,
+          email,
+          passwordHash,
+          AccountStatus.Provisional,
+          LocalDateTime.now()))
+        _ <- storage.update(_.updated(account.id, account))
+      } yield account
+    }
+
+    override def updateAccount(id: Long, xa: Transactor[IO], passwordHash: Option[Array[Byte]], status: Option[AccountStatus]) = {
+      for {
+        prev <- storage.get
+        account = prev(id)
+        updated = account.copy(
+          passwordHash = passwordHash.getOrElse(account.passwordHash),
+          status = status.getOrElse(account.status)
+        )
+        _ <- storage.update(_.updated(updated.id, updated))
+      } yield updated
     }
   }
 }

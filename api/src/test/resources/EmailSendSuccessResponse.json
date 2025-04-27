@@ -2,13 +2,18 @@
   "Messages": [
     {
       "Status": "success",
+      "CustomID": "",
       "To": [
         {
           "Email": "passenger1@mailjet.com",
-          "MessageUUID": "123",
-          "MessageID": 456,
-          "MessageHref": "https://api.mailjet.com/v3/message/456"
+          "MessageUUID": "db2a7c2d-e94a-4f34-bebd-2e2830572805",
+          "MessageID": 1152921534432145581,
+          "MessageHref": "https://api.mailjet.com/v3/message/1152921534432145581"
         }
+      ],
+      "Cc": [
+      ],
+      "Bcc": [
       ]
     }
   ]

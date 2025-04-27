@@ -16,7 +16,7 @@ object RespMessage {
   implicit val decodeMessage: Decoder[RespMessage] = Decoder.forProduct2("Status", "To")(RespMessage.apply)
 }
 
-case class RespTo(email: String, messageUuid: String, messageId: Int, messageHref: String)
+case class RespTo(email: String, messageUuid: String, messageId: Long, messageHref: String)
 
 object RespTo {
   implicit val decodeTo: Decoder[RespTo] = Decoder.forProduct4(
