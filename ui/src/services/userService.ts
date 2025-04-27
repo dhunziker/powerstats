@@ -5,6 +5,15 @@ interface UserRegisterRequest {
   password: string;
 }
 
+interface UserActivateRequest {
+  activationKey: string;
+}
+
+interface UserActivateResponse {
+  email: string;
+  token: string;
+}
+
 interface UserLoginRequest {
   email: string;
   password: string;
@@ -24,5 +33,11 @@ export async function register(email: string, password: string): Promise<void> {
 export async function login(email: string, password: string): Promise<UserLoginResponse> {
   const req: UserLoginRequest = { email, password };
   const response = await api.post<UserLoginResponse>('/user/login', req);
+  return response.data;
+}
+
+export async function activate(activationKey: string): Promise<UserActivateResponse> {
+  const req: UserActivateRequest = { activationKey };
+  const response = await api.post<UserActivateResponse>('/user/activate', req);
   return response.data;
 }

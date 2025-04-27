@@ -10,7 +10,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: 'register', component: () => import('pages/IndexPage.vue'), props: { isNewUser: true } },
-      { path: 'login', component: () => import('pages/IndexPage.vue'), props: { isNewUser: false } }
+      { path: 'login', component: () => import('pages/IndexPage.vue'), props: { isNewUser: false } },
+      { path: 'activate/:activationKey', component: () => import('pages/ActivationPage.vue') }
     ],
   },
   {

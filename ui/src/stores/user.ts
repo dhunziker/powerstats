@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { login } from '../services/userService';
+import { activate, login } from '../services/userService';
 
 interface User {
   email: string;
@@ -27,6 +27,16 @@ export const useUserStore = defineStore('user', {
         this.user = null;
         resolve(null);
       });
+    },
+
+    async activate(token: string) {
+      await activate(token).then(
+        (response) =>
+          (this.user = {
+            email: response.email,
+            token: response.token,
+          }),
+      );
     },
   },
   persist: true,
