@@ -15,6 +15,13 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
+    path: '/welcome',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/WelcomePage.vue') }
+    ],
+  },
+  {
     path: '/settings',
     redirect: '/settings/api-keys',
     component: () => import('layouts/MainLayout.vue'),

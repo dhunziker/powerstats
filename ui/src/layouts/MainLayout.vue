@@ -3,7 +3,7 @@
     <q-header elevated>
       <q-toolbar class="bg-primary">
         <q-toolbar-title style="padding: 10px 0 10px 0; height: 65px;">
-          <img src="~assets/logo.svg" alt="Logo" style="height: 100%; cursor: pointer" @click="router.push(showLogout ? '/settings' : '/')"/>
+          <img src="~assets/logo.svg" alt="Logo" style="height: 100%; cursor: pointer" @click="router.push(showLogout ? '/welcome' : '/')"/>
         </q-toolbar-title>
         <q-separator v-show="showLogout" dark vertical />
         <q-btn-dropdown v-show="showLogout" stretch flat label="Menu" dropdown-icon="expand_more">
@@ -11,6 +11,12 @@
             <div class="column">
               <q-list>
                 <q-item-label header>Settings</q-item-label>
+                <q-item clickable v-close-popup @click="router.push('/welcome')">
+                  <q-item-section>
+                    <q-item-label>Welcome</q-item-label>
+                    <q-item-label caption>Welcome page.</q-item-label>
+                  </q-item-section>
+                </q-item>
                 <q-item clickable v-close-popup @click="router.push('/settings/api-keys')">
                   <q-item-section>
                     <q-item-label>API Keys</q-item-label>

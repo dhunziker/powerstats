@@ -74,7 +74,7 @@ async function handleLogin() {
   await store.login(email.value, password.value)
     .then(() => {
       console.log('Login successful!');
-      return router.push('/settings');
+      return router.push('/welcome');
     })
     .catch((error) => {
       console.error('Login failed!', error);

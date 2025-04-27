@@ -18,7 +18,7 @@ const router = useRouter();
 
 onMounted(() => {
   if (store.user) {
-    return router.push('/settings');
+    return router.push('/welcome');
   }
 });
 </script>
