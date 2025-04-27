@@ -70,6 +70,7 @@ object Main extends IOApp.Simple
         case None => throw new Error("Authorization header not found")
         case _ => throw new Error("Invalid Authorization header")
       })
+      // TODO: API Keys should be JWT tokens as well
       claim <- accountService.validateWebToken(token)
       subject <- IO.fromOption(claim.subject)(new Error("Subject not found"))
       accountId <- IO(subject.toLong)

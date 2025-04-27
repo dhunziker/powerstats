@@ -35,13 +35,6 @@ trait AccountRoutesComponent {
         response <- handleResponse(accountService.register(registerRequest.email, registerRequest.password, xa), logger)
       } yield response
 
-      case req@POST -> Root / "user" / "activate" => for {
-        activateRequest <- req.as[UserActivateRequest]
-        response <- handleResponse(accountService.activate(activateRequest.activationKey, xa).map { (account, webToken) =>
-          UserActivateResponse(account.email, webToken)
-        }, logger)
-      } yield response
-
       case req@POST -> Root / "user" / "login" => for {
         loginRequest <- req.as[UserLoginRequest]
         response <- accountService.login(loginRequest.email, loginRequest.password, xa)
@@ -53,6 +46,13 @@ trait AccountRoutesComponent {
             // TODO: Handle this through exception handleResponse
             case Right(token) => Ok(UserLoginResponse(loginRequest.email, token).asJson)
           }
+      } yield response
+
+      case req@POST -> Root / "user" / "activate" => for {
+        activateRequest <- req.as[UserActivateRequest]
+        response <- handleResponse(accountService.activate(activateRequest.activationKey, xa).map { (account, webToken) =>
+          UserActivateResponse(account.email, webToken)
+        }, logger)
       } yield response
     }
   }
