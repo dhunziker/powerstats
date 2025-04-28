@@ -47,6 +47,7 @@ trait AccountServiceComponent {
         claim <- validateWebToken(activationKey)
         subject <- IO.fromOption(claim.subject)(new Error("Subject not found"))
         accountId <- IO(subject.toLong)
+        // TODO: Decide whether to fail the activation if the account is already verified
         account <- accountRepository.updateAccount(accountId, xa, status = Some(Verified))
         webToken <- issueWebToken(account.id)
         _ <- logger.info(s"Verified account with email ${account.email}")
