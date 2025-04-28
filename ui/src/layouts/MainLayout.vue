@@ -10,7 +10,6 @@
           <div class="row no-wrap q-pa-md">
             <div class="column">
               <q-list>
-                <q-item-label header>Settings</q-item-label>
                 <q-item clickable v-close-popup @click="router.push('/welcome')">
                   <q-item-section>
                     <q-item-label>Welcome</q-item-label>
