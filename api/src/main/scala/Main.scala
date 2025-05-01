@@ -92,7 +92,6 @@ object Main extends IOApp.Simple
           .withHost(apiConfig.host)
           .withPort(apiConfig.port)
           .withHttpApp(corsService)
-          .withHttpApp(routes)
           .build
           .use(_ => IO.never)
           .as(ExitCode.Success)
