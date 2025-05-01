@@ -22,6 +22,13 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
+    path: '/docs',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/ApiDocsPage.vue') }
+    ],
+  },
+  {
     path: '/settings',
     redirect: '/settings/api-keys',
     component: () => import('layouts/MainLayout.vue'),

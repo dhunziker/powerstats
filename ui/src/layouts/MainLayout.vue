@@ -16,6 +16,12 @@
                     <q-item-label caption>Welcome page.</q-item-label>
                   </q-item-section>
                 </q-item>
+                <q-item clickable v-close-popup @click="router.push('/docs')">
+                  <q-item-section>
+                    <q-item-label>Documentation</q-item-label>
+                    <q-item-label caption>API documentation with examples.</q-item-label>
+                  </q-item-section>
+                </q-item>
                 <q-item clickable v-close-popup @click="router.push('/settings/api-keys')">
                   <q-item-section>
                     <q-item-label>API Keys</q-item-label>
