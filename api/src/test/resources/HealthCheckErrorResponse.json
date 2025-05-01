@@ -1,0 +1,8 @@
+{
+  "status": "error",
+  "statusCode": 503,
+  "error": {
+    "code": "ServiceUnavailableError",
+    "message": "Health check failed"
+  }
+}

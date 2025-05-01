@@ -45,12 +45,12 @@ object TestHelper {
 
   def createRequestTrap(deferred: Deferred[IO, String])(req: Request[IO]): IO[Unit] = {
     for {
-      requestBody <- req.entity.body.through(text.utf8.decode).compile.string
+      requestBody <- req.body.through(text.utf8.decode).compile.string
       _ <- deferred.complete(requestBody)
     } yield ()
   }
 
-  private def createMockResponse(fileName: String, status: Status): Resource[IO, Response[fs2.Pure]] = {
+  private def createMockResponse(fileName: String, status: Status): Resource[IO, Response[IO]] = {
     loadFromJson[Json](fileName)
       .toResource
       .map(content => Response()

@@ -4,56 +4,60 @@ package route
 import route.request.*
 import service.AccountServiceComponent
 
-import ai.powerstats.common.config.ConfigComponent
-import ai.powerstats.common.logging.LoggingComponent
+import ai.powerstats.common.db.model.Account
 import cats.effect.*
 import doobie.*
 import io.circe.*
 import io.circe.generic.auto.*
-import io.circe.syntax.*
-import org.http4s.*
-import org.http4s.circe.*
-import org.http4s.circe.CirceEntityDecoder.circeEntityDecoder
 import org.http4s.dsl.io.*
-import org.typelevel.log4cats.LoggerFactory
-
-import java.time.Clock
+import sttp.tapir.*
+import sttp.tapir.generic.auto.*
+import sttp.tapir.json.circe.*
+import sttp.tapir.server.ServerEndpoint
 
 trait AccountRoutesComponent {
-  this: ConfigComponent &
-    LoggingComponent &
+  this: RoutesComponent &
     AccountServiceComponent =>
   val accountRoutes: AccountRoutes
 
-  trait AccountRoutes extends PublicRoutes {
-    private val logger = LoggerFactory[IO].getLogger
-    private implicit val clock: Clock = Clock.systemDefaultZone()
+  trait AccountRoutes {
+    def endpoints(xa: Transactor[IO]): List[ServerEndpoint[Any, IO]] = {
+      val registerEndpoint = routes.publicEndpoint.post
+        .in("user" / "register")
+        .in(jsonBody[UserRegisterRequest])
+        .out(jsonBody[ApiSuccessResponseWithData[Account]])
 
-    override def routes(xa: Transactor[IO]) = HttpRoutes.of[IO] {
-      case req@POST -> Root / "user" / "register" => for {
-        registerRequest <- req.as[UserRegisterRequest]
-        response <- handleResponse(accountService.register(registerRequest.email, registerRequest.password, xa), logger)
-      } yield response
+      val registerServerEndpoint = registerEndpoint.serverLogic(registerRequest =>
+        routes.responseWithData(accountService.register(registerRequest.email, registerRequest.password, xa))
+      )
 
-      case req@POST -> Root / "user" / "login" => for {
-        loginRequest <- req.as[UserLoginRequest]
-        response <- accountService.login(loginRequest.email, loginRequest.password, xa)
-          .attempt
-          .flatMap {
-            case Left(err) => IO.pure(err.getMessage)
-              .flatMap(message => logger.error(message))
-              .map(_ => Response[IO](status = Unauthorized))
-            // TODO: Handle this through exception handleResponse
-            case Right(token) => Ok(UserLoginResponse(loginRequest.email, token).asJson)
+      val loginEndpoint = routes.publicEndpoint.post
+        .in("user" / "login")
+        .in(jsonBody[UserLoginRequest])
+        .out(jsonBody[ApiSuccessResponseWithData[UserLoginResponse]])
+
+      val loginServerEndpoint = loginEndpoint.serverLogic(loginRequest =>
+        routes.responseWithData(
+          accountService.login(loginRequest.email, loginRequest.password, xa).map { token =>
+            UserLoginResponse(loginRequest.email, token)
           }
-      } yield response
+          , isSecurityLogic = true)
+      )
 
-      case req@POST -> Root / "user" / "activate" => for {
-        activateRequest <- req.as[UserActivateRequest]
-        response <- handleResponse(accountService.activate(activateRequest.activationKey, xa).map { (account, webToken) =>
-          UserActivateResponse(account.email, webToken)
-        }, logger)
-      } yield response
+      val activateEndpoint = routes.publicEndpoint.post
+        .in("user" / "activate")
+        .in(jsonBody[UserActivateRequest])
+        .out(jsonBody[ApiSuccessResponseWithData[UserActivateResponse]])
+
+      val activateServerEndpoint = activateEndpoint.serverLogic(activateRequest =>
+        routes.responseWithData(
+          accountService.activate(activateRequest.activationKey, xa).map { (account, webToken) =>
+            UserActivateResponse(account.email, webToken)
+          }
+        )
+      )
+
+      List(registerServerEndpoint, loginServerEndpoint, activateServerEndpoint)
     }
   }
 }

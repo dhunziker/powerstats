@@ -13,7 +13,10 @@ ThisBuild / Compile / run / fork := true
 
 lazy val commonSettings = Seq(
   idePackagePrefix := Some(s"${organization.value}.${name.value}"),
-  scalacOptions += "-deprecation",
+  scalacOptions ++= Seq(
+    "-deprecation",
+    "-Xmax-inlines:64"
+  ),
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
     "org.typelevel" %% "cats-effect-testing-scalatest" % catsEffectTestingVersion % Test,
@@ -76,6 +79,11 @@ lazy val api = (project in file("api"))
       "at.favre.lib" % "bcrypt" % bcryptVersion,
       "com.github.jwt-scala" %% "jwt-circe" % jwtScalaVersion,
       "com.github.cb372" %% "scalacache-core" % scalaCacheVersion,
-      "com.github.cb372" %% "scalacache-caffeine" % scalaCacheVersion
+      "com.github.cb372" %% "scalacache-caffeine" % scalaCacheVersion,
+      "com.softwaremill.sttp.tapir" %% "tapir-core" % tapirVersion,
+      "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % tapirVersion,
+      "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % tapirVersion,
+      "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % tapirVersion,
+      "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-bundle" % tapirVersion
     )
   )

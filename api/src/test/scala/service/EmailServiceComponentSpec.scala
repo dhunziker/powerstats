@@ -6,10 +6,7 @@ import test.TestHelper
 import ai.powerstats.common.config.ConfigComponent
 import ai.powerstats.common.logging.LoggingComponent
 import cats.effect.testing.scalatest.AsyncIOSpec
-import cats.effect.{Deferred, IO, Ref}
-import fs2.text
-import io.circe.*
-import io.circe.derivation.Configuration
+import cats.effect.{Deferred, IO}
 import org.http4s.*
 import org.scalatest.Assertion
 import org.scalatest.flatspec.AsyncFlatSpec

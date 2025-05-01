@@ -69,12 +69,22 @@ trait AccountServiceComponent {
       } yield webToken
     }
 
+    def authenticate(webToken: Option[String], apiKey: Option[String]): IO[Long] = (webToken, apiKey) match {
+      case (Some(webToken), _) => for {
+        claim <- validateWebToken(webToken)
+        subject <- IO.fromOption(claim.subject)(new Error("Subject not found"))
+        accountId <- IO.pure(subject.toLong).adaptError(t => new Error(t.getMessage))
+      } yield accountId
+      case (_, Some(apiKey)) => IO.raiseError(new Error("API Key authentication not yet implemented"))
+      case (None, None) => IO.raiseError(new Error("Authorization header not found"))
+    }
+
+    // TODO: Could be private?
     def validateWebToken(webToken: String)(implicit clock: Clock): IO[JwtClaim] = {
       for {
         apiConfig <- config.appConfig.map(_.api)
         decodedToken = Base62Helper.decodeString(webToken)
-        claim <- IO.fromTry(JwtCirce.decode(decodedToken, apiConfig.jwtKey, Seq(JwtAlgorithm.HS512)))
-        _ <- IO.raiseUnless(claim.isValid)(new Error("Invalid token"))
+        claim <- IO.fromTry(JwtCirce(clock).decode(decodedToken, apiConfig.jwtKey, Seq(JwtAlgorithm.HS512)))
       } yield claim
     }
 

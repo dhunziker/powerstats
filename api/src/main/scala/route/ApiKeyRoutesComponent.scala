@@ -1,40 +1,54 @@
 package ai.powerstats.api
 package route
 
-import route.request.{ApiKeyCreateRequest, ApiKeyCreateResponse}
+import route.request.*
 import service.ApiKeyServiceComponent
 
-import ai.powerstats.common.logging.LoggingComponent
+import ai.powerstats.common.db.model.ApiKey
 import cats.effect.*
 import doobie.*
-import io.circe.*
+import io.circe.Encoder
 import io.circe.generic.auto.*
-import org.http4s.*
-import org.http4s.circe.*
-import org.http4s.circe.CirceEntityDecoder.circeEntityDecoder
 import org.http4s.dsl.io.*
-import org.typelevel.log4cats.LoggerFactory
+import sttp.tapir.*
+import sttp.tapir.generic.auto.*
+import sttp.tapir.json.circe.*
+import sttp.tapir.server.ServerEndpoint
 
 trait ApiKeyRoutesComponent {
-  this: LoggingComponent &
+  this: RoutesComponent &
     ApiKeyServiceComponent =>
   val apiKeyRoutes: ApiKeyRoutes
 
-  trait ApiKeyRoutes extends RoutesWithAccountId {
-    private val logger = LoggerFactory[IO].getLogger
+  trait ApiKeyRoutes {
+    def endpoints(xa: Transactor[IO]): List[ServerEndpoint[Any, IO]] = {
+      val findEndpoint = routes.secureEndpoint.get
+        .in("api" / "v1" / "api-key")
+        .out(jsonBody[ApiSuccessResponseWithData[List[ApiKey]]])
 
-    override def routes(xa: Transactor[IO]): AuthedRoutes[Long, IO] = AuthedRoutes.of {
-      case GET -> Root / "api-key" as accountId =>
-        handleResponse(apiKeyService.findApiKeys(accountId, xa), logger)
+      val findServerEndpoint = findEndpoint.serverLogic(accountId => _ =>
+        routes.responseWithData(apiKeyService.findApiKeys(accountId, xa))
+      )
 
-      case authReq@POST -> Root / "api-key" as accountId => for {
-        parsedRequest <- authReq.req.as[ApiKeyCreateRequest]
-        response <- handleResponse(apiKeyService.createApiKey(accountId, parsedRequest.name, xa)
-          .map((key, apiKey) => ApiKeyCreateResponse(key, apiKey)), logger)
-      } yield response
+      val createEndpoint = routes.secureEndpoint.post
+        .in("api" / "v1" / "api-key")
+        .in(jsonBody[ApiKeyCreateRequest])
+        .out(jsonBody[ApiSuccessResponseWithData[ApiKeyCreateResponse]])
 
-      case DELETE -> Root / "api-key" / LongVar(id) as accountId =>
-        handleResponse(apiKeyService.deleteApiKey(id, accountId, xa), logger)
+      val createServerEndpoint = createEndpoint.serverLogic(accountId => createRequest =>
+        routes.responseWithData(apiKeyService.createApiKey(accountId, createRequest.name, xa)
+          .map((key, apiKey) => ApiKeyCreateResponse(key, apiKey)))
+      )
+
+      val deleteEndpoint = routes.secureEndpoint.delete
+        .in("api" / "v1" / "api-key" / path[Long]("id"))
+        .out(jsonBody[ApiSuccessResponse])
+
+      val deleteServerEndpoint = deleteEndpoint.serverLogic(accountId => id =>
+        routes.response(apiKeyService.deleteApiKey(id, accountId, xa))
+      )
+
+      List(findServerEndpoint, createServerEndpoint, deleteServerEndpoint)
     }
   }
 }

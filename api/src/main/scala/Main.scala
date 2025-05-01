@@ -1,7 +1,7 @@
 package ai.powerstats.api
 
 import db.DatabaseMigrationComponent
-import route.{AccountRoutesComponent, ApiKeyRoutesComponent, EventRoutesComponent, HealthRoutesComponent}
+import route.*
 import service.*
 
 import ai.powerstats.common.config.ConfigComponent
@@ -10,17 +10,18 @@ import ai.powerstats.common.logging.LoggingComponent
 import cats.*
 import cats.data.*
 import cats.effect.*
-import cats.implicits.{toSemigroupKOps, *}
+import cats.implicits.toSemigroupKOps
 import cats.syntax.all.*
 import org.http4s.*
-import org.http4s.dsl.io.*
 import org.http4s.ember.server.*
-import org.http4s.headers.Authorization
 import org.http4s.implicits.*
-import org.http4s.server.*
 import org.http4s.server.middleware.CORS
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
+import sttp.apispec.openapi.OpenAPI
+import sttp.tapir.*
+import sttp.tapir.server.http4s.{Http4sServerInterpreter, Http4sServerOptions}
+import sttp.tapir.swagger.bundle.SwaggerInterpreter
 
 import java.time.Clock
 
@@ -32,6 +33,7 @@ object Main extends IOApp.Simple
   with EmailServiceComponent
   with DatabaseMigrationComponent
   with DatabaseTransactorComponent
+  with RoutesComponent
   with HealthRepositoryComponent
   with HealthRoutesComponent
   with EventRepositoryComponent
@@ -51,6 +53,7 @@ object Main extends IOApp.Simple
   override val emailService = new EmailService {}
   override val databaseMigration = new DatabaseMigration {}
   override val databaseTransactor = new DatabaseTransactor {}
+  override val routes = new Routes {}
   override val healthRepository = new HealthRepository {}
   override val healthRoutes = new HealthRoutes {}
   override val eventRepository = new EventRepository {}
@@ -63,29 +66,6 @@ object Main extends IOApp.Simple
   override val apiKeyService = new ApiKeyService {}
   override val apiKeyRoutes = new ApiKeyRoutes {}
 
-  private val authAccount: Kleisli[IO, Request[IO], Either[String, Long]] = Kleisli({ request =>
-    val authAccount = for {
-      token <- IO(request.headers.get[Authorization] match {
-        case Some(Authorization(Credentials.Token(AuthScheme.Bearer, token))) => token
-        case None => throw new Error("Authorization header not found")
-        case _ => throw new Error("Invalid Authorization header")
-      })
-      // TODO: API Keys should be JWT tokens as well
-      claim <- accountService.validateWebToken(token)
-      subject <- IO.fromOption(claim.subject)(new Error("Subject not found"))
-      accountId <- IO(subject.toLong)
-    } yield accountId
-    authAccount
-      .attempt
-      .map(_.leftMap(_.toString))
-  })
-  private val onFailure: AuthedRoutes[String, IO] = Kleisli({ request =>
-    OptionT.liftF(IO(
-      Response[IO](status = Unauthorized)
-        .withEntity(request.context)))
-  })
-  private val authMiddleware: AuthMiddleware[IO, Long] = AuthMiddleware(authAccount, onFailure)
-
   val run = {
     val appConfig = config.appConfig
     val dbConfig = appConfig.map(_.database)
@@ -94,20 +74,41 @@ object Main extends IOApp.Simple
       for {
         apiConfig <- appConfig.map(_.api)
         _ <- databaseMigration.migrate(dbConfig)
-        routes = (healthRoutes.routes(xa) <+>
-          eventRoutes.routes(xa) <+>
-          accountRoutes.routes(xa) <+>
-          authMiddleware(apiKeyRoutes.routes(xa))).orNotFound
-        corsService <- CORS.policy.withAllowOriginAll(routes)
+        internalApiEndpoints =
+          healthRoutes.endpoints(xa) <+>
+            accountRoutes.endpoints(xa)
+        apiEndpoints =
+          eventRoutes.endpoints(xa) <+>
+            apiKeyRoutes.endpoints(xa)
+        docEndpoints = SwaggerInterpreter(customiseDocsModel = customiseDocsModel)
+          .fromServerEndpoints[IO](apiEndpoints, "PowerStats API", "1.0.0")
+        serverOptions = Http4sServerOptions.customiseInterceptors[IO].options
+        routes = Http4sServerInterpreter[IO](serverOptions)
+          .toRoutes(internalApiEndpoints ++ apiEndpoints ++ docEndpoints)
+          .orNotFound
+        corsService = CORS.policy.withAllowOriginAll(routes)
         _ <- EmberServerBuilder
           .default[IO]
           .withHost(apiConfig.host)
           .withPort(apiConfig.port)
           .withHttpApp(corsService)
+          .withHttpApp(routes)
           .build
           .use(_ => IO.never)
           .as(ExitCode.Success)
       } yield ()
     }
+  }
+
+  private def customiseDocsModel(openApi: OpenAPI) = {
+    openApi.components.map { components =>
+      openApi.components(
+        components.securitySchemes(
+          components.securitySchemes.filterNot { (schemeName, _) =>
+            schemeName == "internal"
+          }
+        )
+      )
+    }.getOrElse(openApi)
   }
 }

@@ -15,7 +15,7 @@ import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
-import pdi.jwt.exceptions.{JwtLengthException, JwtValidationException}
+import pdi.jwt.exceptions.{JwtExpirationException, JwtLengthException, JwtValidationException}
 
 import java.nio.charset.StandardCharsets
 import java.time.{Clock, Instant, ZoneOffset}
@@ -153,7 +153,7 @@ class AccountServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Ma
     (for {
       token <- TestHelper.loadFromFile("web_token_valid")
       _ <- accountService.validateWebToken(token)
-    } yield ()).assertThrowsWithMessage[Error]("Invalid token")
+    } yield ()).assertThrowsWithMessage[JwtExpirationException]("The token is expired since 2025-04-28T10:00:00Z")
   }
 
   trait Fixture extends AccountServiceComponent
