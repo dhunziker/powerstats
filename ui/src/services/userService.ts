@@ -9,9 +9,16 @@ interface UserActivateRequest {
   activationKey: string;
 }
 
-interface UserActivateResponse {
-  email: string;
-  token: string;
+interface ApiResponse {
+  status: string;
+  statusCode: number;
+}
+
+interface UserActivateResponse extends ApiResponse {
+  data: {
+    email: string;
+    token: string;
+  }
 }
 
 interface UserLoginRequest {
@@ -19,9 +26,11 @@ interface UserLoginRequest {
   password: string;
 }
 
-interface UserLoginResponse {
-  email: string;
-  token: string;
+interface UserLoginResponse extends ApiResponse {
+  data: {
+    email: string;
+    token: string;
+  }
 }
 
 export async function register(email: string, password: string): Promise<void> {

@@ -60,11 +60,11 @@ async function handleCreate() {
         type: 'positive',
         message: `API key created successfully.`,
       });
-      apiKeys.value.push(response.apiKey);
-      key.value = response.key;
+      apiKeys.value.push(response.data.apiKey);
+      key.value = response.data.key;
       keyName.value = '';
       keyCreated.value = true;
-      emit('created', response.apiKey);
+      emit('created', response.data.apiKey);
     })
     .catch(() => {
       $q.notify({

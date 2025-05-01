@@ -22,7 +22,7 @@ const onDeletedEvent = (id: number) => {
 
 onMounted(async () => {
   await getApiKeys().then((response) => {
-    apiKeys.value = response;
+    apiKeys.value = response.data;
   });
 });
 </script>

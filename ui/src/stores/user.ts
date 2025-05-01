@@ -16,8 +16,8 @@ export const useUserStore = defineStore('user', {
       await login(email, password).then(
         (response) =>
           (this.user = {
-            email: response.email,
-            token: response.token,
+            email: response.data.email,
+            token: response.data.token,
           }),
       );
     },
@@ -33,8 +33,8 @@ export const useUserStore = defineStore('user', {
       await activate(token).then(
         (response) =>
           (this.user = {
-            email: response.email,
-            token: response.token,
+            email: response.data.email,
+            token: response.data.token,
           }),
       );
     },

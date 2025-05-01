@@ -9,27 +9,38 @@ export interface ApiKey {
   expiryDate: Date;
 }
 
+interface ApiResponse {
+  status: string;
+  statusCode: number;
+}
+
+interface ApiKeyResponse extends ApiResponse {
+  data: ApiKey[];
+}
+
 interface ApiKeyCreateRequest {
   name: string;
 }
 
-interface ApiKeyCreateResponse {
-  key: string;
-  apiKey: ApiKey;
+interface ApiKeyCreateResponse extends ApiResponse {
+  data: {
+    key: string;
+    apiKey: ApiKey;
+  }
 }
 
-export async function getApiKeys(): Promise<ApiKey[]> {
-  const response = await api.get<ApiKey[]>('/api-key');
+export async function getApiKeys(): Promise<ApiKeyResponse> {
+  const response = await api.get<ApiKeyResponse>('/api/v1/api-key');
   return response.data;
 }
 
 export async function createApiKey(name: string): Promise<ApiKeyCreateResponse> {
   const req: ApiKeyCreateRequest = { name };
-  const response = await api.post<ApiKeyCreateResponse>('/api-key', req);
+  const response = await api.post<ApiKeyCreateResponse>('/api/v1/api-key', req);
   return response.data;
 }
 
 export async function deleteApiKey(id: number): Promise<void> {
-  const response = await api.delete<void>(`/api-key/${id}`);
+  const response = await api.delete<void>(`/api/v1/api-key/${id}`);
   return response.data;
 }
