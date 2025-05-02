@@ -1,8 +1,8 @@
-FROM sbtscala/scala-sbt:eclipse-temurin-alpine-21.0.6_7_1.10.10_3.6.3 as build-stage
+FROM sbtscala/scala-sbt:eclipse-temurin-alpine-21.0.6_7_1.10.10_3.6.4 as build-stage
 WORKDIR /app
 COPY . .
 RUN sbt clean compile assembly
 
 FROM eclipse-temurin:21-jre-alpine as production-stage
-COPY --from=build-stage /app/api/target/scala-3.6.3/api-assembly-*.jar api-assembly.jar
+COPY --from=build-stage /app/api/target/scala-3.6.4/api-assembly-*.jar api-assembly.jar
 ENTRYPOINT ["java", "-Xms400M", "-Xmx400M", "-jar", "api-assembly.jar"]
