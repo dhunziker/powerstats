@@ -1,12 +1,12 @@
-package ai.powerstats.api
+package dev.powerstats.api
 package service
 
 import Main.HashingService
 import test.{MockAccountRepositoryComponent, MockEmailServiceComponent, TestHelper}
 
-import ai.powerstats.common.config.ConfigComponent
-import ai.powerstats.common.db.model.AccountStatus
-import ai.powerstats.common.logging.LoggingComponent
+import dev.powerstats.common.config.ConfigComponent
+import dev.powerstats.common.db.model.AccountStatus
+import dev.powerstats.common.logging.LoggingComponent
 import cats.effect.IO
 import cats.effect.testing.scalatest.AsyncIOSpec
 import org.scalatest.Assertion

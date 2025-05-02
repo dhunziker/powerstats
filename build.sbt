@@ -5,7 +5,7 @@ Global / excludeLintKeys := Set(idePackagePrefix)
 
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
-ThisBuild / organization := "ai.powerstats"
+ThisBuild / organization := "dev.powerstats"
 
 ThisBuild / scalaVersion := "3.6.4"
 
@@ -57,7 +57,7 @@ lazy val backend = (project in file("backend"))
   .dependsOn(common)
   .settings(
     commonSettings,
-    assembly / mainClass := Some("ai.powerstats.backend.Main"),
+    assembly / mainClass := Some("dev.powerstats.backend.Main"),
     libraryDependencies ++= Seq(
       "ch.qos.logback" % "logback-classic" % logbackVersion % Runtime,
       "co.fs2" %% "fs2-core" % fs2Version,
@@ -69,7 +69,7 @@ lazy val api = (project in file("api"))
   .dependsOn(common)
   .settings(
     commonSettings,
-    assembly / mainClass := Some("ai.powerstats.api.Main"),
+    assembly / mainClass := Some("dev.powerstats.api.Main"),
     libraryDependencies ++= Seq(
       "ch.qos.logback" % "logback-classic" % logbackVersion % Runtime,
       "org.flywaydb" % "flyway-core" % flywayVersion,

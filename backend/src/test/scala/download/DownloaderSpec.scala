@@ -1,4 +1,4 @@
-package ai.powerstats.backend
+package dev.powerstats.backend
 package download
 
 import cats.effect.*

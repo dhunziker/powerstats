@@ -1,13 +1,13 @@
-package ai.powerstats.api
+package dev.powerstats.api
 package service
 
 import service.util.Base62Helper
 
-import ai.powerstats.common.config.ConfigComponent
-import ai.powerstats.common.db.AccountRepositoryComponent
-import ai.powerstats.common.db.model.Account
-import ai.powerstats.common.db.model.AccountStatus.{Provisional, Verified}
-import ai.powerstats.common.logging.LoggingComponent
+import dev.powerstats.common.config.ConfigComponent
+import dev.powerstats.common.db.AccountRepositoryComponent
+import dev.powerstats.common.db.model.Account
+import dev.powerstats.common.db.model.AccountStatus.{Provisional, Verified}
+import dev.powerstats.common.logging.LoggingComponent
 import cats.effect.{IO, Resource}
 import doobie.Transactor
 import org.http4s.client.Client

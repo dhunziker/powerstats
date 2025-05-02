@@ -1,4 +1,4 @@
-package ai.powerstats.api
+package dev.powerstats.api
 package route
 
 import error.{NotFoundError, ServiceUnavailableError}

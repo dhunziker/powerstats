@@ -1,9 +1,9 @@
-package ai.powerstats.api
+package dev.powerstats.api
 package test
 
 import service.EmailServiceComponent
 
-import ai.powerstats.common.email.{RespMessage, RespMessages, RespTo}
+import dev.powerstats.common.email.{RespMessage, RespMessages, RespTo}
 import cats.effect.IO
 import cats.effect.kernel.Ref
 import org.http4s.client.Client

@@ -1,8 +1,8 @@
-package ai.powerstats.api
+package dev.powerstats.api
 package test
 
-import ai.powerstats.common.db.AccountRepositoryComponent
-import ai.powerstats.common.db.model.{Account, AccountStatus}
+import dev.powerstats.common.db.AccountRepositoryComponent
+import dev.powerstats.common.db.model.{Account, AccountStatus}
 import cats.effect.kernel.Ref
 import cats.effect.{IO, Ref}
 import doobie.Transactor

@@ -1,4 +1,4 @@
-package ai.powerstats.common
+package dev.powerstats.common
 package config
 
 final case class AppConfig(ui: Ui,

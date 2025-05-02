@@ -1,11 +1,11 @@
-package ai.powerstats.api
+package dev.powerstats.api
 package route
 
 import error.NotFoundError
 import route.request.ApiSuccessResponseWithData
 import service.EventServiceComponent
 
-import ai.powerstats.common.db.model.Event
+import dev.powerstats.common.db.model.Event
 import cats.effect.*
 import doobie.*
 import io.circe.Encoder

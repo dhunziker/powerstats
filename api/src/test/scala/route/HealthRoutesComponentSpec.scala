@@ -1,12 +1,12 @@
-package ai.powerstats.api
+package dev.powerstats.api
 package route
 
 import Main.{AccountService, Routes}
 import service.*
 import test.*
 
-import ai.powerstats.common.config.ConfigComponent
-import ai.powerstats.common.logging.LoggingComponent
+import dev.powerstats.common.config.ConfigComponent
+import dev.powerstats.common.logging.LoggingComponent
 import cats.data.Kleisli
 import cats.effect.*
 import cats.effect.testing.scalatest.AsyncIOSpec

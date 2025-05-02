@@ -1,4 +1,4 @@
-# powerstats (ai.powerstats.ui)
+# powerstats (dev.powerstats.ui)
 
 A Quasar Project
 

@@ -1,4 +1,4 @@
-package ai.powerstats.api
+package dev.powerstats.api
 package service.util
 
 import org.scalatest.flatspec.AnyFlatSpec

@@ -1,7 +1,7 @@
-package ai.powerstats.api
+package dev.powerstats.api
 package db
 
-import ai.powerstats.common.config.Database
+import dev.powerstats.common.config.Database
 import cats.effect.IO
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.output.MigrateResult

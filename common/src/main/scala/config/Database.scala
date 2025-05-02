@@ -1,4 +1,4 @@
-package ai.powerstats.common
+package dev.powerstats.common
 package config
 
 case class Database(url: String,

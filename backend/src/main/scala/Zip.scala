@@ -1,4 +1,4 @@
-package ai.powerstats.backend
+package dev.powerstats.backend
 
 import cats.effect.IO
 import cats.implicits.*

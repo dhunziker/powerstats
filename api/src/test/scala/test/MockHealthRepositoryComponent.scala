@@ -1,7 +1,7 @@
-package ai.powerstats.api
+package dev.powerstats.api
 package test
 
-import ai.powerstats.common.db.HealthRepositoryComponent
+import dev.powerstats.common.db.HealthRepositoryComponent
 import cats.effect.IO
 import doobie.Transactor
 

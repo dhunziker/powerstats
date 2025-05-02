@@ -1,11 +1,11 @@
-package ai.powerstats.api
+package dev.powerstats.api
 package test
 
 import service.{AccountServiceComponent, ClockComponent, HashingServiceComponent}
 
-import ai.powerstats.common.config.ConfigComponent
-import ai.powerstats.common.db.AccountRepositoryComponent
-import ai.powerstats.common.logging.LoggingComponent
+import dev.powerstats.common.config.ConfigComponent
+import dev.powerstats.common.db.AccountRepositoryComponent
+import dev.powerstats.common.logging.LoggingComponent
 import cats.effect.IO
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory

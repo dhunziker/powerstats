@@ -1,12 +1,12 @@
-package ai.powerstats.api
+package dev.powerstats.api
 
 import db.DatabaseMigrationComponent
 import route.*
 import service.*
 
-import ai.powerstats.common.config.ConfigComponent
-import ai.powerstats.common.db.*
-import ai.powerstats.common.logging.LoggingComponent
+import dev.powerstats.common.config.ConfigComponent
+import dev.powerstats.common.db.*
+import dev.powerstats.common.logging.LoggingComponent
 import cats.*
 import cats.data.*
 import cats.effect.*

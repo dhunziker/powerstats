@@ -1,10 +1,10 @@
-package ai.powerstats.api
+package dev.powerstats.api
 package route
 
 import route.request.*
 import service.AccountServiceComponent
 
-import ai.powerstats.common.db.model.Account
+import dev.powerstats.common.db.model.Account
 import cats.effect.*
 import doobie.*
 import io.circe.*

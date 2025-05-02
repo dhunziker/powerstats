@@ -1,10 +1,10 @@
-package ai.powerstats.api
+package dev.powerstats.api
 package service
 
 import test.TestHelper
 
-import ai.powerstats.common.config.ConfigComponent
-import ai.powerstats.common.logging.LoggingComponent
+import dev.powerstats.common.config.ConfigComponent
+import dev.powerstats.common.logging.LoggingComponent
 import cats.effect.testing.scalatest.AsyncIOSpec
 import cats.effect.{Deferred, IO}
 import org.http4s.*

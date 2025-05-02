@@ -1,10 +1,10 @@
-package ai.powerstats.backend
+package dev.powerstats.backend
 
 import download.DownloaderComponent
 
-import ai.powerstats.common.config.{ConfigComponent, Database}
-import ai.powerstats.common.db.model.Event
-import ai.powerstats.common.db.{DatabaseTransactorComponent, EventRepositoryComponent}
+import dev.powerstats.common.config.{ConfigComponent, Database}
+import dev.powerstats.common.db.model.Event
+import dev.powerstats.common.db.{DatabaseTransactorComponent, EventRepositoryComponent}
 import cats.effect.{IO, IOApp}
 import doobie.Transactor
 import org.typelevel.log4cats.LoggerFactory

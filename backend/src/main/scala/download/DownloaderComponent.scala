@@ -1,7 +1,7 @@
-package ai.powerstats.backend
+package dev.powerstats.backend
 package download
 
-import ai.powerstats.common.logging.LoggingComponent
+import dev.powerstats.common.logging.LoggingComponent
 import cats.effect.*
 import fs2.*
 import org.typelevel.log4cats.LoggerFactory

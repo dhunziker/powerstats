@@ -1,8 +1,8 @@
-package ai.powerstats.api
+package dev.powerstats.api
 package service
 
-import ai.powerstats.common.db.EventRepositoryComponent
-import ai.powerstats.common.db.model.Event
+import dev.powerstats.common.db.EventRepositoryComponent
+import dev.powerstats.common.db.model.Event
 import cats.effect.IO
 import doobie.Transactor
 

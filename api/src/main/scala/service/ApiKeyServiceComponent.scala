@@ -1,9 +1,9 @@
-package ai.powerstats.api
+package dev.powerstats.api
 package service
 
-import ai.powerstats.common.db.ApiKeyRepositoryComponent
-import ai.powerstats.common.db.model.ApiKey
-import ai.powerstats.common.logging.LoggingComponent
+import dev.powerstats.common.db.ApiKeyRepositoryComponent
+import dev.powerstats.common.db.model.ApiKey
+import dev.powerstats.common.logging.LoggingComponent
 import at.favre.lib.crypto.bcrypt.BCrypt
 import cats.effect.IO
 import doobie.Transactor

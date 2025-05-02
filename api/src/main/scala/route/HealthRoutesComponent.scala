@@ -1,10 +1,10 @@
-package ai.powerstats.api
+package dev.powerstats.api
 package route
 
 import error.ServiceUnavailableError
 import route.request.ApiSuccessResponse
 
-import ai.powerstats.common.db.HealthRepositoryComponent
+import dev.powerstats.common.db.HealthRepositoryComponent
 import cats.effect.*
 import doobie.*
 import io.circe.generic.auto.*

@@ -1,4 +1,4 @@
-package ai.powerstats.common
+package dev.powerstats.common
 package email
 
 import io.circe.Encoder
