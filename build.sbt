@@ -24,6 +24,8 @@ lazy val commonSettings = Seq(
     "org.typelevel" %% "log4cats-slf4j" % log4catsVersion
   ),
   assembly / assemblyMergeStrategy := {
+    case PathList("META-INF", "maven", "org.webjars", "swagger-ui", "pom.properties") => MergeStrategy.singleOrError
+    case PathList("META-INF", "resources", "webjars", "swagger-ui", _*) => MergeStrategy.singleOrError
     case PathList("META-INF", xs@_*) =>
       xs.map(_.toLowerCase) match {
         case "services" :: xs => MergeStrategy.filterDistinctLines
