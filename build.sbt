@@ -7,7 +7,7 @@ ThisBuild / version := "0.1.0-SNAPSHOT"
 
 ThisBuild / organization := "ai.powerstats"
 
-ThisBuild / scalaVersion := "3.6.3"
+ThisBuild / scalaVersion := "3.6.4"
 
 ThisBuild / Compile / run / fork := true
 
