@@ -13,9 +13,9 @@ import dev.powerstats.common.db.*
 import dev.powerstats.common.logging.LoggingComponent
 import org.http4s.*
 import org.http4s.ember.server.*
+import org.http4s.headers.*
 import org.http4s.implicits.*
-import org.http4s.server.middleware.{CORS, HSTS}
-import org.typelevel.ci.CIStringSyntax
+import org.http4s.server.middleware.CORS
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import sttp.apispec.openapi.OpenAPI
@@ -24,6 +24,7 @@ import sttp.tapir.server.http4s.{Http4sServerInterpreter, Http4sServerOptions}
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
 
 import java.time.Clock
+import scala.concurrent.duration.*
 
 object Main extends IOApp.Simple
   with ConfigComponent
@@ -66,23 +67,6 @@ object Main extends IOApp.Simple
   override val apiKeyService = new ApiKeyService {}
   override val apiKeyRoutes = new ApiKeyRoutes {}
 
-  import org.http4s.headers.*
-
-  import scala.concurrent.duration.*
-
-  val hstsHeader = `Strict-Transport-Security`
-    .unsafeFromDuration(30.days, includeSubDomains = true, preload = true)
-
-  val contentTypeOptionsMiddleware: HttpApp[IO] => HttpApp[IO] = { httpApp =>
-    httpApp.map { response =>
-      response.putHeaders(
-        Header.Raw(ci"X-Content-Type-Options", "nosniff"),
-        Header.Raw(ci"Referrer-Policy", "origin")
-
-      )
-    }
-  }
-
   val run = {
     val appConfig = config.appConfig
     val dbConfig = appConfig.map(_.database)
@@ -106,7 +90,7 @@ object Main extends IOApp.Simple
         corsService = CORS.policy
           .withAllowOriginHost(Set(
             Origin.Host(Uri.Scheme.https, Uri.RegName("powerstats-ui.onrender.com"), None),
-            Origin.Host(Uri.Scheme.https, Uri.RegName("powerstats.dev"), None),
+            Origin.Host(Uri.Scheme.https, Uri.RegName("www.powerstats.dev"), None),
             Origin.Host(Uri.Scheme.http, Uri.RegName("localhost"), Some(9000))
           ))
           .withAllowHeadersAll
@@ -114,12 +98,11 @@ object Main extends IOApp.Simple
           .withAllowCredentials(false)
           .withMaxAge(1.day)
           .apply(routes)
-        hstsServiceCustom = HSTS(corsService, hstsHeader)
         _ <- EmberServerBuilder
           .default[IO]
           .withHost(apiConfig.host)
           .withPort(apiConfig.port)
-          .withHttpApp(hstsServiceCustom)
+          .withHttpApp(corsService)
           .build
           .use(_ => IO.never)
           .as(ExitCode.Success)
