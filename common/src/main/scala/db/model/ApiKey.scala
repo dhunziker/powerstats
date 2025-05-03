@@ -6,11 +6,7 @@ import java.time.LocalDateTime
 case class ApiKey(id: Long,
                   accountId: Long,
                   name: String,
-                  keyHash: Array[Byte],
+                  publicKey: String,
+                  secretKeyHash: Array[Byte],
                   creationDate: LocalDateTime,
-                  expiryDate: LocalDateTime) {
-  def isValid: Boolean = {
-    val now = LocalDateTime.now()
-    now.isAfter(creationDate) && now.isBefore(expiryDate)
-  }
-}
+                  expiryDate: LocalDateTime)

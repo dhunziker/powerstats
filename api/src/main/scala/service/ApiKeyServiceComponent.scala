@@ -32,13 +32,20 @@ trait ApiKeyServiceComponent {
 
     def createApiKey(accountId: Long, name: String, xa: Transactor[IO]): IO[(String, ApiKey)] = {
       for {
-        key <- IO.pure(UUID.randomUUID().toString)
-        keyHash <- hashingService.hash(key)
+        publicKey <- IO.pure(randomHex256())
+        secretKey <- IO.pure(randomHex256())
+        secretKeyHash <- hashingService.hash(secretKey)
         creationDate = LocalDateTime.now()
         expiryDate = creationDate.plusYears(DefaultExpiryTimeInYears)
-        apiKey <- apiKeyRepository.insertApiKey(accountId, name, keyHash, creationDate, expiryDate, xa)
+        apiKey <- apiKeyRepository.insertApiKey(accountId, name, publicKey, secretKeyHash, creationDate, expiryDate, xa)
         _ <- logger.info(s"API key created successfully")
-      } yield (key, apiKey)
+      } yield (secretKey, apiKey)
+    }
+    
+    private def randomHex256(): String = {
+      val arr = Array[Byte](32)
+      scala.util.Random.nextBytes(arr)
+      arr.iterator.map(b => String.format("%02x", Byte.box(b))).mkString("")
     }
 
     def deleteApiKey(id: Long, accountId: Long, xa: Transactor[IO]): IO[Unit] = {

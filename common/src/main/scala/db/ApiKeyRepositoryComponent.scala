@@ -15,16 +15,7 @@ trait ApiKeyRepositoryComponent {
 
   trait ApiKeyRepository {
     def findApiKeys(accountId: Long, xa: Transactor[IO]): IO[List[ApiKey]] = {
-      sql"""select
-              id,
-              account_id,
-              name,
-              key_hash,
-              creation_date,
-              expiry_date
-            from api_key
-            where account_id = $accountId
-            order by creation_date""".stripMargin
+      findApiKeys(accountId = Some(accountId))
         .query[ApiKey]
         .to[List]
         .transact(xa)
@@ -32,49 +23,62 @@ trait ApiKeyRepositoryComponent {
 
     def insertApiKey(accountId: Long,
                      name: String,
-                     keyHash: Array[Byte],
+                     publicKey: String,
+                     secretKeyHash: Array[Byte],
                      creationDate: LocalDateTime,
                      expiryDate: LocalDateTime,
                      xa: Transactor[IO]): IO[ApiKey] = {
-      (for {
-        id <- sql"""insert into api_key (
+      val insertQuery = Update[(Long, String, String, Array[Byte], LocalDateTime, LocalDateTime)](
+        """
+          insert into api_key (
               account_id,
               name,
-              key_hash,
+              public_key,
+              secret_key_hash,
               creation_date,
               expiry_date
-            ) values (
-              $accountId,
-              $name,
-              $keyHash,
-              $creationDate,
-              $expiryDate
-            )"""
-          .stripMargin
-          .update
-          .withUniqueGeneratedKeys[Long]("id")
-        apiKey <- sql"""select
-              id,
-              account_id,
-              name,
-              key_hash,
-              creation_date,
-              expiry_date
-            from api_key
-            where id = $id"""
-          .stripMargin
-          .query[ApiKey]
-          .unique
-      } yield apiKey).transact(xa)
+            ) values (?, ?, ?, ?, ?, ?)
+        """
+      )
+      val insertAndSelect = for {
+        id <- insertQuery.withUniqueGeneratedKeys[Long]("id")(
+          (accountId, name, publicKey, secretKeyHash, creationDate, expiryDate)
+        )
+        apiKey <- findApiKeys(id = Some(id)).query[ApiKey].unique
+      } yield apiKey
+      insertAndSelect.transact(xa)
     }
 
     def deleteApiKey(id: Long, accountId: Long, xa: Transactor[IO]): IO[Int] = {
-      sql"""delete from api_key
-            where id = $id
-            and account_id = $accountId""".stripMargin
-        .update
-        .run
+      val deleteQuery = Update[(Long, Long)](
+        """
+          delete from api_key
+          where id = ?
+          and account_id = ?
+        """
+      )
+      deleteQuery
+        .run((id, accountId))
         .transact(xa)
+    }
+
+    private def findApiKeys(id: Option[Long] = None, accountId: Option[Long] = None, publicKey: Option[String] = None): Fragment = {
+      val baseQuery =
+        fr"""
+          select
+            id,
+            account_id,
+            name,
+            public_key,
+            secret_key_hash,
+            creation_date,
+            expiry_date
+          from api_key
+        """
+      val idFilter = id.map(i => fr"id = $i")
+      val accountIdFilter = accountId.map(a => fr"account_id = $a")
+      val publicKeyFilter = publicKey.map(p => fr"public_key = $p")
+      baseQuery ++ Fragments.whereAndOpt(idFilter, accountIdFilter, publicKeyFilter)
     }
   }
 }
