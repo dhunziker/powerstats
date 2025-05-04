@@ -29,9 +29,7 @@ object Main extends IOApp.Simple
   private val OpenIpf = "https://openpowerlifting.gitlab.io/opl-csv/files/openipf-latest.zip"
 
   val run = {
-    val appConfig = config.appConfig
-    val dbConfig = appConfig.map(_.database)
-    val transactor = databaseTransactor.init(dbConfig)
+    val transactor = databaseTransactor.init(config.dbConfig)
     transactor.use { xa =>
       for {
         isTruncated <- eventRepository.truncateEvent(xa)
@@ -41,7 +39,7 @@ object Main extends IOApp.Simple
         _ <- Zip.unzip(file)
         csvFile <- findCsv(tempDir)
         header <- parseHeader(csvFile)
-        counts <- processBatches(csvFile, header, dbConfig, xa)
+        counts <- processBatches(csvFile, header, config.dbConfig, xa)
         _ <- IO(println(s"Inserted ${counts.sum} rows"))
         isRefreshed <- eventRepository.refreshEventView(xa)
         _ <- IO(println(s"Refreshed view with result: $isRefreshed"))

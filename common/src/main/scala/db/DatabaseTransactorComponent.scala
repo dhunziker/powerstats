@@ -20,7 +20,7 @@ trait DatabaseTransactorComponent {
       for {
         dbConfig <- database.toResource
         ec <- ExecutionContexts.fixedThreadPool[IO](32)
-        hikariConfig <- Resource.pure {
+        hikariConfig <- Resource.pure[IO, HikariConfig] {
           val config = new HikariConfig()
           config.setDriverClassName(PostgresDriver)
           config.setJdbcUrl(dbConfig.url)

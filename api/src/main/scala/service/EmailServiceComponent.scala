@@ -25,8 +25,8 @@ trait EmailServiceComponent
     private val logger = LoggerFactory[IO].getLogger
 
     def sendActivationEmail(client: Client[IO], templateId: Long, toAddress: String, toName: String, activationLink: String): IO[RespMessages] = for {
-      apiConfig <- config.appConfig.map(_.api)
-      mailjetConfig <- config.appConfig.map(_.mailjet)
+      apiConfig <- config.apiConfig
+      mailjetConfig <- config.mailjetConfig
       from = ReqFrom(mailjetConfig.fromAddress, mailjetConfig.fromName)
       to = ReqTo(toAddress, toName)
       messages = ReqMessages(List(

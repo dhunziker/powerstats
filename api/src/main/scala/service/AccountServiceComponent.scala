@@ -82,7 +82,7 @@ trait AccountServiceComponent {
     // TODO: Could be private?
     def validateWebToken(webToken: String)(implicit clock: Clock): IO[JwtClaim] = {
       for {
-        apiConfig <- config.appConfig.map(_.api)
+        apiConfig <- config.apiConfig
         decodedToken = Base62Helper.decodeString(webToken)
         claim <- IO.fromTry(JwtCirce(clock).decode(decodedToken, apiConfig.jwtKey, Seq(JwtAlgorithm.HS512)))
       } yield claim
@@ -128,7 +128,7 @@ trait AccountServiceComponent {
     }
 
     private def issueWebToken(accountId: Long)(implicit clock: Clock): IO[String] = for {
-      apiConfig <- config.appConfig.map(_.api)
+      apiConfig <- config.apiConfig
       claim <- IO(JwtClaim()
         .about(accountId.toString)
         .expiresIn(LoginSessionTimeout.toSeconds)

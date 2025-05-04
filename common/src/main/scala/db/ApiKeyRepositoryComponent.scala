@@ -21,6 +21,13 @@ trait ApiKeyRepositoryComponent {
         .transact(xa)
     }
 
+    def findApiKeys(publicKey: String, xa: Transactor[IO]): IO[List[ApiKey]] = {
+      findApiKeys(publicKey = Some(publicKey))
+        .query[ApiKey]
+        .to[List]
+        .transact(xa)
+    }
+
     def insertApiKey(accountId: Long,
                      name: String,
                      publicKey: String,

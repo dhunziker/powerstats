@@ -13,10 +13,14 @@ trait ConfigComponent {
   val config: Config
 
   trait Config {
-    def appConfig: IO[AppConfig] = parser.decodePathF[IO, AppConfig]("app")
+    private val appConfig: IO[AppConfig] = parser.decodePathF[IO, AppConfig]("app")
 
     def uiConfig: IO[Ui] = appConfig.map(_.ui)
 
+    def apiConfig: IO[Api] = appConfig.map(_.api)
+
     def mailjetConfig: IO[Mailjet] = appConfig.map(_.mailjet)
+
+    def dbConfig: IO[Database] = appConfig.map(_.database)
   }
 }

@@ -68,13 +68,10 @@ object Main extends IOApp.Simple
   override val apiKeyRoutes = new ApiKeyRoutes {}
 
   val run = {
-    val appConfig = config.appConfig
-    val dbConfig = appConfig.map(_.database)
-    val transactor = databaseTransactor.init(dbConfig)
+    val transactor = databaseTransactor.init(config.dbConfig)
     transactor.use { xa =>
       for {
-        apiConfig <- appConfig.map(_.api)
-        _ <- databaseMigration.migrate(dbConfig)
+        _ <- databaseMigration.migrate(config.dbConfig)
         internalApiEndpoints =
           healthRoutes.endpoints(xa) <+>
             accountRoutes.endpoints(xa)
@@ -98,6 +95,7 @@ object Main extends IOApp.Simple
           .withAllowCredentials(false)
           .withMaxAge(1.day)
           .apply(routes)
+        apiConfig <- config.apiConfig
         _ <- EmberServerBuilder
           .default[IO]
           .withHost(apiConfig.host)
