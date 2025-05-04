@@ -3,10 +3,10 @@ package service
 
 import test.TestHelper
 
-import dev.powerstats.common.config.ConfigComponent
-import dev.powerstats.common.logging.LoggingComponent
 import cats.effect.testing.scalatest.AsyncIOSpec
 import cats.effect.{Deferred, IO}
+import dev.powerstats.common.config.ConfigComponent
+import dev.powerstats.common.logging.LoggingComponent
 import org.http4s.*
 import org.scalatest.Assertion
 import org.scalatest.flatspec.AsyncFlatSpec

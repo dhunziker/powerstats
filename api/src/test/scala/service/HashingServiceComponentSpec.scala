@@ -1,10 +1,10 @@
 package dev.powerstats.api
 package service
 
-import dev.powerstats.common.config.ConfigComponent
-import dev.powerstats.common.logging.LoggingComponent
 import cats.effect.IO
 import cats.effect.testing.scalatest.AsyncIOSpec
+import dev.powerstats.common.config.ConfigComponent
+import dev.powerstats.common.logging.LoggingComponent
 import org.scalatest.Assertion
 import org.scalatest.OptionValues.*
 import org.scalatest.flatspec.AsyncFlatSpec

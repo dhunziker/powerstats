@@ -4,8 +4,8 @@ package route
 import error.ServiceUnavailableError
 import route.request.ApiSuccessResponse
 
-import dev.powerstats.common.db.HealthRepositoryComponent
 import cats.effect.*
+import dev.powerstats.common.db.HealthRepositoryComponent
 import doobie.*
 import io.circe.generic.auto.*
 import org.http4s.dsl.io.*

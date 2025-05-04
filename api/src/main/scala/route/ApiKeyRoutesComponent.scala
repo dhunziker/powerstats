@@ -4,8 +4,8 @@ package route
 import route.request.*
 import service.ApiKeyServiceComponent
 
-import dev.powerstats.common.db.model.ApiKey
 import cats.effect.*
+import dev.powerstats.common.db.model.ApiKey
 import doobie.*
 import io.circe.Encoder
 import io.circe.generic.auto.*

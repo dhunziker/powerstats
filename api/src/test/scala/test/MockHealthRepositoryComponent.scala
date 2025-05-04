@@ -1,8 +1,8 @@
 package dev.powerstats.api
 package test
 
-import dev.powerstats.common.db.HealthRepositoryComponent
 import cats.effect.IO
+import dev.powerstats.common.db.HealthRepositoryComponent
 import doobie.Transactor
 
 trait MockHealthRepositoryComponent extends HealthRepositoryComponent {

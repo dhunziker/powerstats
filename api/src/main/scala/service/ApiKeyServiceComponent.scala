@@ -1,17 +1,16 @@
 package dev.powerstats.api
 package service
 
+import at.favre.lib.crypto.bcrypt.BCrypt
+import cats.effect.IO
 import dev.powerstats.common.db.ApiKeyRepositoryComponent
 import dev.powerstats.common.db.model.ApiKey
 import dev.powerstats.common.logging.LoggingComponent
-import at.favre.lib.crypto.bcrypt.BCrypt
-import cats.effect.IO
 import doobie.Transactor
 import org.typelevel.log4cats.LoggerFactory
 
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
-import java.util.UUID
 
 trait ApiKeyServiceComponent {
   this: LoggingComponent &
@@ -41,7 +40,7 @@ trait ApiKeyServiceComponent {
         _ <- logger.info(s"API key created successfully")
       } yield (secretKey, apiKey)
     }
-    
+
     private def randomHex256(): String = {
       val arr = Array[Byte](32)
       scala.util.Random.nextBytes(arr)

@@ -4,8 +4,8 @@ package route
 import route.request.*
 import service.AccountServiceComponent
 
-import dev.powerstats.common.db.model.Account
 import cats.effect.*
+import dev.powerstats.common.db.model.Account
 import doobie.*
 import io.circe.*
 import io.circe.generic.auto.*

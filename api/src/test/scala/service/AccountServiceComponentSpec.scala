@@ -4,11 +4,11 @@ package service
 import Main.HashingService
 import test.{MockAccountRepositoryComponent, MockEmailServiceComponent, TestHelper}
 
+import cats.effect.IO
+import cats.effect.testing.scalatest.AsyncIOSpec
 import dev.powerstats.common.config.ConfigComponent
 import dev.powerstats.common.db.model.AccountStatus
 import dev.powerstats.common.logging.LoggingComponent
-import cats.effect.IO
-import cats.effect.testing.scalatest.AsyncIOSpec
 import org.scalatest.Assertion
 import org.scalatest.OptionValues.*
 import org.scalatest.flatspec.AsyncFlatSpec

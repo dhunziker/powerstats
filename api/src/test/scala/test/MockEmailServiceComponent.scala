@@ -3,9 +3,9 @@ package test
 
 import service.EmailServiceComponent
 
-import dev.powerstats.common.email.{RespMessage, RespMessages, RespTo}
 import cats.effect.IO
 import cats.effect.kernel.Ref
+import dev.powerstats.common.email.{RespMessage, RespMessages, RespTo}
 import org.http4s.client.Client
 
 trait MockEmailServiceComponent extends EmailServiceComponent {

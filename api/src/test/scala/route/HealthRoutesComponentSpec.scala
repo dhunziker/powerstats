@@ -5,11 +5,11 @@ import Main.{AccountService, Routes}
 import service.*
 import test.*
 
-import dev.powerstats.common.config.ConfigComponent
-import dev.powerstats.common.logging.LoggingComponent
 import cats.data.Kleisli
 import cats.effect.*
 import cats.effect.testing.scalatest.AsyncIOSpec
+import dev.powerstats.common.config.ConfigComponent
+import dev.powerstats.common.logging.LoggingComponent
 import org.http4s.*
 import org.scalatest.Assertion
 import org.scalatest.flatspec.AsyncFlatSpec

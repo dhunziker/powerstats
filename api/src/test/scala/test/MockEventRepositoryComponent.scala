@@ -1,9 +1,9 @@
 package dev.powerstats.api
 package test
 
+import cats.effect.IO
 import dev.powerstats.common.db.EventRepositoryComponent
 import dev.powerstats.common.db.model.Event
-import cats.effect.IO
 import doobie.Transactor
 import fs2.io.file.{Files, Path}
 import io.circe.*

@@ -5,8 +5,8 @@ import error.NotFoundError
 import route.request.ApiSuccessResponseWithData
 import service.EventServiceComponent
 
-import dev.powerstats.common.db.model.Event
 import cats.effect.*
+import dev.powerstats.common.db.model.Event
 import doobie.*
 import io.circe.Encoder
 import io.circe.generic.auto.*

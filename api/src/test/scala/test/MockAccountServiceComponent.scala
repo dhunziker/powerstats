@@ -3,14 +3,11 @@ package test
 
 import service.{AccountServiceComponent, ClockComponent, HashingServiceComponent}
 
-import dev.powerstats.common.config.ConfigComponent
-import dev.powerstats.common.db.AccountRepositoryComponent
-import dev.powerstats.common.logging.LoggingComponent
 import cats.effect.IO
+import dev.powerstats.common.config.ConfigComponent
+import dev.powerstats.common.logging.LoggingComponent
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
-
-import java.time.Clock
 
 trait MockAccountServiceComponent extends AccountServiceComponent {
   this: ConfigComponent &
