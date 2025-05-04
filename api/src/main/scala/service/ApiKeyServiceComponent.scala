@@ -1,7 +1,6 @@
 package dev.powerstats.api
 package service
 
-import at.favre.lib.crypto.bcrypt.BCrypt
 import cats.effect.IO
 import dev.powerstats.common.db.ApiKeyRepositoryComponent
 import dev.powerstats.common.db.model.ApiKey
@@ -9,7 +8,6 @@ import dev.powerstats.common.logging.LoggingComponent
 import doobie.Transactor
 import org.typelevel.log4cats.LoggerFactory
 
-import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 
 trait ApiKeyServiceComponent {
@@ -31,20 +29,14 @@ trait ApiKeyServiceComponent {
 
     def createApiKey(accountId: Long, name: String, xa: Transactor[IO]): IO[(String, ApiKey)] = {
       for {
-        publicKey <- IO.pure(randomHex256())
-        secretKey <- IO.pure(randomHex256())
+        publicKey <- IO.pure(randomHex(32))
+        secretKey <- IO.pure(randomHex(32))
         secretKeyHash <- hashingService.hash(secretKey)
         creationDate = LocalDateTime.now()
         expiryDate = creationDate.plusYears(DefaultExpiryTimeInYears)
         apiKey <- apiKeyRepository.insertApiKey(accountId, name, publicKey, secretKeyHash, creationDate, expiryDate, xa)
         _ <- logger.info(s"API key created successfully")
       } yield (secretKey, apiKey)
-    }
-
-    private def randomHex256(): String = {
-      val arr = Array[Byte](32)
-      scala.util.Random.nextBytes(arr)
-      arr.iterator.map(b => String.format("%02x", Byte.box(b))).mkString("")
     }
 
     def deleteApiKey(id: Long, accountId: Long, xa: Transactor[IO]): IO[Unit] = {
@@ -55,8 +47,10 @@ trait ApiKeyServiceComponent {
       } yield ()
     }
 
-    private def hash(apiKey: String): Array[Byte] = {
-      BCrypt.withDefaults().hash(6, apiKey.getBytes(StandardCharsets.UTF_8))
+    private def randomHex(length: Int): String = {
+      val arr = Array.ofDim[Byte](length / 2)
+      scala.util.Random.nextBytes(arr)
+      arr.iterator.map(b => String.format("%02x", Byte.box(b))).mkString
     }
   }
 }
