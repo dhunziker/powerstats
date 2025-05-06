@@ -1,12 +1,14 @@
 package dev.powerstats.api
 package route
 
+import Main.AccountService
 import error.{NotFoundError, ServiceUnavailableError}
 import route.request.{ApiError, ApiErrorResponse, ApiSuccessResponse, ApiSuccessResponseWithData}
-import service.AccountServiceComponent
+import service.{AccountServiceComponent, SecurityServiceComponent}
 
 import cats.effect.*
 import cats.syntax.all.*
+import doobie.util.transactor.Transactor
 import io.circe.*
 import io.circe.generic.auto.*
 import sttp.model.StatusCode
@@ -16,7 +18,6 @@ import sttp.tapir.generic.auto.*
 import sttp.tapir.json.circe.*
 
 trait RoutesComponent {
-  this: AccountServiceComponent =>
   val routes: Routes
 
   trait Routes {
@@ -28,11 +29,11 @@ trait RoutesComponent {
       .errorOut(statusCode)
       .errorOut(jsonBody[ApiErrorResponse])
 
-    val secureEndpoint = publicEndpoint
+    def secureEndpoint(authenticator: Authenticator, xa: Transactor[IO]) = publicEndpoint
       .securityIn(auth.bearer[Option[String]]().securitySchemeName("internal"))
       .securityIn(auth.basic[Option[String]]())
       .serverSecurityLogic { case (bearerToken, basicAuth) =>
-        handleResponse(accountService.authenticate(bearerToken, basicAuth), isSecurityLogic = true)
+        handleResponse(authenticator.authenticate(bearerToken, basicAuth, xa), isSecurityLogic = true)
       }
 
     def response(serverLogic: IO[Unit]): IO[Either[(StatusCode, ApiErrorResponse), ApiSuccessResponse]] = {

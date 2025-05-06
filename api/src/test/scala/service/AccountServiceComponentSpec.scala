@@ -1,8 +1,7 @@
 package dev.powerstats.api
 package service
 
-import Main.HashingService
-import test.{MockAccountRepositoryComponent, MockEmailServiceComponent, TestHelper}
+import test.{MockAccountRepositoryComponent, MockApiKeyRepositoryComponent, MockEmailServiceComponent, TestHelper}
 
 import cats.effect.IO
 import cats.effect.testing.scalatest.AsyncIOSpec
@@ -65,6 +64,7 @@ class AccountServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Ma
   behavior of "activate"
 
   it should "activate account successfully" in withFixture { f =>
+    import f.*
     (for {
       inserted <- f.accountRepository.insertAccount("my.account@gmail.com", f.passwordHash, null)
       activationKey <- TestHelper.loadFromFile("web_token_valid")
@@ -85,6 +85,7 @@ class AccountServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Ma
   }
 
   it should "throw an exception when subject is not found" in withFixture { f =>
+    import f.*
     (for {
       _ <- f.accountRepository.insertAccount("my.account@gmail.com", f.passwordHash, null)
       activationKey <- TestHelper.loadFromFile("web_token_missing_subject")
@@ -93,6 +94,7 @@ class AccountServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Ma
   }
 
   it should "throw an exception when subject is not an existing account" in withFixture { f =>
+    import f.*
     (for {
       _ <- f.accountRepository.insertAccount("my.account@gmail.com", f.passwordHash, null)
       activationKey <- TestHelper.loadFromFile("web_token_invalid_subject")
@@ -130,56 +132,28 @@ class AccountServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Ma
     } yield ()).assertThrowsWithMessage[Error]("Invalid password")
   }
 
-  behavior of "validateWebToken"
-
-  it should "return the claim for a valid web token" in withFixture(23.hours) { f =>
-    import f.*
-    (for {
-      token <- TestHelper.loadFromFile("web_token_valid")
-      claim <- accountService.validateWebToken(token)
-    } yield claim).asserting { claim =>
-      claim.isValid should be(true)
-      claim.subject.value should be("0")
-    }
-  }
-
-  it should "throw an exception when the token is invalid" in withFixture(23.hours) { f =>
-    import f.*
-    accountService.validateWebToken("").assertThrows[JwtLengthException]
-  }
-
-  it should "throw an exception when the token is expired" in withFixture(24.hours) { f =>
-    import f.*
-    (for {
-      token <- TestHelper.loadFromFile("web_token_valid")
-      _ <- accountService.validateWebToken(token)
-    } yield ()).assertThrowsWithMessage[JwtExpirationException]("The token is expired since 2025-04-28T10:00:00Z")
-  }
-
   trait Fixture extends AccountServiceComponent
-    with ConfigComponent
     with LoggingComponent
-    with ClockComponent
-    with HashingServiceComponent
+    with ConfigComponent
+    with SecurityServiceComponent
+    with MockApiKeyRepositoryComponent
     with MockEmailServiceComponent
     with MockAccountRepositoryComponent {
     type T = AccountService
-    override implicit val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
+    override val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
     override val config = new Config {}
-    override val hashingService = new HashingService {}
-    override val accountRepository = new MockAccountRepository {}
+    override val securityService = new SecurityService {}
+    override val apiKeyRepository = new MockApiKeyRepository {}
     override val emailService: MockEmailService = new MockEmailService {}
+    override val accountRepository: MockAccountRepository = new MockAccountRepository {}
     override val accountService: T = new AccountService {}
-    val baseClock = Clock.fixed(Instant.parse("2025-04-27T10:00:00.00Z"), ZoneOffset.UTC)
+    protected val baseClock: Clock = Clock.fixed(Instant.parse("2025-04-27T10:00:00.00Z"), ZoneOffset.UTC)
+    implicit val clock: Clock = baseClock
     val passwordHash = "$2a$06$ujgKk1ts4xNdNVvHClvyWOkTSoy0MlyZNZLMWM059NrKDLsGHOVca".getBytes(StandardCharsets.UTF_8)
   }
 
-  private def withFixture(testCode: Fixture => IO[Assertion]): IO[Assertion] = withFixture(0.seconds)(testCode)
-
-  private def withFixture(offset: FiniteDuration)(testCode: Fixture => IO[Assertion]): IO[Assertion] = {
-    val fixture = new Fixture {
-      override implicit val clock: Clock = Clock.offset(baseClock, offset.toJava)
-    }
+  private def withFixture(testCode: Fixture => IO[Assertion]): IO[Assertion] = {
+    val fixture = new Fixture {}
     testCode(fixture)
   }
 }

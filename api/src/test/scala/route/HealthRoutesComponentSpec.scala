@@ -49,23 +49,10 @@ class HealthRoutesComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Matc
 
   trait Fixture extends HealthRoutesComponent
     with RoutesComponent
-    with AccountServiceComponent
-    with ConfigComponent
-    with LoggingComponent
-    with ClockComponent
-    with HashingServiceComponent
-    with MockEmailServiceComponent
-    with MockAccountRepositoryComponent
     with MockHealthRepositoryComponent {
     type T = HealthRoutes
-    override implicit val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
-    override implicit val clock: Clock = Clock.systemDefaultZone()
-    override val config = new Config {}
-    override val hashingService = new HashingService {}
-    override val accountRepository = new MockAccountRepository {}
-    override val emailService: MockEmailService = new MockEmailService {}
-    override val accountService = new AccountService {}
     override val routes = new Routes {}
+    override val healthRepository = new MockHealthRepository {}
     override val healthRoutes: T = new HealthRoutes {}
     override val checkHealthResponse = returnValues
   }

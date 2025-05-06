@@ -8,7 +8,6 @@ import cats.effect.*
 import dev.powerstats.common.db.HealthRepositoryComponent
 import doobie.*
 import io.circe.generic.auto.*
-import org.http4s.dsl.io.*
 import sttp.tapir.*
 import sttp.tapir.generic.auto.*
 import sttp.tapir.json.circe.*

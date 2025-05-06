@@ -17,8 +17,8 @@ trait MockApiKeyRepositoryComponent extends ApiKeyRepositoryComponent {
       filterStorage(apiKey => apiKey.accountId == accountId)
     }
 
-    override def findApiKeys(publicKey: String, xa: Transactor[IO]): IO[List[ApiKey]] = {
-      filterStorage(apiKey => apiKey.publicKey == publicKey)
+    override def findApiKeys(publicKey: String, xa: Transactor[IO]): IO[ApiKey] = {
+      findInStorage(apiKey => apiKey.publicKey == publicKey).map(_.get)
     }
 
     override def insertApiKey(accountId: Long,

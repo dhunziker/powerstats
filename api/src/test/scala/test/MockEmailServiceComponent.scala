@@ -5,10 +5,12 @@ import service.EmailServiceComponent
 
 import cats.effect.IO
 import cats.effect.kernel.Ref
+import dev.powerstats.common.config.ConfigComponent
 import dev.powerstats.common.email.{RespMessage, RespMessages, RespTo}
 import org.http4s.client.Client
 
-trait MockEmailServiceComponent extends EmailServiceComponent {
+trait MockEmailServiceComponent extends EmailServiceComponent with ConfigComponent {
+  val emailService: EmailService
 
   trait MockEmailService extends EmailService {
     private val request: Ref[IO, Boolean] = Ref.unsafe(false)

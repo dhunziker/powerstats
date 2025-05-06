@@ -21,10 +21,10 @@ trait ApiKeyRepositoryComponent {
         .transact(xa)
     }
 
-    def findApiKeys(publicKey: String, xa: Transactor[IO]): IO[List[ApiKey]] = {
+    def findApiKeys(publicKey: String, xa: Transactor[IO]): IO[ApiKey] = {
       findApiKeys(publicKey = Some(publicKey))
         .query[ApiKey]
-        .to[List]
+        .unique
         .transact(xa)
     }
 

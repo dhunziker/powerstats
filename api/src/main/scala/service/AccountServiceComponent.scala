@@ -1,7 +1,7 @@
 package dev.powerstats.api
 package service
 
-import service.util.Base62Helper
+import service.util.Base64Helper
 
 import cats.effect.{IO, Resource}
 import dev.powerstats.common.config.ConfigComponent
@@ -21,17 +21,14 @@ import java.time.Clock
 import scala.concurrent.duration.DurationInt
 
 trait AccountServiceComponent {
-  this: ConfigComponent &
-    LoggingComponent &
-    ClockComponent &
-    HashingServiceComponent &
+  this: LoggingComponent &
+    ConfigComponent &
+    SecurityServiceComponent &
     EmailServiceComponent &
     AccountRepositoryComponent =>
   val accountService: AccountService
 
   trait AccountService {
-    private val BCryptCost = 6
-    private val LoginSessionTimeout = 24.hours
     private val logger = LoggerFactory[IO].getLogger
 
     def register(email: String, password: String, xa: Transactor[IO]): IO[Account] = {
@@ -42,14 +39,14 @@ trait AccountServiceComponent {
       } yield account
     }
 
-    def activate(activationKey: String, xa: Transactor[IO]): IO[(Account, String)] = {
+    def activate(activationKey: String, xa: Transactor[IO])(implicit clock: Clock = Clock.systemDefaultZone()): IO[(Account, String)] = {
       for {
-        claim <- validateWebToken(activationKey)
+        claim <- securityService.validateWebToken(activationKey)
         subject <- IO.fromOption(claim.subject)(new Error("Subject not found"))
         accountId <- IO(subject.toLong)
         // TODO: Decide whether to fail the activation if the account is already verified
         account <- accountRepository.updateAccount(accountId, xa, status = Some(Verified))
-        webToken <- issueWebToken(account.id)
+        webToken <- securityService.issueWebToken(account.id)
         _ <- logger.info(s"Verified account with email ${account.email}")
       } yield (account, webToken)
     }
@@ -58,34 +55,15 @@ trait AccountServiceComponent {
       for {
         existingAccount <- accountRepository.findAccount(email, xa)
         account <- IO.fromOption(existingAccount)(new Error(s"Account with email $email not found"))
-        verified <- hashingService.verify(password, account.passwordHash)
+        verified <- securityService.validateHashedSecret(password, account.passwordHash)
         _ <- if (verified) {
           logger.info(s"Account with email $email authenticated")
         } else {
           logger.info(s"Failed to authenticate account with email $email")
         }
         _ <- IO.raiseUnless(verified)(new Error("Invalid password"))
-        webToken <- issueWebToken(account.id)
+        webToken <- securityService.issueWebToken(account.id)
       } yield webToken
-    }
-
-    def authenticate(webToken: Option[String], apiKey: Option[String]): IO[Long] = (webToken, apiKey) match {
-      case (Some(webToken), _) => for {
-        claim <- validateWebToken(webToken)
-        subject <- IO.fromOption(claim.subject)(new Error("Subject not found"))
-        accountId <- IO.pure(subject.toLong).adaptError(t => new Error(t.getMessage))
-      } yield accountId
-      case (_, Some(apiKey)) => IO.raiseError(new Error("API Key authentication not yet implemented"))
-      case (None, None) => IO.raiseError(new Error("Authorization header not found"))
-    }
-
-    // TODO: Could be private?
-    def validateWebToken(webToken: String)(implicit clock: Clock): IO[JwtClaim] = {
-      for {
-        apiConfig <- config.apiConfig
-        decodedToken = Base62Helper.decodeString(webToken)
-        claim <- IO.fromTry(JwtCirce(clock).decode(decodedToken, apiConfig.jwtKey, Seq(JwtAlgorithm.HS512)))
-      } yield claim
     }
 
     private def handleExistingAccount(account: Account): IO[Account] = {
@@ -99,7 +77,7 @@ trait AccountServiceComponent {
 
     private def handleNewAccount(email: String, password: String, xa: Transactor[IO]): IO[Account] = {
       for {
-        hashedPassword <- hashingService.hash(password)
+        hashedPassword <- securityService.hashSecret(password)
         account <- accountRepository.insertAccount(email, hashedPassword, xa)
         _ <- sendActivationEmail(account)
         _ <- logger.info(s"Registered new account with email $email")
@@ -122,19 +100,10 @@ trait AccountServiceComponent {
     private def createActivationLink(account: Account): IO[String] = {
       for {
         uiConfig <- config.uiConfig
-        webToken <- issueWebToken(account.id)
+        webToken <- securityService.issueWebToken(account.id)
         activationLink = s"${uiConfig.baseUrl}/user/activate/$webToken"
       } yield activationLink
     }
-
-    private def issueWebToken(accountId: Long)(implicit clock: Clock): IO[String] = for {
-      apiConfig <- config.apiConfig
-      claim <- IO(JwtClaim()
-        .about(accountId.toString)
-        .expiresIn(LoginSessionTimeout.toSeconds)
-        .issuedNow)
-      encoded <- IO(JwtCirce.encode(claim, apiConfig.jwtKey, JwtAlgorithm.HS512))
-    } yield Base62Helper.encodeString(encoded)
 
     private def createApiClient(apiKey: String, apiSecret: String): Resource[IO, Client[IO]] = {
       EmberClientBuilder.default[IO].build.map { client =>

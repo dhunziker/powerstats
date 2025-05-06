@@ -2,7 +2,7 @@ package dev.powerstats.api
 package route
 
 import route.request.*
-import service.ApiKeyServiceComponent
+import service.{ApiKeyServiceComponent, SecurityServiceComponent}
 
 import cats.effect.*
 import dev.powerstats.common.db.model.ApiKey
@@ -17,12 +17,13 @@ import sttp.tapir.server.ServerEndpoint
 
 trait ApiKeyRoutesComponent {
   this: RoutesComponent &
+    SecurityServiceComponent &
     ApiKeyServiceComponent =>
   val apiKeyRoutes: ApiKeyRoutes
 
   trait ApiKeyRoutes {
     def endpoints(xa: Transactor[IO]): List[ServerEndpoint[Any, IO]] = {
-      val findEndpoint = routes.secureEndpoint.get
+      val findEndpoint = routes.secureEndpoint(securityService, xa).get
         .in("api" / "v1" / "api-key")
         .out(jsonBody[ApiSuccessResponseWithData[List[ApiKey]]])
 
@@ -30,7 +31,7 @@ trait ApiKeyRoutesComponent {
         routes.responseWithData(apiKeyService.findApiKeys(accountId, xa))
       )
 
-      val createEndpoint = routes.secureEndpoint.post
+      val createEndpoint = routes.secureEndpoint(securityService, xa).post
         .in("api" / "v1" / "api-key")
         .in(jsonBody[ApiKeyCreateRequest])
         .out(jsonBody[ApiSuccessResponseWithData[ApiKeyCreateResponse]])
@@ -40,7 +41,7 @@ trait ApiKeyRoutesComponent {
           .map((key, apiKey) => ApiKeyCreateResponse(key, apiKey)))
       )
 
-      val deleteEndpoint = routes.secureEndpoint.delete
+      val deleteEndpoint = routes.secureEndpoint(securityService, xa).delete
         .in("api" / "v1" / "api-key" / path[Long]("id"))
         .out(jsonBody[ApiSuccessResponse])
 

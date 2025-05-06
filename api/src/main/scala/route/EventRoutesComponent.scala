@@ -3,14 +3,13 @@ package route
 
 import error.NotFoundError
 import route.request.ApiSuccessResponseWithData
-import service.EventServiceComponent
+import service.{EventServiceComponent, SecurityServiceComponent}
 
 import cats.effect.*
 import dev.powerstats.common.db.model.Event
 import doobie.*
 import io.circe.Encoder
 import io.circe.generic.auto.*
-import org.http4s.dsl.io.*
 import sttp.tapir.*
 import sttp.tapir.generic.auto.*
 import sttp.tapir.json.circe.*
@@ -18,13 +17,14 @@ import sttp.tapir.server.ServerEndpoint
 
 trait EventRoutesComponent {
   this: RoutesComponent &
+    SecurityServiceComponent &
     EventServiceComponent =>
   val eventRoutes: EventRoutes
 
   trait EventRoutes {
 
     def endpoints(xa: Transactor[IO]): List[ServerEndpoint[Any, IO]] = {
-      val findEventsEndpoint = routes.secureEndpoint.get
+      val findEventsEndpoint = routes.secureEndpoint(securityService, xa).get
         .in("api" / "v1" / "events" / "name" / path[String]("name"))
         .out(jsonBody[ApiSuccessResponseWithData[List[Event]]])
 

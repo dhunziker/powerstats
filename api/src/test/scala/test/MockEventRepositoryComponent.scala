@@ -11,7 +11,7 @@ import io.circe.generic.auto.*
 import org.http4s.dsl.io.*
 
 trait MockEventRepositoryComponent extends EventRepositoryComponent {
-  val eventRepository: EventRepository = new MockEventRepository {}
+  val eventRepository: EventRepository
 
   trait MockEventRepository extends EventRepository {
     override def findEvents(name: String, xa: Transactor[IO]): IO[List[Event]] = {

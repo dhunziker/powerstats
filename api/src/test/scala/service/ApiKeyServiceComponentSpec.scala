@@ -5,6 +5,7 @@ import test.MockApiKeyRepositoryComponent
 
 import cats.effect.IO
 import cats.effect.testing.scalatest.AsyncIOSpec
+import dev.powerstats.common.config.ConfigComponent
 import dev.powerstats.common.db.model.ApiKey
 import dev.powerstats.common.logging.LoggingComponent
 import org.scalatest.Assertion
@@ -68,11 +69,13 @@ class ApiKeyServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Mat
 
   trait Fixture extends ApiKeyServiceComponent
     with LoggingComponent
-    with HashingServiceComponent
+    with SecurityServiceComponent
+    with ConfigComponent
     with MockApiKeyRepositoryComponent {
     type T = ApiKeyService
     override implicit val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
-    override val hashingService = new HashingService {}
+    override val securityService = new SecurityService {}
+    override val config = new Config {}
     override val apiKeyRepository = new MockApiKeyRepository {}
     override val apiKeyService: T = new ApiKeyService {}
 

@@ -33,6 +33,7 @@ class EventServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Matc
 
   trait Fixture extends EventServiceComponent with MockEventRepositoryComponent {
     type T = EventService
+    override val eventRepository = new MockEventRepository {}
     override val eventService: T = new EventService {}
   }
 

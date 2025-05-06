@@ -16,14 +16,11 @@ import org.http4s.client.dsl.io.*
 import org.http4s.dsl.io.*
 import org.typelevel.log4cats.LoggerFactory
 
-trait EmailServiceComponent
-  extends ConfigComponent
-    with LoggingComponent {
+trait EmailServiceComponent {
+  this: ConfigComponent =>
   val emailService: EmailService
 
   trait EmailService {
-    private val logger = LoggerFactory[IO].getLogger
-
     def sendActivationEmail(client: Client[IO], templateId: Long, toAddress: String, toName: String, activationLink: String): IO[RespMessages] = for {
       apiConfig <- config.apiConfig
       mailjetConfig <- config.mailjetConfig

@@ -12,7 +12,7 @@ import java.time.LocalDateTime
 
 trait ApiKeyServiceComponent {
   this: LoggingComponent &
-    HashingServiceComponent &
+    SecurityServiceComponent &
     ApiKeyRepositoryComponent =>
   val apiKeyService: ApiKeyService
 
@@ -31,7 +31,7 @@ trait ApiKeyServiceComponent {
       for {
         publicKey <- IO.pure(randomHex(32))
         secretKey <- IO.pure(randomHex(32))
-        secretKeyHash <- hashingService.hash(secretKey)
+        secretKeyHash <- securityService.hashSecret(secretKey)
         creationDate = LocalDateTime.now()
         expiryDate = creationDate.plusYears(DefaultExpiryTimeInYears)
         apiKey <- apiKeyRepository.insertApiKey(accountId, name, publicKey, secretKeyHash, creationDate, expiryDate, xa)
@@ -46,6 +46,7 @@ trait ApiKeyServiceComponent {
         _ <- logger.info(s"API key with ID $id deleted successfully")
       } yield ()
     }
+
 
     private def randomHex(length: Int): String = {
       val arr = Array.ofDim[Byte](length / 2)

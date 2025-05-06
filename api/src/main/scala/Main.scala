@@ -27,14 +27,13 @@ import java.time.Clock
 import scala.concurrent.duration.*
 
 object Main extends IOApp.Simple
-  with ConfigComponent
   with LoggingComponent
-  with ClockComponent
-  with HashingServiceComponent
+  with ConfigComponent
   with EmailServiceComponent
   with DatabaseMigrationComponent
   with DatabaseTransactorComponent
   with RoutesComponent
+  with SecurityServiceComponent
   with HealthRepositoryComponent
   with HealthRoutesComponent
   with EventRepositoryComponent
@@ -46,15 +45,14 @@ object Main extends IOApp.Simple
   with ApiKeyRepositoryComponent
   with ApiKeyServiceComponent
   with ApiKeyRoutesComponent {
-  override implicit val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
-  override implicit val clock: Clock = Clock.systemDefaultZone()
 
+  override val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
   override val config = new Config {}
-  override val hashingService = new HashingService {}
   override val emailService = new EmailService {}
   override val databaseMigration = new DatabaseMigration {}
   override val databaseTransactor = new DatabaseTransactor {}
   override val routes = new Routes {}
+  override val securityService = new SecurityService {}
   override val healthRepository = new HealthRepository {}
   override val healthRoutes = new HealthRoutes {}
   override val eventRepository = new EventRepository {}
