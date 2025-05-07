@@ -11,7 +11,7 @@
       <q-list>
         <q-item class="item-border" v-for="(apiKey) in props.apiKeys" :key="apiKey.id">
           <api-key-component :api-key="apiKey" >
-            {{ 'BCrypt: ' + String.fromCharCode(...apiKey.keyHash) }}
+            Secret Key: <span class="text-weight-medium">{{ "*".repeat(8) }}</span>
           </api-key-component>
           <q-item-section top side>
             <div class="text-grey-8 q-gutter-xs">

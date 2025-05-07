@@ -12,6 +12,9 @@
       <span class="text-weight-medium">{{ props.apiKey.name }}</span>
     </q-item-label>
     <q-item-label caption lines="1">
+      Public Key: <span class="text-weight-medium">{{ props.apiKey.publicKey }}</span>
+    </q-item-label>
+    <q-item-label caption lines="1">
       <slot />
     </q-item-label>
     <q-item-label lines="1" class="q-mt-xs text-body2 text-weight-bold text-primary">

@@ -3,8 +3,9 @@ import { api } from 'boot/axios';
 export interface ApiKey {
   id: number;
   accountId: number;
-  name: string
-  keyHash: Int8Array;
+  name: string;
+  publicKey: string;
+  secretKeyHash: Int8Array;
   creationDate: Date;
   expiryDate: Date;
 }

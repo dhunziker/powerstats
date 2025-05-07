@@ -11,7 +11,7 @@
         <q-card-section v-show="keyCreated">
           <q-item class="item-border" v-for="(apiKey) in apiKeys" :key="apiKey.id">
             <api-key-component :api-key="apiKey" >
-              {{ 'Plaintext: ' + key }}
+              Secret Key: <span class="text-weight-medium">{{ key }}</span>
             </api-key-component>
             <q-item-section top side>
               <div class="text-grey-8 q-gutter-xs">
@@ -21,7 +21,7 @@
           </q-item>
         </q-card-section>
         <q-card-section v-show="keyCreated" style="padding-top: 0;">
-          <div class="text-negative">Don't forget to copy the plaintext key. After leaving this screen, you'll no longer be able to retrieve it.</div>
+          <div class="text-negative">Don't forget to copy the secret key. After leaving this screen, you'll no longer be able to retrieve it.</div>
         </q-card-section>
         <q-card-actions align="right">
           <q-btn v-show="!keyCreated" label="Cancel" @click="router.push('/settings/api-keys')" />
