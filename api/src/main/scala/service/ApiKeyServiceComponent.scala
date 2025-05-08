@@ -29,6 +29,8 @@ trait ApiKeyServiceComponent {
 
     def createApiKey(accountId: Long, name: String, xa: Transactor[IO]): IO[(String, ApiKey)] = {
       for {
+        count <- apiKeyRepository.countApiKeys(accountId, xa)
+        _ <- IO.raiseUnless(count < 5)(new Error("Account already associated with 5 API keys"))
         publicKey <- IO.pure(randomHex(32))
         secretKey <- IO.pure(randomHex(32))
         secretKeyHash <- securityService.hashSecret(secretKey)

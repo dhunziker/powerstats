@@ -31,7 +31,7 @@ trait RoutesComponent {
 
     def secureEndpoint(authenticator: Authenticator, xa: Transactor[IO]) = publicEndpoint
       .securityIn(auth.bearer[Option[String]]().securitySchemeName("internal"))
-      .securityIn(auth.basic[Option[String]]())
+      .securityIn(auth.basic[Option[String]]().bearerFormat("Authorization: Basic <encoded_credentials>"))
       .serverSecurityLogic { case (bearerToken, basicAuth) =>
         handleResponse(authenticator.authenticate(bearerToken, basicAuth, xa), isSecurityLogic = true)
       }

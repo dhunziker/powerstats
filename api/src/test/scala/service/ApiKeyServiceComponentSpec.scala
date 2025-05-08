@@ -25,14 +25,14 @@ class ApiKeyServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Mat
       _ <- f.testApiKeys
       apiKeys <- f.apiKeyService.findApiKeys(1L, null)
     } yield apiKeys).asserting { apiKeys =>
-      apiKeys should have size 3
+      apiKeys should have size 5
     }
   }
 
   it should "return empty list if no matching API keys are found" in withFixture { f =>
     (for {
       _ <- f.testApiKeys
-      apiKeys <- f.apiKeyService.findApiKeys(3L, null)
+      apiKeys <- f.apiKeyService.findApiKeys(2L, null)
     } yield apiKeys).asserting { apiKeys =>
       apiKeys should have size 0
     }
@@ -51,19 +51,26 @@ class ApiKeyServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Mat
     }
   }
 
+  it should "throw an exception when 5 API keys already exists for a given account" in withFixture { f =>
+    (for {
+      _ <- f.testApiKeys
+      _ <- f.apiKeyService.createApiKey(1L, "Default", null)
+    } yield ()).assertThrowsWithMessage[Error]("Account already associated with 5 API keys")
+  }
+
   behavior of "deleteApiKey"
 
   it should "delete API key successfully" in withFixture { f =>
     (for {
       _ <- f.testApiKeys
-      _ <- f.apiKeyService.deleteApiKey(4, 2, null)
+      _ <- f.apiKeyService.deleteApiKey(3, 1, null)
     } yield ()).assertNoException
   }
 
   it should "throw an exception when an API key cannot be deleted" in withFixture { f =>
     (for {
       _ <- f.testApiKeys
-      _ <- f.apiKeyService.deleteApiKey(5, 2, null)
+      _ <- f.apiKeyService.deleteApiKey(4, 2, null)
     } yield ()).assertThrowsWithMessage[Error]("Failed to delete API key, please try again later")
   }
 
@@ -80,7 +87,7 @@ class ApiKeyServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Mat
     override val apiKeyService: T = new ApiKeyService {}
 
     val testApiKeys: IO[List[ApiKey]] = {
-      (List.fill(3)(1L) ++ List.fill(2)(2L))
+      List.fill(5)(1)
         .map(accountId => apiKeyRepository.insertApiKey(
           accountId,
           "Default",

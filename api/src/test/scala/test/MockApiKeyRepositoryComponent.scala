@@ -13,6 +13,10 @@ trait MockApiKeyRepositoryComponent extends ApiKeyRepositoryComponent {
 
   trait MockApiKeyRepository extends ApiKeyRepository with MockRepository[ApiKey] {
 
+    override def countApiKeys(accountId: Long, xa: doobie.Transactor[IO]) = {
+      filterStorage(apiKey => apiKey.accountId == accountId).map(_.length)
+    }
+
     override def findApiKeys(accountId: Long, xa: Transactor[IO]): IO[List[ApiKey]] = {
       filterStorage(apiKey => apiKey.accountId == accountId)
     }

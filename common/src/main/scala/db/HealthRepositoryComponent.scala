@@ -10,7 +10,7 @@ trait HealthRepositoryComponent {
 
   trait HealthRepository {
     def checkHealth(xa: Transactor[IO]): IO[Boolean] = {
-      sql"SELECT 1"
+      sql"select 1"
         .query[Int]
         .option
         .transact(xa)

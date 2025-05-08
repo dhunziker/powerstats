@@ -14,6 +14,15 @@ trait ApiKeyRepositoryComponent {
   val apiKeyRepository: ApiKeyRepository
 
   trait ApiKeyRepository {
+    def countApiKeys(accountId: Long, xa: Transactor[IO]): IO[Int] = {
+      sql"""select count(1)
+            from api_key
+            where account_id = $accountId"""
+        .query[Int]
+        .unique
+        .transact(xa)
+    }
+
     def findApiKeys(accountId: Long, xa: Transactor[IO]): IO[List[ApiKey]] = {
       findApiKeys(accountId = Some(accountId))
         .query[ApiKey]
