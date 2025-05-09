@@ -4,7 +4,7 @@ import download.DownloaderComponent
 
 import dev.powerstats.common.config.{ConfigComponent, Database}
 import dev.powerstats.common.db.model.Event
-import dev.powerstats.common.db.{DatabaseTransactorComponent, EventRepositoryComponent}
+import dev.powerstats.common.db.{DatabaseTransactorComponent, EventRepositoryComponent, MeetRepositoryComponent}
 import cats.effect.{IO, IOApp}
 import doobie.Transactor
 import org.typelevel.log4cats.LoggerFactory
@@ -19,11 +19,13 @@ object Main extends IOApp.Simple
   with ConfigComponent
   with DatabaseTransactorComponent
   with EventRepositoryComponent
+  with MeetRepositoryComponent
   with DownloaderComponent {
   override val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
   override val config = new Config {}
   override val databaseTransactor = new DatabaseTransactor {}
   override val eventRepository = new EventRepository {}
+  override val meetRepository = new MeetRepository {}
   override val downloader = new Downloader {}
 
   private val OpenIpf = "https://openpowerlifting.gitlab.io/opl-csv/files/openipf-latest.zip"
@@ -41,8 +43,10 @@ object Main extends IOApp.Simple
         header <- parseHeader(csvFile)
         counts <- processBatches(csvFile, header, config.dbConfig, xa)
         _ <- IO(println(s"Inserted ${counts.sum} rows"))
-        isRefreshed <- eventRepository.refreshEventView(xa)
-        _ <- IO(println(s"Refreshed view with result: $isRefreshed"))
+        isEventViewRefreshed <- eventRepository.refreshEventView(xa)
+        _ <- IO(println(s"Refreshed event view with result: $isEventViewRefreshed"))
+        isMeetViewRefreshed <- meetRepository.refreshMeetView(xa)
+        _ <- IO(println(s"Refreshed meet view with result: $isMeetViewRefreshed"))
       } yield ()
     }
   }

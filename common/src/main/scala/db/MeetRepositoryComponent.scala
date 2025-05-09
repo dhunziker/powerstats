@@ -32,5 +32,12 @@ trait MeetRepositoryComponent {
         .to[List]
         .transact(xa)
     }
+
+    def refreshMeetView(xa: Transactor[IO]): IO[Int] = {
+      sql"refresh materialized view vw_meet with data"
+        .update
+        .run
+        .transact(xa)
+    }
   }
 }

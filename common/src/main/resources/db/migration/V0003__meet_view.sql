@@ -8,8 +8,11 @@ select distinct
     meet_name
 from vw_event;
 
-create index if not exists idx_meet_country
-on vw_meet (meet_country);
-
 create index if not exists idx_meet_federation
 on vw_meet (federation);
+
+create index if not exists idx_meet_name
+on vw_meet (meet_name);
+
+create index if not exists idx_meet_country
+on vw_meet (meet_country);

@@ -23,7 +23,6 @@ import sttp.tapir.*
 import sttp.tapir.server.http4s.{Http4sServerInterpreter, Http4sServerOptions}
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
 
-import java.time.Clock
 import scala.concurrent.duration.*
 
 object Main extends IOApp.Simple
@@ -39,6 +38,9 @@ object Main extends IOApp.Simple
   with EventRepositoryComponent
   with EventServiceComponent
   with EventRoutesComponent
+  with MeetRepositoryComponent
+  with MeetServiceComponent
+  with MeetRoutesComponent
   with AccountRepositoryComponent
   with AccountServiceComponent
   with AccountRoutesComponent
@@ -58,6 +60,9 @@ object Main extends IOApp.Simple
   override val eventRepository = new EventRepository {}
   override val eventService = new EventService {}
   override val eventRoutes = new EventRoutes {}
+  override val meetRepository = new MeetRepository {}
+  override val meetService = new MeetService {}
+  override val meetRoutes = new MeetRoutes {}
   override val accountRepository = new AccountRepository {}
   override val accountService = new AccountService {}
   override val accountRoutes = new AccountRoutes {}
@@ -75,6 +80,7 @@ object Main extends IOApp.Simple
             accountRoutes.endpoints(xa)
         apiEndpoints =
           eventRoutes.endpoints(xa) <+>
+            meetRoutes.endpoints(xa) <+>
             apiKeyRoutes.endpoints(xa)
         docEndpoints = SwaggerInterpreter(customiseDocsModel = customiseDocsModel)
           .fromServerEndpoints[IO](apiEndpoints, "PowerStats API", "1.0.0")
