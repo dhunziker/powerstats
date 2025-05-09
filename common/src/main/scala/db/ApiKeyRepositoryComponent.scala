@@ -91,9 +91,9 @@ trait ApiKeyRepositoryComponent {
             expiry_date
           from api_key
         """
-      val idFilter = id.map(i => fr"id = $i")
-      val accountIdFilter = accountId.map(a => fr"account_id = $a")
-      val publicKeyFilter = publicKey.map(p => fr"public_key = $p")
+      val idFilter = id.map(v => fr"id = $v")
+      val accountIdFilter = accountId.map(v => fr"account_id = $v")
+      val publicKeyFilter = publicKey.map(v => fr"public_key = $v")
       baseQuery ++ Fragments.whereAndOpt(idFilter, accountIdFilter, publicKeyFilter)
     }
   }
