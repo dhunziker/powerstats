@@ -18,13 +18,13 @@
                 </q-item>
                 <q-item clickable v-close-popup @click="router.push('/docs')">
                   <q-item-section>
-                    <q-item-label>Documentation</q-item-label>
+                    <q-item-label>API Documentation</q-item-label>
                     <q-item-label caption>API documentation with examples.</q-item-label>
                   </q-item-section>
                 </q-item>
                 <q-item clickable v-close-popup @click="router.push('/settings/api-keys')">
                   <q-item-section>
-                    <q-item-label>API Keys</q-item-label>
+                    <q-item-label>API Key Management</q-item-label>
                     <q-item-label caption>Manage your keys for accessing the API.</q-item-label>
                   </q-item-section>
                 </q-item>
