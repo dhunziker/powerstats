@@ -15,7 +15,7 @@ import org.http4s.*
 import org.http4s.ember.server.*
 import org.http4s.headers.*
 import org.http4s.implicits.*
-import org.http4s.server.middleware.CORS
+import org.http4s.server.middleware.*
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import sttp.apispec.openapi.OpenAPI
@@ -87,7 +87,6 @@ object Main extends IOApp.Simple
         serverOptions = Http4sServerOptions.customiseInterceptors[IO].options
         routes = Http4sServerInterpreter[IO](serverOptions)
           .toRoutes(internalApiEndpoints ++ apiEndpoints ++ docEndpoints)
-          .orNotFound
         corsService = CORS.policy
           .withAllowOriginHost(Set(
             Origin.Host(Uri.Scheme.https, Uri.RegName("powerstats-ui.onrender.com"), None),
@@ -98,13 +97,16 @@ object Main extends IOApp.Simple
           .withAllowMethodsIn(Set(Method.GET, Method.POST, Method.DELETE))
           .withAllowCredentials(false)
           .withMaxAge(1.day)
-          .apply(routes)
+          .apply(routes.orNotFound)
+        timeoutService = Timeout.httpApp[IO](timeout = 15.seconds)(corsService)
+        maxService <- MaxActiveRequests.forHttpApp[IO](maxActive = 5)
+          .map(middleware => middleware(timeoutService))
         apiConfig <- config.apiConfig
         _ <- EmberServerBuilder
           .default[IO]
           .withHost(apiConfig.host)
           .withPort(apiConfig.port)
-          .withHttpApp(corsService)
+          .withHttpApp(maxService)
           .build
           .use(_ => IO.never)
           .as(ExitCode.Success)

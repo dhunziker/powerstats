@@ -81,8 +81,8 @@ trait EventRepositoryComponent {
           equipment.map(v => fr"equipment = $v"),
           federation.map(v => fr"federation = $v"),
           date.map(v => fr"date = $v"),
-          meetCountry.map(v => fr"meetCountry = $v"),
-          meetName.map(v => fr"meetName = $v")
+          meetCountry.map(v => fr"meet_country = $v"),
+          meetName.map(v => fr"meet_name = $v")
         ) ++ fr"limit $limit")
         .query[Event]
         .to[List]
