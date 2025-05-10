@@ -1,21 +1,19 @@
 package dev.powerstats.api
 package route
 
-import Main.AccountService
 import error.{NotFoundError, ServiceUnavailableError}
 import route.request.{ApiError, ApiErrorResponse, ApiSuccessResponse, ApiSuccessResponseWithData}
-import service.{AccountServiceComponent, SecurityServiceComponent}
 
 import cats.effect.*
 import cats.syntax.all.*
 import doobie.util.transactor.Transactor
-import io.circe.*
+import io.circe.Decoder
 import io.circe.generic.auto.*
 import sttp.model.StatusCode
 import sttp.tapir.*
 import sttp.tapir.EndpointInput.Auth.*
 import sttp.tapir.generic.auto.*
-import sttp.tapir.json.circe.*
+import sttp.tapir.json.circe.jsonBody
 
 trait RoutesComponent {
   val routes: Routes
@@ -35,6 +33,11 @@ trait RoutesComponent {
       .serverSecurityLogic { case (bearerToken, basicAuth) =>
         handleResponse(authenticator.authenticate(bearerToken, basicAuth, xa), isSecurityLogic = true)
       }
+
+    def mustHaveAtLeastOne(queryParams: Product): IO[Unit] = {
+      IO.raiseUnless(queryParams.productIterator.exists(param => param != None))(
+        new Error("Please provide at least one query parameter"))
+    }
 
     def response(serverLogic: IO[Unit]): IO[Either[(StatusCode, ApiErrorResponse), ApiSuccessResponse]] = {
       handleResponse(serverLogic.map(_ => ApiSuccessResponse()))

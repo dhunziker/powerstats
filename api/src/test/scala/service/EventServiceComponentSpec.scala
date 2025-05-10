@@ -17,13 +17,13 @@ class EventServiceComponentSpec extends AsyncFlatSpec with AsyncIOSpec with Matc
   behavior of "An EventService"
 
   it should "return an empty list when name is not found" in withFixture { eventService =>
-    eventService.findEvents("Albert Einstein", null).asserting { events =>
+    eventService.findEvents(Some("Albert Einstein"), None, None, None, None, None, None, None, 100, null).asserting { events =>
       events shouldBe empty
     }
   }
 
   it should "return all events for a given name" in withFixture { eventService =>
-    eventService.findEvents("Dennis Hunziker", null).asserting { events =>
+    eventService.findEvents(Some("Dennis Hunziker"), None, None, None, None, None, None, None, 100, null).asserting { events =>
       events should have size 7
       val names = events.map(_.name).distinct
       names should have size 1

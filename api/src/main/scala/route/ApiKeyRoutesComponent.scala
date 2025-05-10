@@ -24,7 +24,7 @@ trait ApiKeyRoutesComponent {
   trait ApiKeyRoutes {
     def endpoints(xa: Transactor[IO]): List[ServerEndpoint[Any, IO]] = {
       val findEndpoint = routes.secureEndpoint(securityService, xa).get
-        .in("api" / "v1" / "api-key")
+        .in("v1" / "api-key")
         .out(jsonBody[ApiSuccessResponseWithData[List[ApiKey]]])
 
       val findServerEndpoint = findEndpoint.serverLogic(accountId => _ =>
@@ -32,7 +32,7 @@ trait ApiKeyRoutesComponent {
       )
 
       val createEndpoint = routes.secureEndpoint(securityService, xa).post
-        .in("api" / "v1" / "api-key")
+        .in("v1" / "api-key")
         .in(jsonBody[ApiKeyCreateRequest])
         .out(jsonBody[ApiSuccessResponseWithData[ApiKeyCreateResponse]])
 
@@ -42,7 +42,7 @@ trait ApiKeyRoutesComponent {
       )
 
       val deleteEndpoint = routes.secureEndpoint(securityService, xa).delete
-        .in("api" / "v1" / "api-key" / path[Long]("id"))
+        .in("v1" / "api-key" / path[Long]("id"))
         .out(jsonBody[ApiSuccessResponse])
 
       val deleteServerEndpoint = deleteEndpoint.serverLogic(accountId => id =>

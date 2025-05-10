@@ -8,11 +8,18 @@ import doobie.*
 import doobie.implicits.*
 import doobie.postgres.implicits.*
 
+import java.time.LocalDate
+
 trait MeetRepositoryComponent {
   val meetRepository: MeetRepository
 
   trait MeetRepository {
-    def findMeets(federation: Option[String], meetCountry: Option[String], meetName: Option[String], xa: Transactor[IO]): IO[List[Meet]] = {
+    def findMeets(federation: Option[String],
+                  date: Option[LocalDate],
+                  meetCountry: Option[String],
+                  meetName: Option[String],
+                  limit: Int,
+                  xa: Transactor[IO]): IO[List[Meet]] = {
       val baseQuery =
         fr"""
           select
@@ -24,10 +31,13 @@ trait MeetRepositoryComponent {
             meet_name
           from vw_meet
         """
-      val federationFilter = federation.map(v => fr"federation = $v")
-      val meetCountryFilter = meetCountry.map(v => fr"meet_country = $v")
-      val meetNameFilter = meetName.map(f => fr"meet_name = $f")
-      (baseQuery ++ Fragments.whereAndOpt(federationFilter, meetCountryFilter, meetNameFilter))
+      (baseQuery ++
+        Fragments.whereAndOpt(
+          federation.map(v => fr"federation = $v"),
+          date.map(v => fr"date = $v"),
+          meetCountry.map(v => fr"meet_country = $v"),
+          meetName.map(v => fr"meet_name = $v")
+        ) ++ fr"limit $limit")
         .query[Meet]
         .to[List]
         .transact(xa)

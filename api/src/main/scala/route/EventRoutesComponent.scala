@@ -1,7 +1,6 @@
 package dev.powerstats.api
 package route
 
-import error.NotFoundError
 import route.request.ApiSuccessResponseWithData
 import service.{EventServiceComponent, SecurityServiceComponent}
 
@@ -15,6 +14,8 @@ import sttp.tapir.generic.auto.*
 import sttp.tapir.json.circe.*
 import sttp.tapir.server.ServerEndpoint
 
+import java.time.LocalDate
+
 trait EventRoutesComponent {
   this: RoutesComponent &
     SecurityServiceComponent &
@@ -22,20 +23,29 @@ trait EventRoutesComponent {
   val eventRoutes: EventRoutes
 
   trait EventRoutes {
-
     def endpoints(xa: Transactor[IO]): List[ServerEndpoint[Any, IO]] = {
-      val findEventsEndpoint = routes.secureEndpoint(securityService, xa).get
-        .in("api" / "v1" / "events" / "name" / path[String]("name"))
+      val findEventEndpoint = routes.secureEndpoint(securityService, xa).get
+        .in("v1" / "event")
+        .in(query[Option[String]]("name"))
+        .in(query[Option[String]]("sex"))
+        .in(query[Option[String]]("event"))
+        .in(query[Option[String]]("equipment"))
+        .in(query[Option[String]]("federation"))
+        .in(query[Option[LocalDate]]("date"))
+        .in(query[Option[String]]("meetCountry"))
+        .in(query[Option[String]]("meetName"))
+        .in(query[Int]("limit").default(100))
         .out(jsonBody[ApiSuccessResponseWithData[List[Event]]])
 
-      val findEventsServerEndpoint = findEventsEndpoint.serverLogic(accountId => name =>
+      val findEventServerEndpoint = findEventEndpoint.serverLogic(accountId => queryParams =>
         routes.responseWithData(for {
-          events <- eventService.findEvents(name, xa)
-          _ <- IO.raiseWhen(events.isEmpty)(new NotFoundError(s"No events found for name $name"))
+          _ <- routes.mustHaveAtLeastOne(queryParams)
+          (name, sex, event, equipment, federation, date, meetCountry, meetName, limit) = queryParams
+          events <- eventService.findEvents(name, sex, event, equipment, federation, date, meetCountry, meetName, limit, xa)
         } yield events)
       )
 
-      List(findEventsServerEndpoint)
+      List(findEventServerEndpoint)
     }
   }
 }

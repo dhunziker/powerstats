@@ -1,8 +1,7 @@
 package dev.powerstats.api
 package route
 
-import error.NotFoundError
-import route.request.{ApiSuccessResponseWithData, MeetSearchRequest}
+import route.request.ApiSuccessResponseWithData
 import service.{MeetServiceComponent, SecurityServiceComponent}
 
 import cats.effect.*
@@ -15,6 +14,8 @@ import sttp.tapir.generic.auto.*
 import sttp.tapir.json.circe.*
 import sttp.tapir.server.ServerEndpoint
 
+import java.time.LocalDate
+
 trait MeetRoutesComponent {
   this: RoutesComponent &
     SecurityServiceComponent &
@@ -23,49 +24,24 @@ trait MeetRoutesComponent {
 
   trait MeetRoutes {
     def endpoints(xa: Transactor[IO]): List[ServerEndpoint[Any, IO]] = {
-      val meetsByFederationEndpoint = routes.secureEndpoint(securityService, xa).get
-        .in("api" / "v1" / "meet" / "federation" / path[String]("federation"))
+      val findMeetEndpoint = routes.secureEndpoint(securityService, xa).get
+        .in("v1" / "meet")
+        .in(query[Option[String]]("federation"))
+        .in(query[Option[LocalDate]]("date"))
+        .in(query[Option[String]]("meetCountry"))
+        .in(query[Option[String]]("meetName"))
+        .in(query[Int]("limit").default(100))
         .out(jsonBody[ApiSuccessResponseWithData[List[Meet]]])
 
-      val meetsByFederationServerEndpoint = meetsByFederationEndpoint.serverLogic(accountId => federation =>
+      val findMeetServerEndpoint = findMeetEndpoint.serverLogic(accountId => queryParams =>
         routes.responseWithData(for {
-          meets <- meetService.findMeet(Some(federation), None, None, xa)
-          _ <- IO.raiseWhen(meets.isEmpty)(new NotFoundError(s"No meets found for federation $federation"))
+          _ <- routes.mustHaveAtLeastOne(queryParams)
+          (federation, date, meetCountry, meetName, limit) = queryParams
+          meets <- meetService.findMeet(federation, date, meetCountry, meetName, limit, xa)
         } yield meets)
       )
 
-      val meetsByCountryEndpoint = routes.secureEndpoint(securityService, xa).get
-        .in("api" / "v1" / "meet" / "country" / path[String]("country"))
-        .out(jsonBody[ApiSuccessResponseWithData[List[Meet]]])
-
-      val meetsByCountryServerEndpoint = meetsByCountryEndpoint.serverLogic(accountId => country =>
-        routes.responseWithData(for {
-          meets <- meetService.findMeet(None, Some(country), None, xa)
-          _ <- IO.raiseWhen(meets.isEmpty)(new NotFoundError(s"No meets found for country $country"))
-        } yield meets)
-      )
-
-      val meetsByNameEndpoint = routes.secureEndpoint(securityService, xa).get
-        .in("api" / "v1" / "meet" / "name" / path[String]("name"))
-        .out(jsonBody[ApiSuccessResponseWithData[List[Meet]]])
-
-      val meetsByNameServerEndpoint = meetsByNameEndpoint.serverLogic(accountId => name =>
-        routes.responseWithData(for {
-          meets <- meetService.findMeet(None, None, Some(name), xa)
-          _ <- IO.raiseWhen(meets.isEmpty)(new NotFoundError(s"No meets found for name $name"))
-        } yield meets)
-      )
-
-      val meetsSearchEndpoint = routes.secureEndpoint(securityService, xa).get
-        .in("api" / "v1" / "meet")
-        .in(jsonBody[MeetSearchRequest])
-        .out(jsonBody[ApiSuccessResponseWithData[List[Meet]]])
-
-      val meetsSearchServerEndpoint = meetsSearchEndpoint.serverLogic(accountId => searchRequest =>
-        routes.responseWithData(meetService.findMeet(searchRequest.federation, searchRequest.meetCountry, searchRequest.meetName, xa))
-      )
-
-      List(meetsByFederationServerEndpoint, meetsByCountryServerEndpoint, meetsByNameServerEndpoint, meetsSearchServerEndpoint)
+      List(findMeetServerEndpoint)
     }
   }
 }
