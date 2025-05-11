@@ -17,7 +17,7 @@ trait EventRepositoryComponent {
 
   trait EventRepository {
     private val columns =
-      fr"""
+      s"""
         name,
         sex,
         event,
@@ -72,8 +72,8 @@ trait EventRepositoryComponent {
                    meetName: Option[String],
                    limit: Int,
                    xa: Transactor[IO]): IO[List[Event]] = {
-      val baseQuery = fr"select $columns from vw_event"
-      (baseQuery ++
+      val baseQuery = s"select $columns from vw_event"
+      (Fragment.const(baseQuery) ++
         Fragments.whereAndOpt(
           name.map(v => fr"name = $v"),
           sex.map(v => fr"sex = $v"),
