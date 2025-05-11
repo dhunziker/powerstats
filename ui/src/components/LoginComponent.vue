@@ -29,7 +29,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { register } from '../services/userService';
 import { useUserStore } from 'stores/user';
 import { useQuasar } from 'quasar'
@@ -41,6 +41,7 @@ const props = defineProps({
 const email = ref('');
 const password = ref('');
 const store = useUserStore();
+const route = useRoute();
 const router = useRouter();
 const $q = useQuasar()
 const { testPattern } = patterns
@@ -74,7 +75,8 @@ async function handleLogin() {
   await store.login(email.value, password.value)
     .then(() => {
       console.log('Login successful!');
-      return router.push('/welcome');
+      const redirectPath = (Array.isArray(route.query.redirect) ? route.query.redirect[0] : route.query.redirect);
+      return router.push(redirectPath || '/');
     })
     .catch((error) => {
       console.error('Login failed!', error);

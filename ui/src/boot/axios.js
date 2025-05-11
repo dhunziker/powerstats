@@ -18,8 +18,13 @@ export default defineBoot(async ({ app, router, store }) => {
     return config;
   }, null);
   api.interceptors.response.use(null, function (error) {
-    if (error.response.status === 401) {
-      return router.push('/user/login');
+    if (error.response && error.response.status === 401) {
+      const currentRoute = router.currentRoute.value.fullPath;
+      router.push({
+        path: '/user/login',
+        query: { redirect: currentRoute },
+      });
+      return new Promise(() => {});
     }
     return Promise.reject(error);
   });

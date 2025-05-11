@@ -3,7 +3,7 @@ import type { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    redirect: '/user/login',
+    redirect: '/welcome',
   },
   {
     path: '/user',
@@ -11,7 +11,7 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: 'register', component: () => import('pages/LoginPage.vue'), props: { isNewUser: true } },
       { path: 'login', component: () => import('pages/LoginPage.vue'), props: { isNewUser: false } },
-      { path: 'activate/:activationKey', component: () => import('pages/ActivationPage.vue') }
+      { path: 'activate/:activationKey', component: () => import('pages/ActivationPage.vue') },
     ],
   },
   {
