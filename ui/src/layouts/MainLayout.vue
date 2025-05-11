@@ -31,6 +31,9 @@
               </q-list>
             </div>
             <q-separator vertical inset class="q-mx-lg" />
+            <div class="column items-center" v-show="!showLogout">
+              <q-btn color="primary" @click="showLogin">Login</q-btn>
+            </div>
             <div class="column items-center" v-show="showLogout">
               <q-btn color="primary" @click="handleLogout">Logout</q-btn>
             </div>
@@ -57,11 +60,15 @@ const showLogout = computed(() => store.user);
 async function handleLogout() {
   await store.logout().then(() => {
     console.log('Logout successful!');
-    const currentRoute = router.currentRoute.value.fullPath;
-    return router.push({
-      path: '/user/login',
-      query: { redirect: currentRoute },
-    });
+    return showLogin();
+  });
+}
+
+async function showLogin() {
+  const currentRoute = router.currentRoute.value.fullPath;
+  return router.push({
+    path: '/user/login',
+    query: { redirect: currentRoute },
   });
 }
 </script>
