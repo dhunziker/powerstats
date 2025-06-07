@@ -3,9 +3,9 @@ object Dependencies {
   val catsEffectTestingVersion = "1.6.0"
   val catsEffectVersion = "3.6.1"
   val http4sVersion = "0.23.30"
-  val log4catsVersion = "2.7.0"
+  val log4catsVersion = "2.7.1"
   val logbackVersion = "1.5.18"
-  val flywayVersion = "11.8.0"
+  val flywayVersion = "11.9.1"
   val circeConfigVersion = "0.10.1"
   val circeGenericVersion = "0.14.13"
   val doobieVersion = "1.0.0-RC6" // Don't upgrade until it can handle large case classes
@@ -13,5 +13,5 @@ object Dependencies {
   val bcryptVersion = "0.10.2"
   val jwtScalaVersion = "10.0.4"
   val scalaCacheVersion = "1.0.0-M6"
-  val tapirVersion = "1.11.25"
+  val tapirVersion = "1.11.33"
 }

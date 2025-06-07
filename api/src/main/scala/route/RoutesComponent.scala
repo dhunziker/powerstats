@@ -1,7 +1,7 @@
 package dev.powerstats.api
 package route
 
-import error.{NotFoundError, ServiceUnavailableError}
+import error.{NotFoundError, ServiceUnavailableError, TooManyRequestsError}
 import route.request.{ApiError, ApiErrorResponse, ApiSuccessResponse, ApiSuccessResponseWithData}
 
 import cats.effect.*
@@ -54,6 +54,7 @@ trait RoutesComponent {
           // TODO: Handle additional types of exceptions here
           case err: NotFoundError => (StatusCode.NotFound, err)
           case err: ServiceUnavailableError => (StatusCode.ServiceUnavailable, err)
+          case err: TooManyRequestsError => (StatusCode.TooManyRequests, err)
           case err if isSecurityLogic => (StatusCode.Unauthorized, err)
           case err => (StatusCode.InternalServerError, err)
         }
