@@ -10,6 +10,7 @@ import cats.*
 import cats.data.*
 import cats.effect.*
 import cats.syntax.all.*
+import dev.powerstats.BuildInfo
 import dev.powerstats.common.config.ConfigComponent
 import dev.powerstats.common.db.*
 import dev.powerstats.common.logging.LoggingComponent
@@ -95,7 +96,7 @@ object Main extends IOApp.Simple
         docEndpoints = SwaggerInterpreter(
           openAPIInterpreterOptions = openAPIInterpreterOptions,
           customiseDocsModel = customiseDocsModel
-        ).fromServerEndpoints[IO](apiEndpoints, "PowerStats API", "1.0.0")
+        ).fromServerEndpoints[IO](apiEndpoints, "PowerStats API", BuildInfo.version)
         serverOptions = Http4sServerOptions.customiseInterceptors[IO]
           .decodeFailureHandler(customDecodeFailureHandler)
           .options

@@ -1,5 +1,6 @@
 import Dependencies.*
 import sbtassembly.AssemblyKeys.assemblyMergeStrategy
+import sbtbuildinfo.BuildInfoPlugin.autoImport.buildInfoKeys
 
 Global / excludeLintKeys := Set(idePackagePrefix)
 
@@ -67,9 +68,12 @@ lazy val backend = (project in file("backend"))
 
 lazy val api = (project in file("api"))
   .dependsOn(common)
+  .enablePlugins(BuildInfoPlugin)
   .settings(
     commonSettings,
     assembly / mainClass := Some("dev.powerstats.api.Main"),
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := organization.value,
     libraryDependencies ++= Seq(
       "ch.qos.logback" % "logback-classic" % logbackVersion % Runtime,
       "org.flywaydb" % "flyway-core" % flywayVersion,
