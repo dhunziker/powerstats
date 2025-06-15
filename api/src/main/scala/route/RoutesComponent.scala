@@ -2,6 +2,7 @@ package dev.powerstats.api
 package route
 
 import error.{NotFoundError, ServiceUnavailableError, TooManyRequestsError}
+import route.request.ApiErrorResponse.given
 import route.request.{ApiError, ApiErrorResponse, ApiSuccessResponse, ApiSuccessResponseWithData}
 
 import cats.effect.*
@@ -19,10 +20,6 @@ trait RoutesComponent {
   val routes: Routes
 
   trait Routes {
-    given Decoder[StatusCode] = Decoder.decodeInt.map(StatusCode.apply)
-
-    given Schema[StatusCode] = Schema.string[StatusCode]
-
     val publicEndpoint = endpoint
       .errorOut(statusCode)
       .errorOut(jsonBody[ApiErrorResponse])

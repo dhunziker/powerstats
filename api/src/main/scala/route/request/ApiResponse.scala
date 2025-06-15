@@ -1,9 +1,10 @@
 package dev.powerstats.api
 package route.request
 
-import io.circe.Encoder
 import io.circe.generic.auto.*
+import io.circe.{Decoder, Encoder}
 import sttp.model.StatusCode
+import sttp.tapir.Schema
 
 enum ApiStatus {
   case Success, Error
@@ -24,10 +25,18 @@ case class ApiErrorResponse(statusCode: StatusCode,
 }
 
 object ApiErrorResponse {
+  given Decoder[StatusCode] = Decoder.decodeInt.map(StatusCode.apply)
+
+  given Schema[StatusCode] = Schema.string[StatusCode]
+
   implicit val apiErrorResponseEncoder: Encoder[ApiErrorResponse] = Encoder
     .forProduct3("status", "statusCode", "error")((apiErrorResponse: ApiErrorResponse) =>
       (apiErrorResponse.status.toString.toLowerCase, apiErrorResponse.statusCode.code, apiErrorResponse.error)
     )
+
+  def apply(statusCode: StatusCode, message: String): ApiErrorResponse = {
+    ApiErrorResponse(statusCode, ApiError("DecodeFailure", message))
+  }
 }
 
 case class ApiSuccessResponse() extends ApiResponse {

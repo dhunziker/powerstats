@@ -2,25 +2,35 @@ package dev.powerstats.api
 
 import db.DatabaseMigrationComponent
 import route.*
+import route.request.ApiErrorResponse.{*, given}
+import route.request.{ApiError, ApiErrorResponse}
 import service.*
 
 import cats.*
 import cats.data.*
 import cats.effect.*
-import cats.implicits.toSemigroupKOps
+import cats.syntax.all.*
 import dev.powerstats.common.config.ConfigComponent
 import dev.powerstats.common.db.*
 import dev.powerstats.common.logging.LoggingComponent
-import org.http4s.*
+import io.circe.Decoder
+import io.circe.generic.auto.*
 import org.http4s.ember.server.*
 import org.http4s.headers.*
 import org.http4s.implicits.*
 import org.http4s.server.middleware.*
+import org.http4s.{Method, Uri}
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
 import sttp.apispec.openapi.OpenAPI
+import sttp.model.{Header, StatusCode}
 import sttp.tapir.*
+import sttp.tapir.docs.openapi.OpenAPIDocsOptions
+import sttp.tapir.generic.auto.*
+import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.http4s.{Http4sServerInterpreter, Http4sServerOptions}
+import sttp.tapir.server.interceptor.decodefailure.{DecodeFailureHandler, DefaultDecodeFailureHandler}
+import sttp.tapir.server.model.ValuedEndpointOutput
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
 
 import scala.concurrent.duration.*
@@ -82,9 +92,13 @@ object Main extends IOApp.Simple
           eventRoutes.endpoints(xa) <+>
             meetRoutes.endpoints(xa) <+>
             apiKeyRoutes.endpoints(xa)
-        docEndpoints = SwaggerInterpreter(customiseDocsModel = customiseDocsModel)
-          .fromServerEndpoints[IO](apiEndpoints, "PowerStats API", "1.0.0")
-        serverOptions = Http4sServerOptions.customiseInterceptors[IO].options
+        docEndpoints = SwaggerInterpreter(
+          openAPIInterpreterOptions = openAPIInterpreterOptions,
+          customiseDocsModel = customiseDocsModel
+        ).fromServerEndpoints[IO](apiEndpoints, "PowerStats API", "1.0.0")
+        serverOptions = Http4sServerOptions.customiseInterceptors[IO]
+          .decodeFailureHandler(customDecodeFailureHandler)
+          .options
         routes = Http4sServerInterpreter[IO](serverOptions)
           .toRoutes(internalApiEndpoints ++ apiEndpoints ++ docEndpoints)
         corsService = CORS.policy
@@ -113,6 +127,15 @@ object Main extends IOApp.Simple
       } yield ()
     }
   }
+
+  private val customDecodeFailureHandler: DecodeFailureHandler[IO] = DefaultDecodeFailureHandler[IO]
+    .copy(response = (c: StatusCode, hs: List[Header], m: String) => {
+      ValuedEndpointOutput(statusCode.and(headers).and(jsonBody[ApiErrorResponse]), (c, hs, ApiErrorResponse(c, m)))
+    })
+
+  private val openAPIInterpreterOptions: OpenAPIDocsOptions = OpenAPIDocsOptions.default.copy(
+    defaultDecodeFailureOutput = _ => Some(statusCode(StatusCode.BadRequest).and(jsonBody[ApiErrorResponse]))
+  )
 
   private def customiseDocsModel(openApi: OpenAPI) = {
     openApi.components.map { components =>
