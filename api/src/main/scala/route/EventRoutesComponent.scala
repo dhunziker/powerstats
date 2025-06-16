@@ -37,10 +37,9 @@ trait EventRoutesComponent {
         .in(query[Int]("limit").default(100))
         .out(jsonBody[ApiSuccessResponseWithData[List[Event]]])
 
-      val findEventServerEndpoint = findEventEndpoint.serverLogic(accountId => queryParams =>
+      val findEventServerEndpoint = findEventEndpoint.serverLogic(accountId => (name, sex, event, equipment, federation, date, meetCountry, meetName, limit) =>
         routes.responseWithData(for {
-          _ <- routes.mustHaveAtLeastOne(queryParams)
-          (name, sex, event, equipment, federation, date, meetCountry, meetName, limit) = queryParams
+          _ <- routes.mustHaveAtLeastOne(name, sex, event, equipment, federation, date, meetCountry, meetName)
           events <- eventService.findEvents(name, sex, event, equipment, federation, date, meetCountry, meetName, limit, xa)
         } yield events)
       )

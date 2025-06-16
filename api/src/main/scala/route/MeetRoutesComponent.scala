@@ -33,10 +33,9 @@ trait MeetRoutesComponent {
         .in(query[Int]("limit").default(100))
         .out(jsonBody[ApiSuccessResponseWithData[List[Meet]]])
 
-      val findMeetServerEndpoint = findMeetEndpoint.serverLogic(accountId => queryParams =>
+      val findMeetServerEndpoint = findMeetEndpoint.serverLogic(accountId => (federation, date, meetCountry, meetName, limit) =>
         routes.responseWithData(for {
-          _ <- routes.mustHaveAtLeastOne(queryParams)
-          (federation, date, meetCountry, meetName, limit) = queryParams
+          _ <- routes.mustHaveAtLeastOne(federation, date, meetCountry, meetName)
           meets <- meetService.findMeet(federation, date, meetCountry, meetName, limit, xa)
         } yield meets)
       )

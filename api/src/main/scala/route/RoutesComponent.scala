@@ -31,8 +31,8 @@ trait RoutesComponent {
         handleResponse(authenticator.authenticate(bearerToken, basicAuth, xa), isSecurityLogic = true)
       }
 
-    def mustHaveAtLeastOne(queryParams: Product): IO[Unit] = {
-      IO.raiseUnless(queryParams.productIterator.exists(param => param != None))(
+    def mustHaveAtLeastOne(queryParams: Option[?]*): IO[Unit] = {
+      IO.raiseUnless(queryParams.exists(_.isDefined))(
         new Error("Please provide at least one query parameter"))
     }
 
