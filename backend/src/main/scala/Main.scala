@@ -2,10 +2,10 @@ package dev.powerstats.backend
 
 import download.DownloaderComponent
 
+import cats.effect.{IO, IOApp}
 import dev.powerstats.common.config.{ConfigComponent, Database}
 import dev.powerstats.common.db.model.Event
-import dev.powerstats.common.db.{DatabaseTransactorComponent, EventRepositoryComponent, MeetRepositoryComponent}
-import cats.effect.{IO, IOApp}
+import dev.powerstats.common.db.{DatabaseTransactorComponent, EventRepositoryComponent, LifterRepositoryComponent, MeetRepositoryComponent}
 import doobie.Transactor
 import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jFactory
@@ -20,12 +20,14 @@ object Main extends IOApp.Simple
   with DatabaseTransactorComponent
   with EventRepositoryComponent
   with MeetRepositoryComponent
+  with LifterRepositoryComponent
   with DownloaderComponent {
   override val loggerFactory: LoggerFactory[IO] = Slf4jFactory.create[IO]
   override val config = new Config {}
   override val databaseTransactor = new DatabaseTransactor {}
   override val eventRepository = new EventRepository {}
   override val meetRepository = new MeetRepository {}
+  override val lifterRepository = new LifterRepository {}
   override val downloader = new Downloader {}
 
   private val OpenIpf = "https://openpowerlifting.gitlab.io/opl-csv/files/openipf-latest.zip"
@@ -47,6 +49,8 @@ object Main extends IOApp.Simple
         _ <- IO(println(s"Refreshed event view with result: $isEventViewRefreshed"))
         isMeetViewRefreshed <- meetRepository.refreshMeetView(xa)
         _ <- IO(println(s"Refreshed meet view with result: $isMeetViewRefreshed"))
+        isLifterViewRefreshed <- lifterRepository.refreshLifterView(xa)
+        _ <- IO(println(s"Refreshed lifter view with result: $isLifterViewRefreshed"))
       } yield ()
     }
   }

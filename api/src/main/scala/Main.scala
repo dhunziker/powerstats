@@ -52,6 +52,9 @@ object Main extends IOApp.Simple
   with MeetRepositoryComponent
   with MeetServiceComponent
   with MeetRoutesComponent
+  with LifterRepositoryComponent
+  with LifterServiceComponent
+  with LifterRoutesComponent
   with AccountRepositoryComponent
   with AccountServiceComponent
   with AccountRoutesComponent
@@ -74,6 +77,9 @@ object Main extends IOApp.Simple
   override val meetRepository = new MeetRepository {}
   override val meetService = new MeetService {}
   override val meetRoutes = new MeetRoutes {}
+  override val lifterRepository = new LifterRepository {}
+  override val lifterService = new LifterService {}
+  override val lifterRoutes = new LifterRoutes {}
   override val accountRepository = new AccountRepository {}
   override val accountService = new AccountService {}
   override val accountRoutes = new AccountRoutes {}
@@ -92,6 +98,7 @@ object Main extends IOApp.Simple
         apiEndpoints =
           eventRoutes.endpoints(xa) <+>
             meetRoutes.endpoints(xa) <+>
+            lifterRoutes.endpoints(xa) <+>
             apiKeyRoutes.endpoints(xa)
         docEndpoints = SwaggerInterpreter(
           openAPIInterpreterOptions = openAPIInterpreterOptions,

@@ -14,6 +14,7 @@ trait DatabaseMigrationComponent {
       dbConfig <- database
       result = Flyway
         .configure()
+        .baselineOnMigrate(true)
         .dataSource(dbConfig.url, dbConfig.user, dbConfig.password)
         .load()
         .migrate()

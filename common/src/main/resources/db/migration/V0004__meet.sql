@@ -6,7 +6,7 @@ select distinct
     meet_state,
     meet_town,
     meet_name
-from vw_event;
+from event;
 
 create index if not exists idx_meet_federation
 on vw_meet (federation);
