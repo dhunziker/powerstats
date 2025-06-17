@@ -13,10 +13,14 @@ trait LifterServiceComponent {
   val lifterService: LifterService
 
   trait LifterService {
-    def findLifter(namePattern: String,
-                   limit: Int,
-                   xa: Transactor[IO]): IO[List[Lifter]] = {
+    def findLifters(namePattern: String,
+                    limit: Int,
+                    xa: Transactor[IO]): IO[List[String]] = {
       lifterRepository.findLifters(namePattern, limit, xa)
+    }
+
+    def findLifter(name: String, xa: Transactor[IO]): IO[Lifter] = {
+      lifterRepository.findLifter(name, xa)
     }
   }
 }

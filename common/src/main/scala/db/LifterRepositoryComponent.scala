@@ -16,7 +16,19 @@ trait LifterRepositoryComponent {
   trait LifterRepository {
     def findLifters(namePattern: String,
                     limit: Int,
-                    xa: Transactor[IO]): IO[List[Lifter]] = {
+                    xa: Transactor[IO]): IO[List[String]] = {
+      sql"""
+        select name
+        from vw_lifter
+        where name ~* $namePattern
+        limit $limit
+      """
+        .query[String]
+        .to[List]
+        .transact(xa)
+    }
+
+    def findLifter(name: String, xa: Transactor[IO]): IO[Lifter] = {
       sql"""
         select
           name,
@@ -31,11 +43,10 @@ trait LifterRepositoryComponent {
           glossbrenner,
           goodlift
         from vw_lifter
-        where name ~* $namePattern
-        limit $limit
+        where name = $name
       """
         .query[Lifter]
-        .to[List]
+        .unique
         .transact(xa)
     }
 
