@@ -34,7 +34,11 @@ object ApiErrorResponse {
       (apiErrorResponse.status.toString.toLowerCase, apiErrorResponse.statusCode.code, apiErrorResponse.error)
     )
 
-  def apply(statusCode: StatusCode, message: String): ApiErrorResponse = {
+  def rejection(statusCode: StatusCode, message: String): ApiErrorResponse = {
+    ApiErrorResponse(statusCode, ApiError("Rejection", message))
+  }
+
+  def decodeFailure(statusCode: StatusCode, message: String): ApiErrorResponse = {
     ApiErrorResponse(statusCode, ApiError("DecodeFailure", message))
   }
 }

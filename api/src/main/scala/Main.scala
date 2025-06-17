@@ -31,6 +31,8 @@ import sttp.tapir.generic.auto.*
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.http4s.{Http4sServerInterpreter, Http4sServerOptions}
 import sttp.tapir.server.interceptor.decodefailure.{DecodeFailureHandler, DefaultDecodeFailureHandler}
+import sttp.tapir.server.interceptor.reject.DefaultRejectHandler
+import sttp.tapir.server.interceptor.reject.DefaultRejectHandler.Responses
 import sttp.tapir.server.model.ValuedEndpointOutput
 import sttp.tapir.swagger.bundle.SwaggerInterpreter
 
@@ -105,6 +107,7 @@ object Main extends IOApp.Simple
           customiseDocsModel = customiseDocsModel
         ).fromServerEndpoints[IO](apiEndpoints, "PowerStats API", BuildInfo.version)
         serverOptions = Http4sServerOptions.customiseInterceptors[IO]
+          .rejectHandler(customRejectHandler)
           .decodeFailureHandler(customDecodeFailureHandler)
           .options
         routes = Http4sServerInterpreter[IO](serverOptions)
@@ -136,10 +139,19 @@ object Main extends IOApp.Simple
     }
   }
 
+  private val customRejectHandler: DefaultRejectHandler[IO] = {
+    DefaultRejectHandler[IO]((sc: StatusCode, m: String) =>
+      ValuedEndpointOutput(statusCode.and(jsonBody[ApiErrorResponse]), (sc, ApiErrorResponse.rejection(sc, m))),
+      Some(Responses.NotFound)
+    )
+  }
+
   private val customDecodeFailureHandler: DecodeFailureHandler[IO] = DefaultDecodeFailureHandler[IO]
-    .copy(response = (c: StatusCode, hs: List[Header], m: String) => {
-      ValuedEndpointOutput(statusCode.and(headers).and(jsonBody[ApiErrorResponse]), (c, hs, ApiErrorResponse(c, m)))
-    })
+    .copy(response = (sc: StatusCode, hs: List[Header], m: String) =>
+      ValuedEndpointOutput(statusCode.and(headers).and(jsonBody[ApiErrorResponse]),
+        (sc, hs, ApiErrorResponse.decodeFailure(sc, m))
+      )
+    )
 
   private val openAPIInterpreterOptions: OpenAPIDocsOptions = OpenAPIDocsOptions.default.copy(
     defaultDecodeFailureOutput = _ => Some(statusCode(StatusCode.BadRequest).and(jsonBody[ApiErrorResponse]))
