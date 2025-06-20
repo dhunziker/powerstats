@@ -22,6 +22,20 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
+    path: '/lifter',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: ':name', component: () => import('pages/LifterPage.vue') }
+    ]
+  },
+  {
+    path: '/faq',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/FaqPage.vue') }
+    ],
+  },
+  {
     path: '/docs',
     component: () => import('layouts/MainLayout.vue'),
     children: [

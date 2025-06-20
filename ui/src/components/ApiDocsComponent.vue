@@ -7,11 +7,9 @@ import { SwaggerUIBundle, SwaggerUIStandalonePreset } from 'swagger-ui-dist'
 import 'swagger-ui-dist/swagger-ui.css'
 import { onMounted } from 'vue';
 
-interface Props {
+const props = defineProps<{
   url: string;
-}
-
-const props = defineProps<Props>();
+}>();
 
 onMounted( () => {
   SwaggerUIBundle({

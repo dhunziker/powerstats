@@ -27,9 +27,7 @@
 import type { ApiKey } from '../services/apiKeyService';
 import { date } from 'quasar';
 
-interface Props {
+const props = defineProps<{
   apiKey: ApiKey;
-}
-
-const props = defineProps<Props>();
+}>();
 </script>

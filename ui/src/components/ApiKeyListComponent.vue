@@ -31,16 +31,12 @@ import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 import ApiKeyComponent from 'components/ApiKeyComponent.vue';
 
-interface Props {
-  apiKeys: ApiKey[];
-}
-
 const $q = useQuasar();
 const router = useRouter();
 const emit = defineEmits(['deleted']);
-const props = withDefaults(defineProps<Props>(), {
-  apiKeys: () => []
-});
+const props = defineProps<{
+  apiKeys: ApiKey[];
+}>();
 
 async function handleDelete(id: number) {
   await deleteApiKey(id)

@@ -16,6 +16,12 @@
                     <q-item-label caption>Welcome page.</q-item-label>
                   </q-item-section>
                 </q-item>
+                <q-item clickable v-close-popup @click="router.push('/faq')">
+                  <q-item-section>
+                    <q-item-label>FAQ</q-item-label>
+                    <q-item-label caption>Frequently asked questions.</q-item-label>
+                  </q-item-section>
+                </q-item>
                 <q-item clickable v-close-popup @click="router.push('/docs')">
                   <q-item-section>
                     <q-item-label>API Documentation</q-item-label>

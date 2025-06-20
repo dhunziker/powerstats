@@ -11,7 +11,7 @@ import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 const props = defineProps({
-  isNewUser: Boolean,
+  isNewUser: Boolean
 });
 const store = useUserStore();
 const router = useRouter();

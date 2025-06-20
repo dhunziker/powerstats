@@ -35,9 +35,9 @@ import { useUserStore } from 'stores/user';
 import { useQuasar } from 'quasar'
 import { patterns } from 'quasar'
 
-const props = defineProps({
-  isNewUser: Boolean
-})
+const props = defineProps<{
+  isNewUser: boolean
+}>();
 const email = ref('');
 const password = ref('');
 const store = useUserStore();
