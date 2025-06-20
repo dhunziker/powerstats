@@ -3,6 +3,7 @@ package dev.powerstats.api
 import db.DatabaseMigrationComponent
 import route.*
 import route.request.ApiErrorResponse.{*, given}
+import route.request.ApiResponse.given
 import route.request.{ApiError, ApiErrorResponse}
 import service.*
 

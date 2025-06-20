@@ -2,8 +2,9 @@ package dev.powerstats.api
 package route
 
 import error.{NotFoundError, ServiceUnavailableError, TooManyRequestsError}
+import route.request.*
 import route.request.ApiErrorResponse.given
-import route.request.{ApiError, ApiErrorResponse, ApiSuccessResponse, ApiSuccessResponseWithData}
+import route.request.ApiResponse.given
 
 import cats.effect.*
 import cats.syntax.all.*

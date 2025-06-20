@@ -2,6 +2,7 @@ package dev.powerstats.api
 package route
 
 import route.request.*
+import route.request.ApiResponse.given
 import service.AccountServiceComponent
 
 import cats.effect.*

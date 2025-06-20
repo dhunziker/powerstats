@@ -2,6 +2,7 @@ package dev.powerstats.api
 package route
 
 import error.ServiceUnavailableError
+import route.request.ApiResponse.given
 import route.request.ApiSuccessResponse
 
 import cats.effect.*

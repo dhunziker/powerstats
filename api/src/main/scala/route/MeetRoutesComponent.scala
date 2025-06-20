@@ -1,6 +1,7 @@
 package dev.powerstats.api
 package route
 
+import route.request.ApiResponse.given
 import route.request.ApiSuccessResponseWithData
 import service.{MeetServiceComponent, SecurityServiceComponent}
 
