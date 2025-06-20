@@ -1,4 +1,5 @@
 import { api } from 'boot/axios';
+import type { ApiResponse } from './response';
 
 export interface ApiKey {
   id: number;
@@ -10,34 +11,23 @@ export interface ApiKey {
   expiryDate: Date;
 }
 
-interface ApiResponse {
-  status: string;
-  statusCode: number;
-}
-
-interface ApiKeyResponse extends ApiResponse {
-  data: ApiKey[];
-}
-
 interface ApiKeyCreateRequest {
   name: string;
 }
 
-interface ApiKeyCreateResponse extends ApiResponse {
-  data: {
-    key: string;
-    apiKey: ApiKey;
-  }
+interface ApiKeyCreateResponse {
+  key: string;
+  apiKey: ApiKey;
 }
 
-export async function getApiKeys(): Promise<ApiKeyResponse> {
-  const response = await api.get<ApiKeyResponse>('/v1/api-key');
+export async function getApiKeys(): Promise<ApiResponse<ApiKey[]>> {
+  const response = await api.get<ApiResponse<ApiKey[]>>('/v1/api-key');
   return response.data;
 }
 
-export async function createApiKey(name: string): Promise<ApiKeyCreateResponse> {
+export async function createApiKey(name: string): Promise<ApiResponse<ApiKeyCreateResponse>> {
   const req: ApiKeyCreateRequest = { name };
-  const response = await api.post<ApiKeyCreateResponse>('/v1/api-key', req);
+  const response = await api.post<ApiResponse<ApiKeyCreateResponse>>('/v1/api-key', req);
   return response.data;
 }
 
