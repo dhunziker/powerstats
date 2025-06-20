@@ -2,14 +2,15 @@ package dev.powerstats.api
 package service
 
 import cats.effect.IO
-import dev.powerstats.common.db.LifterRepositoryComponent
-import dev.powerstats.common.db.model.PersonalBest
+import dev.powerstats.common.db.model.{Event, PersonalBest}
+import dev.powerstats.common.db.{EventRepositoryComponent, LifterRepositoryComponent}
 import doobie.Transactor
 
 import java.time.LocalDate
 
 trait LifterServiceComponent {
-  this: LifterRepositoryComponent =>
+  this: LifterRepositoryComponent &
+    EventRepositoryComponent =>
   val lifterService: LifterService
 
   trait LifterService {
@@ -21,6 +22,10 @@ trait LifterServiceComponent {
 
     def findPersonalBest(name: String, xa: Transactor[IO]): IO[List[PersonalBest]] = {
       lifterRepository.findPersonalBests(name, xa)
+    }
+
+    def findEvents(name: String, limit: Int, xa: Transactor[IO]): IO[List[Event]] = {
+      eventRepository.findEvents(name = Some(name), None, None, None, None, None, None, None, limit, xa)
     }
   }
 }

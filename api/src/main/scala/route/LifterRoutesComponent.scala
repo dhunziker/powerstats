@@ -6,7 +6,7 @@ import route.request.ApiSuccessResponseWithData
 import service.{LifterServiceComponent, SecurityServiceComponent}
 
 import cats.effect.*
-import dev.powerstats.common.db.model.PersonalBest
+import dev.powerstats.common.db.model.{Event, PersonalBest}
 import doobie.*
 import io.circe.Encoder
 import io.circe.generic.auto.*
@@ -38,7 +38,7 @@ trait LifterRoutesComponent {
       )
 
       val findPersonalBestsEndpoint = routes.secureEndpoint(securityService, xa).get
-        .in("v1" / "lifter" / "personal-best" / path[String]("name"))
+        .in("v1" / "lifter" / path[String]("name") / "personal-bests")
         .out(jsonBody[ApiSuccessResponseWithData[List[PersonalBest]]])
 
       val findPersonalBestsServerEndpoint = findPersonalBestsEndpoint.serverLogic(accountId => name =>
@@ -47,7 +47,18 @@ trait LifterRoutesComponent {
         } yield personalBests)
       )
 
-      List(findLiftersServerEndpoint, findPersonalBestsServerEndpoint)
+      val findEventsEndpoint = routes.secureEndpoint(securityService, xa).get
+        .in("v1" / "lifter" / path[String]("name") / "events")
+        .in(query[Int]("limit").default(100))
+        .out(jsonBody[ApiSuccessResponseWithData[List[Event]]])
+
+      val findEventsServerEndpoint = findEventsEndpoint.serverLogic(accountId => (name, limit) =>
+        routes.responseWithData(for {
+          events <- lifterService.findEvents(name, limit, xa)
+        } yield events)
+      )
+
+      List(findLiftersServerEndpoint, findPersonalBestsServerEndpoint, findEventsServerEndpoint)
     }
   }
 }

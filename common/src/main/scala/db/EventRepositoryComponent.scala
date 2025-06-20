@@ -83,7 +83,7 @@ trait EventRepositoryComponent {
           date.map(v => fr"date = $v"),
           meetCountry.map(v => fr"meet_country = $v"),
           meetName.map(v => fr"meet_name = $v")
-        ) ++ fr"limit $limit")
+        ) ++ fr"order by date desc limit $limit")
         .query[Event]
         .to[List]
         .transact(xa)
