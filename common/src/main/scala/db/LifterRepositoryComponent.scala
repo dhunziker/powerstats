@@ -1,7 +1,7 @@
 package dev.powerstats.common
 package db
 
-import db.model.Lifter
+import db.model.PersonalBest
 
 import cats.effect.*
 import doobie.*
@@ -18,8 +18,8 @@ trait LifterRepositoryComponent {
                     limit: Int,
                     xa: Transactor[IO]): IO[List[String]] = {
       sql"""
-        select name
-        from vw_lifter
+        select distinct name
+        from vw_personal_best
         where name ~* $namePattern
         limit $limit
       """
@@ -28,7 +28,7 @@ trait LifterRepositoryComponent {
         .transact(xa)
     }
 
-    def findLifter(name: String, xa: Transactor[IO]): IO[Lifter] = {
+    def findPersonalBests(name: String, xa: Transactor[IO]): IO[List[PersonalBest]] = {
       sql"""
         select
           name,
@@ -42,16 +42,16 @@ trait LifterRepositoryComponent {
           wilks,
           glossbrenner,
           goodlift
-        from vw_lifter
+        from vw_personal_best
         where name = $name
       """
-        .query[Lifter]
-        .unique
+        .query[PersonalBest]
+        .to[List]
         .transact(xa)
     }
 
     def refreshLifterView(xa: Transactor[IO]): IO[Int] = {
-      sql"refresh materialized view vw_lifter with data"
+      sql"refresh materialized view vw_personal_best with data"
         .update
         .run
         .transact(xa)

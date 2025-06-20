@@ -1,4 +1,4 @@
-create materialized view vw_lifter as
+create materialized view vw_personal_best as
 select
     name,
     sex,
@@ -14,5 +14,5 @@ select
 from event
 group by name, sex, equipment;
 
-create index if not exists idx_lifter_name
-on vw_lifter (name);
+create index if not exists idx_personal_best_name
+on vw_personal_best (name);

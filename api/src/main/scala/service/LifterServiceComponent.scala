@@ -3,7 +3,7 @@ package service
 
 import cats.effect.IO
 import dev.powerstats.common.db.LifterRepositoryComponent
-import dev.powerstats.common.db.model.Lifter
+import dev.powerstats.common.db.model.PersonalBest
 import doobie.Transactor
 
 import java.time.LocalDate
@@ -19,8 +19,8 @@ trait LifterServiceComponent {
       lifterRepository.findLifters(namePattern, limit, xa)
     }
 
-    def findLifter(name: String, xa: Transactor[IO]): IO[Lifter] = {
-      lifterRepository.findLifter(name, xa)
+    def findPersonalBest(name: String, xa: Transactor[IO]): IO[List[PersonalBest]] = {
+      lifterRepository.findPersonalBests(name, xa)
     }
   }
 }
