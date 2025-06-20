@@ -24,7 +24,7 @@ trait LifterServiceComponent {
       lifterRepository.findPersonalBests(name, xa)
     }
 
-    def findEvents(name: String, limit: Int, xa: Transactor[IO]): IO[List[Event]] = {
+    def findCompetitionResults(name: String, limit: Int, xa: Transactor[IO]): IO[List[Event]] = {
       eventRepository.findEvents(name = Some(name), None, None, None, None, None, None, None, limit, xa)
     }
   }

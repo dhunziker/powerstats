@@ -47,18 +47,18 @@ trait LifterRoutesComponent {
         } yield personalBests)
       )
 
-      val findEventsEndpoint = routes.secureEndpoint(securityService, xa).get
-        .in("v1" / "lifter" / path[String]("name") / "events")
+      val findCompetitionResultsEndpoint = routes.secureEndpoint(securityService, xa).get
+        .in("v1" / "lifter" / path[String]("name") / "competition-results")
         .in(query[Int]("limit").default(100))
         .out(jsonBody[ApiSuccessResponseWithData[List[Event]]])
 
-      val findEventsServerEndpoint = findEventsEndpoint.serverLogic(accountId => (name, limit) =>
+      val findCompetitionResultsServerEndpoint = findCompetitionResultsEndpoint.serverLogic(accountId => (name, limit) =>
         routes.responseWithData(for {
-          events <- lifterService.findEvents(name, limit, xa)
+          events <- lifterService.findCompetitionResults(name, limit, xa)
         } yield events)
       )
 
-      List(findLiftersServerEndpoint, findPersonalBestsServerEndpoint, findEventsServerEndpoint)
+      List(findLiftersServerEndpoint, findPersonalBestsServerEndpoint, findCompetitionResultsServerEndpoint)
     }
   }
 }
