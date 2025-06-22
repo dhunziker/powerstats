@@ -40,7 +40,8 @@ object Main extends IOApp.Simple
         isTruncated <- eventRepository.truncateEvent(xa)
         _ <- IO(println(s"Truncated table with result: $isTruncated"))
         tempDir <- IO(Files.createTempDirectory("download"))
-        _ <- processFile(OpenIpf, tempDir, xa)
+        // Subset of the OpenPowerlifting data set
+        //_ <- processFile(OpenIpf, tempDir, xa)
         _ <- processFile(OpenPowerlifting, tempDir, xa)
         isEventViewRefreshed <- eventRepository.refreshEventView(xa)
         _ <- IO(println(s"Refreshed event view with result: $isEventViewRefreshed"))
