@@ -44,6 +44,7 @@ trait LifterRepositoryComponent {
           goodlift
         from vw_personal_best
         where name = $name
+        order by dots desc
       """
         .query[PersonalBest]
         .to[List]
