@@ -25,12 +25,12 @@ import type { CompetitionResult } from 'src/services/lifterService';
 import type { QTableColumn } from 'quasar';
 
 const props = defineProps<{
-  competitionResults: CompetitionResult[]
+  competitionResults: CompetitionResult[];
 }>();
 const columns: QTableColumn<CompetitionResult>[] = [
   { name: 'place', label: 'Place', field: 'place', align: 'left' },
   { name: 'federation', label: 'Fed', field: 'federation', align: 'left' },
-  { name: 'date', label: 'Date', field: event => event.date.toDateString(), align: 'left' },
+  { name: 'date', label: 'Date', field: (event) => event.date.toDateString(), align: 'left' },
   { name: 'meetCountry', label: 'Location', field: 'meetCountry', align: 'left' },
   { name: 'meetName', label: 'Competition', field: 'meetName', align: 'left' },
   { name: 'division', label: 'Division', field: 'division', align: 'left' },
@@ -52,9 +52,9 @@ const columns: QTableColumn<CompetitionResult>[] = [
   { name: 'deadlift4Kg', label: 'Deadlift', field: 'deadlift4Kg', align: 'left' },
   { name: 'totalKg', label: 'Total', field: 'totalKg', align: 'left' },
   { name: 'dots', label: 'Dots', field: 'dots', align: 'left' },
-]
-const filteredColumns: QTableColumn<CompetitionResult>[] = columns.filter(col =>
-  col.name.match(/^(?!.*[2-4]Kg$).*$/)
+];
+const filteredColumns: QTableColumn<CompetitionResult>[] = columns.filter((col) =>
+  col.name.match(/^(?!.*[2-4]Kg$).*$/),
 );
 
 function colspan(columnName: string) {

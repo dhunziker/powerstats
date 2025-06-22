@@ -1,7 +1,7 @@
 {
   "name": "dev.powerstats.ui",
   "version": "0.0.1",
-  "description": "A Quasar Project",
+  "description": "Your one-stop solution for accessing comprehensive powerlifting data through a simple, robust REST API. Whether you’re a coach, athlete, developer, or enthusiast, our API lets you seamlessly query results, lifter profiles, and meet statistics sourced directly from OpenPowerlifting.org. Dive into the world’s largest open powerlifting database and power your apps, research, or personal projects with up-to-date, reliable information.",
   "productName": "powerstats",
   "author": "Dennis Hunziker <dennis.hunziker@agoda.com>",
   "private": true,
@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.16.4",
+    "apexcharts": "^4.7.0",
     "axios": "^1.8.4",
     "axios-date-transformer": "^1.2.1",
     "core-js": "^3.6.5",
@@ -25,7 +26,8 @@
     "quasar": "^2.16.0",
     "swagger-ui-dist": "^5.21.0",
     "vue": "^3.4.18",
-    "vue-router": "^4.0.0"
+    "vue-router": "^4.0.0",
+    "vue3-apexcharts": "^1.8.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
