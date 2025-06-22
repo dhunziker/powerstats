@@ -31,6 +31,7 @@ object Main extends IOApp.Simple
   override val downloader = new Downloader {}
 
   private val OpenIpf = "https://openpowerlifting.gitlab.io/opl-csv/files/openipf-latest.zip"
+  private val OpenPowerlifting = "https://openpowerlifting.gitlab.io/opl-csv/files/openpowerlifting-latest.zip"
 
   val run = {
     val transactor = databaseTransactor.init(config.dbConfig)
@@ -39,12 +40,8 @@ object Main extends IOApp.Simple
         isTruncated <- eventRepository.truncateEvent(xa)
         _ <- IO(println(s"Truncated table with result: $isTruncated"))
         tempDir <- IO(Files.createTempDirectory("download"))
-        file <- downloader.download(OpenIpf, tempDir)
-        _ <- Zip.unzip(file)
-        csvFile <- findCsv(tempDir)
-        header <- parseHeader(csvFile)
-        counts <- processBatches(csvFile, header, config.dbConfig, xa)
-        _ <- IO(println(s"Inserted ${counts.sum} rows"))
+        _ <- processFile(OpenIpf, tempDir, xa)
+        _ <- processFile(OpenPowerlifting, tempDir, xa)
         isEventViewRefreshed <- eventRepository.refreshEventView(xa)
         _ <- IO(println(s"Refreshed event view with result: $isEventViewRefreshed"))
         isMeetViewRefreshed <- meetRepository.refreshMeetView(xa)
@@ -53,6 +50,17 @@ object Main extends IOApp.Simple
         _ <- IO(println(s"Refreshed lifter view with result: $isLifterViewRefreshed"))
       } yield ()
     }
+  }
+
+  private def processFile(file: String, tempDir: Path, xa: Transactor[IO]): IO[Unit] = {
+    for {
+      file <- downloader.download(file, tempDir)
+      _ <- Zip.unzip(file)
+      csvFile <- findCsv(tempDir)
+      header <- parseHeader(csvFile)
+      counts <- processBatches(csvFile, header, config.dbConfig, xa)
+      _ <- IO(println(s"Inserted ${counts.sum} rows"))
+    } yield ()
   }
 
   private def findCsv(path: Path): IO[Path] = {
