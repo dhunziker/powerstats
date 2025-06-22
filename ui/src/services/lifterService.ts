@@ -30,14 +30,17 @@ export interface CompetitionResult {
   squat2Kg?: number;
   squat3Kg?: number;
   squat4Kg?: number;
+  best3SquatKg?: number;
   bench1Kg?: number;
   bench2Kg?: number;
   bench3Kg?: number;
   bench4Kg?: number;
+  best3BenchKg?: number;
   deadlift1Kg?: number;
   deadlift2Kg?: number;
   deadlift3Kg?: number;
   deadlift4Kg?: number;
+  best3DeadliftKg?: number;
   totalKg?: number;
   dots?: number;
   wilks?: number;
