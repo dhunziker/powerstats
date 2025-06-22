@@ -1,4 +1,4 @@
-create materialized view vw_personal_best as
+create materialized view if not exists vw_personal_best as
 select
     name,
     sex,

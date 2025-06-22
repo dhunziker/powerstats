@@ -1,4 +1,4 @@
-create materialized view vw_meet as
+create materialized view if not exists vw_meet as
 select distinct
     federation,
     date,

@@ -45,6 +45,9 @@ create table if not exists event (
     primary key(id)
 );
 
-create materialized view vw_event as 
+create materialized view if not exists vw_event as 
 select * 
 from event;
+
+create index if not exists idx_event_name
+on vw_event (name);
