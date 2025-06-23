@@ -8,8 +8,7 @@
     padding
     arrows
     height="200px"
-    class="rounded-borders q-table__card"
-    style="max-width: fit-content;"
+    class="carousel-container rounded-borders q-table__card"
   >
     <q-carousel-slide
       v-for="(series, index) in chartData"
@@ -17,7 +16,7 @@
       :name="'slide' + index"
       class="column no-wrap flex-center"
     >
-      <div class="absolute-bottom custom-caption" style="z-index: 100">
+      <div class="absolute-bottom custom-caption">
         <div class="text-subtitle1">{{ props.personalBests[index]?.equipment }}</div>
       </div>
       <ApexCharts
@@ -73,11 +72,16 @@ const columns: QTableColumn<PersonalBest>[] = [
 </script>
 
 <style scoped>
+.carousel-container {
+  max-width: fit-content;
+}
+
 .custom-caption {
   text-align: center;
   padding: 6px;
   color: white;
   background-color: rgba(0, 0, 0, .3);
+  z-index: 100;
 }
 
 .table-container {

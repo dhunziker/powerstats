@@ -12,7 +12,7 @@
           v-for="col in filteredColumns"
           :key="col.name"
           :colspan="colspan(col.name)"
-          style="text-align: left"
+          class="table-header"
         >
           {{ col.label }}
         </q-th>
@@ -62,3 +62,9 @@ function colspan(columnName: string) {
   return columnName.match(/^((squat|bench|deadlift)[1-4]Kg$).*$/) ? 4 : 1;
 }
 </script>
+
+<style scoped>
+.table-header {
+  text-align: left;
+}
+</style>
