@@ -5,16 +5,15 @@
     animated
     control-type="regular"
     control-color="primary"
-    padding
     arrows
-    height="200px"
+    height="240px"
     class="carousel-container rounded-borders q-table__card"
   >
     <q-carousel-slide
       v-for="(series, index) in chartData"
       :key="index"
       :name="'slide' + index"
-      class="column no-wrap flex-center"
+      class="slide-container column no-wrap flex-center"
     >
       <div class="absolute-bottom custom-caption">
         <div class="text-subtitle1">{{ props.personalBests[index]?.equipment }}</div>
@@ -76,9 +75,13 @@ const columns: QTableColumn<PersonalBest>[] = [
   max-width: fit-content;
 }
 
+.slide-container {
+  padding: 8px 60px 6px 60px;
+}
+
 .custom-caption {
   text-align: center;
-  padding: 6px;
+  padding: 3px;
   color: white;
   background-color: rgba(0, 0, 0, .3);
   z-index: 100;

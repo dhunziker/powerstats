@@ -1,7 +1,32 @@
 <template>
-  <div v-if="chartSeries.length > 0" class="chart-container rounded-borders q-table__card">
-    <ApexCharts type="line" :options="chartOptions" :series="chartSeries" height="100%" />
-  </div>
+  <q-carousel
+    v-model="slide"
+    swipeable
+    animated
+    control-type="regular"
+    control-color="primary"
+    arrows
+    height="300px"
+    class="carousel-container rounded-borders q-table__card"
+  >
+    <q-carousel-slide
+      v-for="(series, index) in chartSeries"
+      :key="index"
+      :name="'slide' + index"
+      class="slide-container no-wrap flex-center"
+    >
+      <div class="absolute-bottom custom-caption">
+        <div class="text-subtitle1">{{ series.equipment }}</div>
+      </div>
+        <ApexCharts
+          type="line"
+          height="100%"
+          :series="series.data"
+          :options="chartOptions"
+        />
+    </q-carousel-slide>
+  </q-carousel>
+
   <q-table
     title="Competition Results"
     :rows="props.competitionResults"
@@ -62,6 +87,7 @@ const columns: QTableColumn<CompetitionResult>[] = [
 const filteredColumns: QTableColumn<CompetitionResult>[] = columns.filter((col) =>
   col.name.match(/^(?!.*[2-4]Kg$).*$/),
 );
+const slide = ref('slide0')
 const chartOptions = ref({
   chart: {
     zoom: {
@@ -84,46 +110,74 @@ const chartOptions = ref({
   },
   stroke: {
     curve: 'smooth'
+  },
+  legend: {
+    show: true,
+    position: 'top',
+    onItemClick: {
+      toggleDataSeries: false
+    }
   }
 });
-const chartSeries = ref<{name: string, data: [Date, number][]}[]>([]);
+const chartSeries = ref<{equipment: string, data: {name: string, data: [Date, number][]}[]}[]>([]);
 
 function colspan(columnName: string) {
   return columnName.match(/^((squat|bench|deadlift)[1-4]Kg$).*$/) ? 4 : 1;
 }
 
 onMounted(() => {
-  chartSeries.value = [
+  const allEquipment = props.competitionResults.map(event => event.equipment);
+  const equipment = [...new Set(allEquipment)];
+
+  chartSeries.value = equipment.map(equip => (
     {
-      name: 'Total',
-      extract: (event: CompetitionResult) => event.totalKg || 0,
-    },
-    {
-      name: 'Squat',
-      extract: (event: CompetitionResult) => event.best3SquatKg || 0,
-    },
-    {
-      name: 'Bench',
-      extract: (event: CompetitionResult) => event.best3BenchKg || 0,
-    },
-    {
-      name: 'Deadlift',
-      extract: (event: CompetitionResult) => event.best3DeadliftKg || 0,
-    }
-  ].map(series =>
-    ({
-      name: series.name,
-      data: props.competitionResults.map((event) => [event.date, series.extract(event)]),
+      equipment: equip,
+        data:
+      [
+        {
+          name: 'Total',
+          extract: (event: CompetitionResult) => event.totalKg || 0,
+        },
+        {
+          name: 'Squat',
+          extract: (event: CompetitionResult) => event.best3SquatKg || 0,
+        },
+        {
+          name: 'Bench',
+          extract: (event: CompetitionResult) => event.best3BenchKg || 0,
+        },
+        {
+          name: 'Deadlift',
+          extract: (event: CompetitionResult) => event.best3DeadliftKg || 0,
+        }
+      ].map(series =>
+        ({
+          name: series.name,
+          data: props.competitionResults
+            .filter((event) => event.equipment === equip)
+            .map((event) => [event.date, series.extract(event)]),
+        })
+      )
     })
   );
 });
 </script>
 
 <style scoped>
-.chart-container {
+.carousel-container {
   max-width: 100%;
-  padding: 8px;
-  height: 260px;
+}
+
+.slide-container {
+  padding: 6px 6px 40px 6px;
+}
+
+.custom-caption {
+  text-align: center;
+  padding: 3px;
+  color: white;
+  background-color: rgba(0, 0, 0, .3);
+  z-index: 100;
 }
 
 .table-header {
