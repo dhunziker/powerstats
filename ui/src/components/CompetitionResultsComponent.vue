@@ -1,4 +1,7 @@
 <template>
+  <div v-if="chartSeries.length > 0" class="chart-container rounded-borders q-table__card">
+    <ApexCharts type="line" :options="chartOptions" :series="chartSeries" height="100%" />
+  </div>
   <q-table
     title="Competition Results"
     :rows="props.competitionResults"
@@ -24,6 +27,8 @@
 <script setup lang="ts">
 import type { CompetitionResult } from 'src/services/lifterService';
 import type { QTableColumn } from 'quasar';
+import ApexCharts from 'vue3-apexcharts';
+import { ref, onMounted } from 'vue';
 
 const props = defineProps<{
   competitionResults: CompetitionResult[];
@@ -57,13 +62,70 @@ const columns: QTableColumn<CompetitionResult>[] = [
 const filteredColumns: QTableColumn<CompetitionResult>[] = columns.filter((col) =>
   col.name.match(/^(?!.*[2-4]Kg$).*$/),
 );
+const chartOptions = ref({
+  chart: {
+    zoom: {
+      enabled: false
+    },
+    toolbar: {
+      show: false
+    },
+  },
+  xaxis: {
+    type: 'datetime'
+  },
+  yaxis: {
+    title: {
+      text: 'Kilograms'
+    }
+  },
+  dataLabels: {
+    enabled: false
+  },
+  stroke: {
+    curve: 'smooth'
+  }
+});
+const chartSeries = ref<{name: string, data: [Date, number][]}[]>([]);
 
 function colspan(columnName: string) {
   return columnName.match(/^((squat|bench|deadlift)[1-4]Kg$).*$/) ? 4 : 1;
 }
+
+onMounted(() => {
+  chartSeries.value = [
+    {
+      name: 'Total',
+      extract: (event: CompetitionResult) => event.totalKg || 0,
+    },
+    {
+      name: 'Squat',
+      extract: (event: CompetitionResult) => event.best3SquatKg || 0,
+    },
+    {
+      name: 'Bench',
+      extract: (event: CompetitionResult) => event.best3BenchKg || 0,
+    },
+    {
+      name: 'Deadlift',
+      extract: (event: CompetitionResult) => event.best3DeadliftKg || 0,
+    }
+  ].map(series =>
+    ({
+      name: series.name,
+      data: props.competitionResults.map((event) => [event.date, series.extract(event)]),
+    })
+  );
+});
 </script>
 
 <style scoped>
+.chart-container {
+  max-width: 100%;
+  padding: 8px;
+  height: 260px;
+}
+
 .table-header {
   text-align: left;
 }
