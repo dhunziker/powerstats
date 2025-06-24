@@ -5,7 +5,6 @@
     animated
     control-type="regular"
     control-color="primary"
-    arrows
     height="240px"
     class="carousel-container rounded-borders q-table__card"
   >
@@ -16,7 +15,13 @@
       class="slide-container column no-wrap flex-center"
     >
       <div class="absolute-bottom custom-caption">
-        <div class="text-subtitle1">{{ props.personalBests[index]?.equipment }}</div>
+        <div class="row justify-center">
+          <q-btn-toggle
+            glossy
+            v-model="slide"
+            :options="carouselSlides"
+          />
+        </div>
       </div>
       <ApexCharts
         type="pie"
@@ -45,6 +50,7 @@ import { computed, ref } from 'vue';
 
 const props = defineProps<{
   personalBests: PersonalBest[];
+  carouselSlides: {label: string, value: string}[];
 }>();
 const slide = ref('slide0')
 const chartOptions = ref({
@@ -76,12 +82,12 @@ const columns: QTableColumn<PersonalBest>[] = [
 }
 
 .slide-container {
-  padding: 8px 60px 6px 60px;
+  padding: 6px 30px 55px 30px;
 }
 
 .custom-caption {
   text-align: center;
-  padding: 3px;
+  padding: 6px;
   color: white;
   background-color: rgba(0, 0, 0, .3);
   z-index: 100;

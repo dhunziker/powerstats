@@ -5,7 +5,6 @@
     animated
     control-type="regular"
     control-color="primary"
-    arrows
     height="300px"
     class="carousel-container rounded-borders q-table__card"
   >
@@ -16,7 +15,13 @@
       class="slide-container no-wrap flex-center"
     >
       <div class="absolute-bottom custom-caption">
-        <div class="text-subtitle1">{{ series.equipment }}</div>
+        <div class="row justify-center">
+          <q-btn-toggle
+            glossy
+            v-model="slide"
+            :options="carouselSlides"
+          />
+        </div>
       </div>
         <ApexCharts
           type="line"
@@ -57,6 +62,7 @@ import { ref, onMounted } from 'vue';
 
 const props = defineProps<{
   competitionResults: CompetitionResult[];
+  carouselSlides: {label: string, value: string}[];
 }>();
 const columns: QTableColumn<CompetitionResult>[] = [
   { name: 'place', label: 'Place', field: 'place', align: 'left' },
@@ -169,14 +175,14 @@ onMounted(() => {
 }
 
 .slide-container {
-  padding: 6px 6px 40px 6px;
+  padding: 6px 6px 50px 6px;
 }
 
 .custom-caption {
   text-align: center;
-  padding: 3px;
+  padding: 6px;
   color: white;
-  background-color: rgba(0, 0, 0, .3);
+  background-color: rgba(0, 0, 0, 0.3);
   z-index: 100;
 }
 

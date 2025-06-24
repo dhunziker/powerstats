@@ -5,8 +5,8 @@
         <div class="row items-center">
           <div class="text-h5">{{ name }} ({{ sex }})</div>
         </div>
-        <personal-bests-component :personalBests="personalBests"/>
-        <competition-results-component :competitionResults="competitionResults"/>
+        <personal-bests-component :personalBests="personalBests" :carouselSlides="carouselSlides"/>
+        <competition-results-component :competitionResults="competitionResults" :carouselSlides="carouselSlides"/>
       </div>
     </q-page>
   </q-page>
@@ -27,6 +27,7 @@ const name = ref<string>(route.params.name as string);
 const sex = ref<string>('');
 const personalBests = ref<PersonalBest[]>([]);
 const competitionResults = ref<CompetitionResult[]>([]);
+const carouselSlides = ref<{label: string, value: string}[]>([])
 
 onMounted(async () => {
   $q.loading.show();
@@ -37,6 +38,12 @@ onMounted(async () => {
     sex.value = personalBestsResponse.data[0]?.sex || '';
     personalBests.value = personalBestsResponse.data
     competitionResults.value = competitionResultsResponse.data
+    carouselSlides.value = personalBests.value.map((pb, index) => (
+      {
+        label: pb.equipment,
+        value: 'slide' + index
+      }
+    ));
   }).finally(() => $q.loading.hide());
 });
 </script>
