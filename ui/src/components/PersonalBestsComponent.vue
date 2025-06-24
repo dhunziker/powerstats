@@ -20,6 +20,7 @@
             glossy
             v-model="slide"
             :options="carouselSlides"
+            :disable="carouselSlides.length <= 1"
           />
         </div>
       </div>
@@ -64,7 +65,7 @@ const chartOptions = ref({
   },
 });
 const chartData = computed(() =>
-  props.personalBests.map(pb => [pb.best3SquatKg || 0, pb.best3BenchKg || 0, pb.best3DeadliftKg || 0])
+  props.personalBests.map(pb => [pb.best3SquatKg || null, pb.best3BenchKg || null, pb.best3DeadliftKg || null])
 );
 const columns: QTableColumn<PersonalBest>[] = [
   { name: 'equipment', label: 'Equipment', field: 'equipment', align: 'left' },

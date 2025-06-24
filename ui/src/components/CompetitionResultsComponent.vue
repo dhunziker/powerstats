@@ -20,6 +20,7 @@
             glossy
             v-model="slide"
             :options="carouselSlides"
+            :disable="carouselSlides.length <= 1"
           />
         </div>
       </div>
@@ -125,7 +126,7 @@ const chartOptions = ref({
     }
   }
 });
-const chartSeries = ref<{equipment: string, data: {name: string, data: [Date, number][]}[]}[]>([]);
+const chartSeries = ref<{equipment: string, data: {name: string, data: [Date, number | null][]}[]}[]>([]);
 
 function colspan(columnName: string) {
   return columnName.match(/^((squat|bench|deadlift)[1-4]Kg$).*$/) ? 4 : 1;
@@ -142,19 +143,19 @@ onMounted(() => {
       [
         {
           name: 'Total',
-          extract: (event: CompetitionResult) => event.totalKg || 0,
+          extract: (event: CompetitionResult) => event.totalKg || null,
         },
         {
           name: 'Squat',
-          extract: (event: CompetitionResult) => event.best3SquatKg || 0,
+          extract: (event: CompetitionResult) => event.best3SquatKg || null,
         },
         {
           name: 'Bench',
-          extract: (event: CompetitionResult) => event.best3BenchKg || 0,
+          extract: (event: CompetitionResult) => event.best3BenchKg || null,
         },
         {
           name: 'Deadlift',
-          extract: (event: CompetitionResult) => event.best3DeadliftKg || 0,
+          extract: (event: CompetitionResult) => event.best3DeadliftKg || null,
         }
       ].map(series =>
         ({
