@@ -20,7 +20,7 @@
             glossy
             v-model="slide"
             :options="carouselSlides"
-            :disable="carouselSlides.length <= 1"
+            :class="{ 'disabled-buttons': carouselSlides.length <= 1 }"
           />
         </div>
       </div>
@@ -92,6 +92,10 @@ const columns: QTableColumn<PersonalBest>[] = [
   color: white;
   background-color: rgba(0, 0, 0, .3);
   z-index: 100;
+}
+
+.disabled-buttons {
+  pointer-events: none;
 }
 
 .table-container {
