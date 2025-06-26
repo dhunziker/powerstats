@@ -27,6 +27,7 @@ trait AccountRoutesComponent {
         .in("user" / "register")
         .in(jsonBody[UserRegisterRequest])
         .out(jsonBody[ApiSuccessResponseWithData[Account]])
+        .attribute(Attributes.rateLimit, 10)
 
       val registerServerEndpoint = registerEndpoint.serverLogic(registerRequest =>
         routes.responseWithData(accountService.register(registerRequest.email, registerRequest.password, xa))
@@ -36,6 +37,7 @@ trait AccountRoutesComponent {
         .in("user" / "login")
         .in(jsonBody[UserLoginRequest])
         .out(jsonBody[ApiSuccessResponseWithData[UserLoginResponse]])
+        .attribute(Attributes.rateLimit, 10)
 
       val loginServerEndpoint = loginEndpoint.serverLogic(loginRequest =>
         routes.responseWithData(
@@ -49,6 +51,7 @@ trait AccountRoutesComponent {
         .in("user" / "activate")
         .in(jsonBody[UserActivateRequest])
         .out(jsonBody[ApiSuccessResponseWithData[UserActivateResponse]])
+        .attribute(Attributes.rateLimit, 10)
 
       val activateServerEndpoint = activateEndpoint.serverLogic(activateRequest =>
         routes.responseWithData(

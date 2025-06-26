@@ -25,34 +25,37 @@ trait LifterRoutesComponent {
 
   trait LifterRoutes {
     def endpoints(xa: Transactor[IO]): List[ServerEndpoint[Any, IO]] = {
-      val findLiftersEndpoint = routes.secureEndpoint(securityService, xa).get
+      val findLiftersEndpoint = routes.publicEndpoint.get
         .in("v1" / "lifter")
         .in(query[String]("namePattern"))
         .in(query[Int]("limit").default(100))
         .out(jsonBody[ApiSuccessResponseWithData[List[String]]])
+        .attribute(Attributes.rateLimit, 60)
 
-      val findLiftersServerEndpoint = findLiftersEndpoint.serverLogic(accountId => (namePattern, limit) =>
+      val findLiftersServerEndpoint = findLiftersEndpoint.serverLogic((namePattern, limit) =>
         routes.responseWithData(for {
           lifters <- lifterService.findLifters(namePattern, limit, xa)
         } yield lifters)
       )
 
-      val findPersonalBestsEndpoint = routes.secureEndpoint(securityService, xa).get
+      val findPersonalBestsEndpoint = routes.publicEndpoint.get
         .in("v1" / "lifter" / path[String]("name") / "personal-bests")
         .out(jsonBody[ApiSuccessResponseWithData[List[PersonalBest]]])
+        .attribute(Attributes.rateLimit, 10)
 
-      val findPersonalBestsServerEndpoint = findPersonalBestsEndpoint.serverLogic(accountId => name =>
+      val findPersonalBestsServerEndpoint = findPersonalBestsEndpoint.serverLogic(name =>
         routes.responseWithData(for {
           personalBests <- lifterService.findPersonalBest(name, xa)
         } yield personalBests)
       )
 
-      val findCompetitionResultsEndpoint = routes.secureEndpoint(securityService, xa).get
+      val findCompetitionResultsEndpoint = routes.publicEndpoint.get
         .in("v1" / "lifter" / path[String]("name") / "competition-results")
         .in(query[Int]("limit").default(100))
         .out(jsonBody[ApiSuccessResponseWithData[List[Event]]])
+        .attribute(Attributes.rateLimit, 10)
 
-      val findCompetitionResultsServerEndpoint = findCompetitionResultsEndpoint.serverLogic(accountId => (name, limit) =>
+      val findCompetitionResultsServerEndpoint = findCompetitionResultsEndpoint.serverLogic((name, limit) =>
         routes.responseWithData(for {
           events <- lifterService.findCompetitionResults(name, limit, xa)
         } yield events)

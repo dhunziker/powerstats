@@ -110,6 +110,7 @@ object Main extends IOApp.Simple
         serverOptions = Http4sServerOptions.customiseInterceptors[IO]
           .rejectHandler(customRejectHandler)
           .decodeFailureHandler(customDecodeFailureHandler)
+          .addInterceptor(new RateLimitInterceptor())
           .options
         routes = Http4sServerInterpreter[IO](serverOptions)
           .toRoutes(internalApiEndpoints ++ apiEndpoints ++ docEndpoints)

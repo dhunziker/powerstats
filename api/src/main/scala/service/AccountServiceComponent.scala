@@ -55,6 +55,7 @@ trait AccountServiceComponent {
       for {
         existingAccount <- accountRepository.findAccount(email, xa)
         account <- IO.fromOption(existingAccount)(new Error(s"Account with email $email not found"))
+        _ <- IO.raiseUnless(account.isActivated)(new Error("Account is not active"))
         verified <- securityService.validateHashedSecret(password, account.passwordHash)
         _ <- if (verified) {
           logger.info(s"Account with email $email authenticated")

@@ -24,6 +24,7 @@ trait HealthRoutesComponent {
       val healthEndpoint = routes.publicEndpoint.get
         .in("health-check")
         .out(jsonBody[ApiSuccessResponse])
+        .attribute(Attributes.rateLimit, 60)
 
       val findServerEndpoint = healthEndpoint.serverLogic(_ =>
         routes.response(
