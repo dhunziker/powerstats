@@ -14,5 +14,7 @@ select
 from event
 group by name, sex, equipment;
 
-create index if not exists idx_personal_best_name
-on vw_personal_best (name);
+create extension if not exists pg_trgm;
+
+create index if not exists idx_personal_best_name_trgm
+on vw_personal_best using gin (name gin_trgm_ops);

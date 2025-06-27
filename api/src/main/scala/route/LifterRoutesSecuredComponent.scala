@@ -17,45 +17,45 @@ import sttp.tapir.server.ServerEndpoint
 
 import java.time.LocalDate
 
-trait LifterRoutesComponent {
+trait LifterRoutesSecuredComponent {
   this: RoutesComponent &
     SecurityServiceComponent &
     LifterServiceComponent =>
-  val lifterRoutes: LifterRoutes
+  val lifterRoutesSecured: LifterRoutesSecured
 
-  trait LifterRoutes {
+  trait LifterRoutesSecured {
     def endpoints(xa: Transactor[IO]): List[ServerEndpoint[Any, IO]] = {
-      val findLiftersEndpoint = routes.publicEndpoint.get
+      val findLiftersEndpoint = routes.secureEndpoint(securityService, xa).get
         .in("v1" / "lifter")
         .in(query[String]("namePattern"))
         .in(query[Int]("limit").default(100))
         .out(jsonBody[ApiSuccessResponseWithData[List[String]]])
         .attribute(Attributes.rateLimit, 60)
 
-      val findLiftersServerEndpoint = findLiftersEndpoint.serverLogic((namePattern, limit) =>
+      val findLiftersServerEndpoint = findLiftersEndpoint.serverLogic(accountId => (namePattern, limit) =>
         routes.responseWithData(for {
           lifters <- lifterService.findLifters(namePattern, limit, xa)
         } yield lifters)
       )
 
-      val findPersonalBestsEndpoint = routes.publicEndpoint.get
+      val findPersonalBestsEndpoint = routes.secureEndpoint(securityService, xa).get
         .in("v1" / "lifter" / path[String]("name") / "personal-bests")
         .out(jsonBody[ApiSuccessResponseWithData[List[PersonalBest]]])
         .attribute(Attributes.rateLimit, 10)
 
-      val findPersonalBestsServerEndpoint = findPersonalBestsEndpoint.serverLogic(name =>
+      val findPersonalBestsServerEndpoint = findPersonalBestsEndpoint.serverLogic(accountId => name =>
         routes.responseWithData(for {
           personalBests <- lifterService.findPersonalBest(name, xa)
         } yield personalBests)
       )
 
-      val findCompetitionResultsEndpoint = routes.publicEndpoint.get
+      val findCompetitionResultsEndpoint = routes.secureEndpoint(securityService, xa).get
         .in("v1" / "lifter" / path[String]("name") / "competition-results")
         .in(query[Int]("limit").default(100))
         .out(jsonBody[ApiSuccessResponseWithData[List[Event]]])
         .attribute(Attributes.rateLimit, 10)
 
-      val findCompetitionResultsServerEndpoint = findCompetitionResultsEndpoint.serverLogic((name, limit) =>
+      val findCompetitionResultsServerEndpoint = findCompetitionResultsEndpoint.serverLogic(accountId => (name, limit) =>
         routes.responseWithData(for {
           events <- lifterService.findCompetitionResults(name, limit, xa)
         } yield events)

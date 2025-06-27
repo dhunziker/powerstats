@@ -57,7 +57,8 @@ object Main extends IOApp.Simple
   with MeetRoutesComponent
   with LifterRepositoryComponent
   with LifterServiceComponent
-  with LifterRoutesComponent
+  with LifterRoutesSecuredComponent
+  with LifterRoutesPublicComponent
   with AccountRepositoryComponent
   with AccountServiceComponent
   with AccountRoutesComponent
@@ -82,7 +83,8 @@ object Main extends IOApp.Simple
   override val meetRoutes = new MeetRoutes {}
   override val lifterRepository = new LifterRepository {}
   override val lifterService = new LifterService {}
-  override val lifterRoutes = new LifterRoutes {}
+  override val lifterRoutesSecured = new LifterRoutesSecured {}
+  override val lifterRoutesPublic = new LifterRoutesPublic {}
   override val accountRepository = new AccountRepository {}
   override val accountService = new AccountService {}
   override val accountRoutes = new AccountRoutes {}
@@ -95,25 +97,27 @@ object Main extends IOApp.Simple
     transactor.use { xa =>
       for {
         _ <- databaseMigration.migrate(config.dbConfig)
-        internalApiEndpoints =
-          healthRoutes.endpoints(xa) <+>
-            accountRoutes.endpoints(xa)
         apiEndpoints =
-          eventRoutes.endpoints(xa) <+>
+          healthRoutes.endpoints(xa) <+>
+            accountRoutes.endpoints(xa) <+>
+            eventRoutes.endpoints(xa) <+>
             meetRoutes.endpoints(xa) <+>
-            lifterRoutes.endpoints(xa) <+>
+            lifterRoutesSecured.endpoints(xa) <+>
+            lifterRoutesPublic.endpoints(xa) <+>
             apiKeyRoutes.endpoints(xa)
         docEndpoints = SwaggerInterpreter(
           openAPIInterpreterOptions = openAPIInterpreterOptions,
           customiseDocsModel = customiseDocsModel
-        ).fromServerEndpoints[IO](apiEndpoints, "PowerStats API", BuildInfo.version)
+        ).fromServerEndpoints[IO](
+          apiEndpoints.filter(_.info.tags.contains("secured")), "PowerStats API", BuildInfo.version
+        )
         serverOptions = Http4sServerOptions.customiseInterceptors[IO]
           .rejectHandler(customRejectHandler)
           .decodeFailureHandler(customDecodeFailureHandler)
           .addInterceptor(new RateLimitInterceptor())
           .options
         routes = Http4sServerInterpreter[IO](serverOptions)
-          .toRoutes(internalApiEndpoints ++ apiEndpoints ++ docEndpoints)
+          .toRoutes(apiEndpoints ++ docEndpoints)
         corsService = CORS.policy
           .withAllowOriginHost(Set(
             Origin.Host(Uri.Scheme.https, Uri.RegName("powerstats-ui.onrender.com"), None),

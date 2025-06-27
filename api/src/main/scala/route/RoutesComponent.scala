@@ -26,6 +26,7 @@ trait RoutesComponent {
       .errorOut(jsonBody[ApiErrorResponse])
 
     def secureEndpoint(authenticator: Authenticator, xa: Transactor[IO]) = publicEndpoint
+      .tag("secured")
       .securityIn(auth.bearer[Option[String]]().securitySchemeName("internal"))
       .securityIn(auth.basic[Option[String]]().bearerFormat("Authorization: Basic <encoded_credentials>"))
       .serverSecurityLogic { case (bearerToken, basicAuth) =>
