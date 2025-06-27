@@ -49,7 +49,7 @@ export interface CompetitionResult {
 }
 
 export async function findLifters(namePattern: string): Promise<ApiResponse<string[]>> {
-  const response = await api.get<ApiResponse<string[]>>(`/v1/lifter`, {
+  const response = await api.get<ApiResponse<string[]>>(`/lifter`, {
     params: {
       namePattern: namePattern
     }
@@ -58,11 +58,11 @@ export async function findLifters(namePattern: string): Promise<ApiResponse<stri
 }
 
 export async function findPersonalBests(name: string): Promise<ApiResponse<PersonalBest[]>> {
-  const response = await api.get<ApiResponse<PersonalBest[]>>(`/v1/lifter/${name}/personal-bests`);
+  const response = await api.get<ApiResponse<PersonalBest[]>>(`/lifter/${name}/personal-bests`);
   return response.data;
 }
 
 export async function findCompetitionResults(name: string): Promise<ApiResponse<CompetitionResult[]>> {
-  const response = await api.get<ApiResponse<CompetitionResult[]>>(`/v1/lifter/${name}/competition-results`);
+  const response = await api.get<ApiResponse<CompetitionResult[]>>(`/lifter/${name}/competition-results`);
   return response.data;
 }
