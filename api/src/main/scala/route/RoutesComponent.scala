@@ -61,10 +61,7 @@ trait RoutesComponent {
     }
 
     private def handleErrorResponse(statusCode: StatusCode, throwable: Throwable): (StatusCode, ApiErrorResponse) = {
-      (statusCode, ApiErrorResponse(statusCode, ApiError(
-        code = throwable.getClass.getSimpleName,
-        message = throwable.getMessage
-      )))
+      (statusCode, ApiErrorResponse(statusCode, throwable))
     }
   }
 }

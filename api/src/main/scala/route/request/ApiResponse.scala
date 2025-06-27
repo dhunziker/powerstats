@@ -43,6 +43,13 @@ object ApiErrorResponse {
     new ApiErrorResponse(ApiStatus.Error, statusCode, error)
   }
 
+  def apply(statusCode: StatusCode, throwable: Throwable): ApiErrorResponse = {
+    ApiErrorResponse(statusCode, ApiError(
+      code = throwable.getClass.getSimpleName,
+      message = throwable.getMessage
+    ))
+  }
+
   def rejection(statusCode: StatusCode, message: String): ApiErrorResponse = {
     ApiErrorResponse(statusCode, ApiError("Rejection", message))
   }

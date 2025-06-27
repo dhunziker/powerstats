@@ -2,15 +2,26 @@ package dev.powerstats.api
 package route
 
 import error.TooManyRequestsError
+import route.request.ApiErrorResponse.{*, given}
+import route.request.ApiResponse.given
+import route.request.{ApiError, ApiErrorResponse}
 
-import cats.effect.IO
+import cats.*
+import cats.effect.*
 import com.github.benmanes.caffeine.cache.Caffeine
+import io.circe.generic.auto.*
 import scalacache.*
 import scalacache.caffeine.CaffeineCache
+import sttp.model.StatusCode
+import sttp.model.StatusCode.TooManyRequests
 import sttp.monad.MonadError
+import sttp.tapir.*
+import sttp.tapir.generic.auto.*
+import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.model.ServerRequest
 import sttp.tapir.server.ServerEndpoint
 import sttp.tapir.server.interceptor.*
+import sttp.tapir.server.model.ValuedEndpointOutput
 
 import java.time.Instant
 import scala.concurrent.duration.*
@@ -27,23 +38,39 @@ class RateLimitInterceptor extends RequestInterceptor[IO] {
     private val next = requestHandler(EndpointInterceptor.noop)
 
     override def apply(request: ServerRequest, endpoints: List[ServerEndpoint[R, IO]])(implicit monad: MonadError[IO]) = {
-      endpoints.headOption.flatMap(_.attribute(Attributes.rateLimit)) match {
-        case Some(rateLimit) =>
-          val ipAddress = request.connectionInfo.remote.map(_.getAddress.getHostAddress).getOrElse("unknown")
-          val key = cacheKey(ipAddress)
+      endpoints.headOption.flatMap { endpoint =>
+        endpoint.attribute(Attributes.rateLimit).map { rateLimit =>
+          (endpoint.hashCode(), rateLimit)
+        }
+      } match {
+        case Some(endpointId, rateLimit) =>
           for {
+            key <- IO.pure(cacheKey(request, endpointId))
             buffer <- cache.cachingF(key)(None)(IO.pure(rateLimit))
-            _ <- IO.raiseUnless(buffer > 0)(new TooManyRequestsError(s"Reached $rateLimit requests per minute"))
+            response <- if (buffer > 0) {
+              next(request, endpoints)
+            } else {
+              tooManyRequests(request, rateLimit)
+            }
             _ <- cache.put(key)(buffer - 1)
-            response <- next(request, endpoints)
           } yield response
-        case None => next(request, endpoints)
+        case _ =>
+          next(request, endpoints)
       }
     }
 
-    private def cacheKey(ipAddress: String): String = {
+    private def cacheKey(request: ServerRequest, endpointId: Int): String = {
+      val ipAddress = request.connectionInfo.remote.map(_.getAddress.getHostAddress).getOrElse("unknown")
       val currentEpochMinute = Instant.now().toEpochMilli / 60000
-      s"$ipAddress/$currentEpochMinute"
+      s"$ipAddress/$endpointId/$currentEpochMinute"
+    }
+
+    private def tooManyRequests(request: ServerRequest, rateLimit: Int) = {
+      responder.apply(
+        request,
+        ValuedEndpointOutput(statusCode(TooManyRequests).and(jsonBody[ApiErrorResponse]),
+          ApiErrorResponse(TooManyRequests, TooManyRequestsError(s"Reached $rateLimit requests per minute")))
+      ).map(RequestResult.Response.apply)
     }
   }
 }
