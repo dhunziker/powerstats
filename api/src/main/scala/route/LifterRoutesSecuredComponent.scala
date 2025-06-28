@@ -27,9 +27,10 @@ trait LifterRoutesSecuredComponent {
     def endpoints(xa: Transactor[IO]): List[ServerEndpoint[Any, IO]] = {
       val findLiftersEndpoint = routes.secureEndpoint(securityService, xa).get
         .in("v1" / "lifter")
-        .in(query[String]("namePattern"))
-        .in(query[Int]("limit").default(100))
-        .out(jsonBody[ApiSuccessResponseWithData[List[String]]])
+        .description("Endpoint to retrieve a list of lifters matching a name pattern.")
+        .in(query[String]("namePattern").description("Pattern to match lifter names."))
+        .in(query[Int]("limit").default(100).description("Limit the number of results returned."))
+        .out(jsonBody[ApiSuccessResponseWithData[List[String]]].description("Response containing a list of lifter names matching the pattern."))
         .attribute(Attributes.rateLimit, 60)
 
       val findLiftersServerEndpoint = findLiftersEndpoint.serverLogic(accountId => (namePattern, limit) =>
@@ -39,8 +40,9 @@ trait LifterRoutesSecuredComponent {
       )
 
       val findPersonalBestsEndpoint = routes.secureEndpoint(securityService, xa).get
-        .in("v1" / "lifter" / path[String]("name") / "personal-bests")
-        .out(jsonBody[ApiSuccessResponseWithData[List[PersonalBest]]])
+        .in("v1" / "lifter" / path[String]("name").description("Name of the lifter whose personal bests are to be retrieved.") / "personal-bests")
+        .description("Endpoint to retrieve personal bests for a specific lifter.")
+        .out(jsonBody[ApiSuccessResponseWithData[List[PersonalBest]]].description("Response containing a list of personal bests for the lifter."))
         .attribute(Attributes.rateLimit, 10)
 
       val findPersonalBestsServerEndpoint = findPersonalBestsEndpoint.serverLogic(accountId => name =>
@@ -50,9 +52,10 @@ trait LifterRoutesSecuredComponent {
       )
 
       val findCompetitionResultsEndpoint = routes.secureEndpoint(securityService, xa).get
-        .in("v1" / "lifter" / path[String]("name") / "competition-results")
-        .in(query[Int]("limit").default(100))
-        .out(jsonBody[ApiSuccessResponseWithData[List[Event]]])
+        .in("v1" / "lifter" / path[String]("name").description("Name of the lifter whose competition results are to be retrieved.") / "competition-results")
+        .description("Endpoint to retrieve competition results for a specific lifter.")
+        .in(query[Int]("limit").default(100).description("Limit the number of results returned."))
+        .out(jsonBody[ApiSuccessResponseWithData[List[Event]]].description("Response containing a list of competition results for the lifter."))
         .attribute(Attributes.rateLimit, 10)
 
       val findCompetitionResultsServerEndpoint = findCompetitionResultsEndpoint.serverLogic(accountId => (name, limit) =>

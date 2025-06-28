@@ -27,12 +27,13 @@ trait MeetRoutesComponent {
     def endpoints(xa: Transactor[IO]): List[ServerEndpoint[Any, IO]] = {
       val findMeetEndpoint = routes.secureEndpoint(securityService, xa).get
         .in("v1" / "meet")
-        .in(query[Option[String]]("federation"))
-        .in(query[Option[LocalDate]]("date"))
-        .in(query[Option[String]]("meetCountry"))
-        .in(query[Option[String]]("meetName"))
-        .in(query[Int]("limit").default(100))
-        .out(jsonBody[ApiSuccessResponseWithData[List[Meet]]])
+        .description("Endpoint to retrieve a list of meets based on various filters.")
+        .in(query[Option[String]]("federation").description("Filter by federation name."))
+        .in(query[Option[LocalDate]]("date").description("Filter by meet date."))
+        .in(query[Option[String]]("meetCountry").description("Filter by meet country."))
+        .in(query[Option[String]]("meetName").description("Filter by meet name."))
+        .in(query[Int]("limit").default(100).description("Limit the number of results returned."))
+        .out(jsonBody[ApiSuccessResponseWithData[List[Meet]]].description("Response containing a list of meets matching the filters."))
 
       val findMeetServerEndpoint = findMeetEndpoint.serverLogic(accountId => (federation, date, meetCountry, meetName, limit) =>
         routes.responseWithData(for {

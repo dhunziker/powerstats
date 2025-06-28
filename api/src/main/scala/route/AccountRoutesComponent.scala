@@ -25,8 +25,9 @@ trait AccountRoutesComponent {
     def endpoints(xa: Transactor[IO]): List[ServerEndpoint[Any, IO]] = {
       val registerEndpoint = routes.publicEndpoint.post
         .in("user" / "register")
-        .in(jsonBody[UserRegisterRequest])
-        .out(jsonBody[ApiSuccessResponseWithData[Account]])
+        .description("Endpoint to register a new user account.")
+        .in(jsonBody[UserRegisterRequest].description("Request body containing email and password for registration."))
+        .out(jsonBody[ApiSuccessResponseWithData[Account]].description("Response containing the created account details."))
         .attribute(Attributes.rateLimit, 10)
 
       val registerServerEndpoint = registerEndpoint.serverLogic(registerRequest =>
@@ -35,8 +36,9 @@ trait AccountRoutesComponent {
 
       val loginEndpoint = routes.publicEndpoint.post
         .in("user" / "login")
-        .in(jsonBody[UserLoginRequest])
-        .out(jsonBody[ApiSuccessResponseWithData[UserLoginResponse]])
+        .description("Endpoint to authenticate a user and provide an authentication token.")
+        .in(jsonBody[UserLoginRequest].description("Request body containing email and password for login."))
+        .out(jsonBody[ApiSuccessResponseWithData[UserLoginResponse]].description("Response containing the user's email and authentication token."))
         .attribute(Attributes.rateLimit, 10)
 
       val loginServerEndpoint = loginEndpoint.serverLogic(loginRequest =>
@@ -49,8 +51,9 @@ trait AccountRoutesComponent {
 
       val activateEndpoint = routes.publicEndpoint.post
         .in("user" / "activate")
-        .in(jsonBody[UserActivateRequest])
-        .out(jsonBody[ApiSuccessResponseWithData[UserActivateResponse]])
+        .description("Endpoint to activate a user account using an activation key.")
+        .in(jsonBody[UserActivateRequest].description("Request body containing the activation key."))
+        .out(jsonBody[ApiSuccessResponseWithData[UserActivateResponse]].description("Response containing the user's email and web token."))
         .attribute(Attributes.rateLimit, 10)
 
       val activateServerEndpoint = activateEndpoint.serverLogic(activateRequest =>

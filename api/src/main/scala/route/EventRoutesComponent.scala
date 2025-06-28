@@ -27,16 +27,17 @@ trait EventRoutesComponent {
     def endpoints(xa: Transactor[IO]): List[ServerEndpoint[Any, IO]] = {
       val findEventEndpoint = routes.secureEndpoint(securityService, xa).get
         .in("v1" / "event")
-        .in(query[Option[String]]("name"))
-        .in(query[Option[String]]("sex"))
-        .in(query[Option[String]]("event"))
-        .in(query[Option[String]]("equipment"))
-        .in(query[Option[String]]("federation"))
-        .in(query[Option[LocalDate]]("date"))
-        .in(query[Option[String]]("meetCountry"))
-        .in(query[Option[String]]("meetName"))
-        .in(query[Int]("limit").default(100))
-        .out(jsonBody[ApiSuccessResponseWithData[List[Event]]])
+        .description("Endpoint to retrieve a list of events based on various filters.")
+        .in(query[Option[String]]("name").description("Filter by lifter's name."))
+        .in(query[Option[String]]("sex").description("Filter by lifter's sex."))
+        .in(query[Option[String]]("event").description("Filter by event type."))
+        .in(query[Option[String]]("equipment").description("Filter by equipment used."))
+        .in(query[Option[String]]("federation").description("Filter by federation name."))
+        .in(query[Option[LocalDate]]("date").description("Filter by event date."))
+        .in(query[Option[String]]("meetCountry").description("Filter by meet country."))
+        .in(query[Option[String]]("meetName").description("Filter by meet name."))
+        .in(query[Int]("limit").default(100).description("Limit the number of results returned."))
+        .out(jsonBody[ApiSuccessResponseWithData[List[Event]]].description("Response containing a list of events matching the filters."))
 
       val findEventServerEndpoint = findEventEndpoint.serverLogic(accountId => (name, sex, event, equipment, federation, date, meetCountry, meetName, limit) =>
         routes.responseWithData(for {
