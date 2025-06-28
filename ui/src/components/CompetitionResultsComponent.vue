@@ -3,8 +3,6 @@
     v-model="slide"
     swipeable
     animated
-    control-type="regular"
-    control-color="primary"
     height="300px"
     class="carousel-container rounded-borders q-table__card"
   >
@@ -32,9 +30,7 @@
         />
     </q-carousel-slide>
   </q-carousel>
-
   <q-table
-    title="Competition Results"
     :rows="props.competitionResults"
     :columns="columns"
     hide-pagination
@@ -172,7 +168,7 @@ onMounted(() => {
 
 <style scoped>
 .carousel-container {
-  max-width: 100%;
+  max-width: 750px;
 }
 
 .slide-container {

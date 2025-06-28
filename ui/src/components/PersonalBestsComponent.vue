@@ -3,8 +3,6 @@
     v-model="slide"
     swipeable
     animated
-    control-type="regular"
-    control-color="primary"
     height="240px"
     class="carousel-container rounded-borders q-table__card"
   >
@@ -34,7 +32,6 @@
   </q-carousel>
   <div class="table-container">
     <q-table
-      title="Personal Bests"
       :rows="props.personalBests"
       :columns="columns"
       row-key="equipment"

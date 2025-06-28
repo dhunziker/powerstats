@@ -5,7 +5,9 @@
         <div class="row items-center">
           <div class="text-h5">{{ name }} ({{ sex }})</div>
         </div>
+        <div class="text-h6">Personal Bests</div>
         <personal-bests-component :personalBests="personalBests" :carouselSlides="carouselSlides"/>
+        <div class="text-h6">Competition Results</div>
         <competition-results-component :competitionResults="competitionResults" :carouselSlides="carouselSlides"/>
       </div>
     </q-page>
