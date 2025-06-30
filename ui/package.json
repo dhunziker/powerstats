@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Your one-stop solution for accessing comprehensive powerlifting data through a simple, robust REST API. Whether you’re a coach, athlete, developer, or enthusiast, our API lets you seamlessly query results, lifter profiles, and meet statistics sourced directly from OpenPowerlifting.org. Dive into the world’s largest open powerlifting database and power your apps, research, or personal projects with up-to-date, reliable information.",
   "productName": "powerstats",
-  "author": "Dennis Hunziker <dennis.hunziker@agoda.com>",
+  "author": "Dennis Hunziker <dennis.hunziker@gmail.com>",
   "private": true,
   "type": "module",
   "scripts": {
