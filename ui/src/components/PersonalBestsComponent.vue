@@ -1,5 +1,6 @@
 <template>
   <q-carousel
+    v-if="chartData.length >= 1"
     v-model="slide"
     swipeable
     animated
@@ -62,7 +63,9 @@ const chartOptions = ref({
   },
 });
 const chartData = computed(() =>
-  props.personalBests.map(pb => [pb.best3SquatKg || null, pb.best3BenchKg || null, pb.best3DeadliftKg || null])
+  props.personalBests
+    .filter(pb => pb.totalKg)
+    .map(pb => [pb.best3SquatKg, pb.best3BenchKg, pb.best3DeadliftKg])
 );
 const columns: QTableColumn<PersonalBest>[] = [
   { name: 'equipment', label: 'Equipment', field: 'equipment', align: 'left' },
