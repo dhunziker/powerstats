@@ -10,8 +10,8 @@ const api = createAxiosDateTransformer(
 export default defineBoot(async ({ app, router, store }) => {
   app.config.globalProperties.$axios = axios;
   app.config.globalProperties.$api = api;
+  const userStore = useUserStore(store);
   api.interceptors.request.use(async (config) => {
-    const userStore = useUserStore(store);
     if (userStore.user) {
       config.headers.authorization = 'Bearer ' + userStore.user.token;
     }
@@ -20,6 +20,7 @@ export default defineBoot(async ({ app, router, store }) => {
   api.interceptors.response.use(null, function (error) {
     if (error.response && error.response.status === 401) {
       const currentRoute = router.currentRoute.value.fullPath;
+      userStore.logout();
       router.push({
         path: '/user/login',
         query: { redirect: currentRoute },
