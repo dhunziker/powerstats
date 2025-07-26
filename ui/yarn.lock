@@ -1305,6 +1305,25 @@
   resolved "https://registry.yarnpkg.com/@jsonjoy.com/util/-/util-1.5.0.tgz#6008e35b9d9d8ee27bc4bfaa70c8cbf33a537b4c"
   integrity sha512-ojoNsrIuPI9g6o8UxhraZQSyF2ByJanAY4cTFbc8Mf2AXEF4aQRGY1dJxyJpuyav8r9FGflEt/Ff3u5Nt6YMPA==
 
+"@launchdarkly/js-client-sdk-common@1.13.0":
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/@launchdarkly/js-client-sdk-common/-/js-client-sdk-common-1.13.0.tgz#51a10732bb742c2ea4e1d60f7071a30f9ce17b77"
+  integrity sha512-3u3nWLKfu7ADbrBlbYq1rDROXG1WcRGRGhHFyAjtDPCCh783sPIb1frC1n4tj6b64bustVrZvLR9dGrQlp6tJQ==
+  dependencies:
+    "@launchdarkly/js-sdk-common" "2.17.0"
+
+"@launchdarkly/js-client-sdk@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@launchdarkly/js-client-sdk/-/js-client-sdk-0.6.0.tgz#a127c5e57b9f77356b19bff540404c71eb33ed16"
+  integrity sha512-9aBgpGKXxaiPudNuQ9MoS8wFSIR1h0P2EFDP2veNJG7tBuxzDKfH3hzjW01C4/WyWN6bk7P7XKwisxw775klBQ==
+  dependencies:
+    "@launchdarkly/js-client-sdk-common" "1.13.0"
+
+"@launchdarkly/js-sdk-common@2.17.0":
+  version "2.17.0"
+  resolved "https://registry.yarnpkg.com/@launchdarkly/js-sdk-common/-/js-sdk-common-2.17.0.tgz#963978fc1d64f7166e72928c101805a3899b0142"
+  integrity sha512-HYQNc4xbE58hBOO1yZsqE+BHOC36AYrHPZ5hwvlHoZRSsaoYCPM+Q/n+O+N3JhWXTqGsu6SwUzqUzTyxg8prGg==
+
 "@leichtgewicht/ip-codec@^2.0.1":
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.5.tgz#4fc56c15c580b9adb7dc3c333a134e540b44bfb1"
@@ -4175,6 +4194,13 @@ he@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/he/-/he-1.2.0.tgz#84ae65fa7eafb165fddb61566ae14baf05664f0f"
   integrity sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==
+
+highlight.run@^9.18.18:
+  version "9.18.18"
+  resolved "https://registry.yarnpkg.com/highlight.run/-/highlight.run-9.18.18.tgz#ce3a2c1a9d472b7d899227f2cba0fc4c82d45945"
+  integrity sha512-TdLyum9TNfQ6IrPYLCybb6dAXyXawjiigZCqPvtL9rEdkuCHH8/6owhfc5U17NZftn9fFnP5gApvOfssEszhoQ==
+  dependencies:
+    "@launchdarkly/js-client-sdk" "^0.6.0"
 
 hookable@^5.5.3:
   version "5.5.3"

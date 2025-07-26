@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { activate, login } from '../services/userService';
+import { H } from 'highlight.run';
 
 interface User {
   email: string;
@@ -14,11 +15,13 @@ export const useUserStore = defineStore('user', {
   actions: {
     async login(email: string, password: string) {
       await login(email, password).then(
-        (response) =>
-          (this.user = {
+        (response) => {
+          H.identify(response.data.email, {});
+          this.user = {
             email: response.data.email,
             token: response.data.token,
-          }),
+          }
+        }
       );
     },
 
@@ -35,7 +38,7 @@ export const useUserStore = defineStore('user', {
           (this.user = {
             email: response.data.email,
             token: response.data.token,
-          }),
+          })
       );
     },
   },
