@@ -1,12 +1,12 @@
 import { defineBoot } from '#q-app/wrappers'
-import { version } from '../../package.json';
 import { H } from 'highlight.run';
+import pkg from '../../package.json';
 
 export default defineBoot( (/* { app, router, ... } */) => {
   const environment = process.env.NODE_ENV || 'development';
   H.init('odz3k13e', {
     environment: environment,
-    version: version,
+    version: pkg.version,
     networkRecording: {
       enabled: true,
       recordHeadersAndBody: true,
