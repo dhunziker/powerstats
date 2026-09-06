@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia';
 import { activate, login } from '../services/userService';
-import { H } from 'highlight.run';
+import {
+  identifyLaunchDarklyAnonymous,
+  identifyLaunchDarklyUser,
+} from '../services/launchdarkly';
 
 interface User {
   email: string;
@@ -16,30 +19,28 @@ export const useUserStore = defineStore('user', {
     async login(email: string, password: string) {
       await login(email, password).then(
         (response) => {
-          H.identify(response.data.email, {});
+          identifyLaunchDarklyUser(response.data.email);
           this.user = {
             email: response.data.email,
             token: response.data.token,
-          }
+          };
         }
       );
     },
 
     async logout() {
-      await new Promise((resolve) => {
-        this.user = null;
-        resolve(null);
-      });
+      this.user = null;
+      identifyLaunchDarklyAnonymous();
     },
 
     async activate(token: string) {
-      await activate(token).then(
-        (response) =>
-          (this.user = {
-            email: response.data.email,
-            token: response.data.token,
-          })
-      );
+      await activate(token).then((response) => {
+        identifyLaunchDarklyUser(response.data.email);
+        this.user = {
+          email: response.data.email,
+          token: response.data.token,
+        };
+      });
     },
   },
   persist: true,

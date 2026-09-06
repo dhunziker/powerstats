@@ -26,7 +26,7 @@ export default defineConfig((/* ctx */) => {
     // https://v2.quasar.dev/quasar-cli-webpack/boot-files
     boot: [
       'axios',
-      'highlight'
+      'launchdarkly'
     ],
 
     // https://v2.quasar.dev/quasar-cli-webpack/quasar-config-file#css
