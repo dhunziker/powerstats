@@ -1,6 +1,6 @@
 import { initialize, type LDClient, type LDContext } from 'launchdarkly-js-client-sdk';
-import { Observability } from '@launchdarkly/observability';
-import { SessionReplay } from '@launchdarkly/session-replay';
+import Observability from '@launchdarkly/observability';
+import SessionReplay from '@launchdarkly/session-replay';
 import pkg from '../../package.json';
 
 const CLIENT_SIDE_ID = process.env.LAUNCHDARKLY_CLIENT_ID as string;
@@ -37,14 +37,14 @@ export const ldClient: LDClient = initialize(CLIENT_SIDE_ID, anonymousContext, {
   ],
 });
 
-function identifyContext(context: LDContext): void {
-  void ldClient.identify(context).catch(() => undefined);
+async function identifyContext(context: LDContext): Promise<void> {
+  await ldClient.identify(context).catch(() => undefined);
 }
 
-export function identifyLaunchDarklyUser(email: string): void {
-  identifyContext({ kind: 'user', key: email, email });
+export async function identifyLaunchDarklyUser(email: string): Promise<void> {
+  await identifyContext({ kind: 'user', key: email, email });
 }
 
-export function identifyLaunchDarklyAnonymous(): void {
-  identifyContext(anonymousContext);
+export async function identifyLaunchDarklyAnonymous(): Promise<void> {
+  await identifyContext(anonymousContext);
 }

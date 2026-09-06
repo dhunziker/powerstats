@@ -17,30 +17,26 @@ export const useUserStore = defineStore('user', {
   getters: {},
   actions: {
     async login(email: string, password: string) {
-      await login(email, password).then(
-        (response) => {
-          identifyLaunchDarklyUser(response.data.email);
-          this.user = {
-            email: response.data.email,
-            token: response.data.token,
-          };
-        }
-      );
+      const response = await login(email, password);
+      await identifyLaunchDarklyUser(response.data.email);
+      this.user = {
+        email: response.data.email,
+        token: response.data.token,
+      };
     },
 
     async logout() {
       this.user = null;
-      identifyLaunchDarklyAnonymous();
+      await identifyLaunchDarklyAnonymous();
     },
 
     async activate(token: string) {
-      await activate(token).then((response) => {
-        identifyLaunchDarklyUser(response.data.email);
-        this.user = {
-          email: response.data.email,
-          token: response.data.token,
-        };
-      });
+      const response = await activate(token);
+      await identifyLaunchDarklyUser(response.data.email);
+      this.user = {
+        email: response.data.email,
+        token: response.data.token,
+      };
     },
   },
   persist: true,
